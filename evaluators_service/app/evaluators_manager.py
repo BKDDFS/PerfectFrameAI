@@ -13,10 +13,10 @@ Key Components:
 """
 import threading
 import logging
-from fastapi import HTTPException
+from fastapi import HTTPException, BackgroundTasks
 
-from app.evaluator import Evaluator
-from app.pydantic_models import RequestData
+from .evaluator import Evaluator
+from .schemas import RequestData, EvaluatorConfig
 
 logger = logging.getLogger(__name__)
 
@@ -32,11 +32,12 @@ class EvaluatorsManager:
         active_evaluator (str | None): The name of the currently active evaluator class,
                                        or None if no evaluation process is underway.
     """
-    def __init__(self):
-        self.active_evaluator = None
+    __active_evaluator = None
 
-    def start_evaluation_process(self, evaluator_class: Evaluator,
-                                 request_data: RequestData) -> str:
+    @classmethod
+    def start_evaluator(cls, background_tasks: BackgroundTasks,
+                        evaluator_name: str,
+                        evaluator_config: EvaluatorConfig) -> str:
         """Starts a new evaluation process, ensuring no other process is currently active.
 
         This function initiates a background thread for the evaluation process, updating
@@ -55,34 +56,23 @@ class EvaluatorsManager:
         Raises:
             HTTPException: If an evaluation process is already active.
         """
-        self.check_is_already_evaluating()
-        thread = threading.Thread(target=self.__background_process,
-                                  args=(evaluator_class, request_data))
-        thread.start()
-        self.active_evaluator = evaluator_class.__name__
-        message = f"'{self.active_evaluator}' started."
+        cls.check_is_already_evaluating()
+        evaluator_class = EvaluatorFactory.get_evaluator(evaluator_name)
+        background_tasks.add_task(cls.__run_evaluator, evaluator_class, evaluator_config)
+        cls.__active_evaluator = evaluator_class.__name__
+        message = f"'{cls.__active_evaluator}' started."
         return message
 
-    def __background_process(self, evaluator_class: Evaluator,
-                             request_data: RequestData) -> None:
-        """Executes the evaluation process in a background thread.
-
-        Instantiates the evaluator and processes the frames as specified in `request_data`.
-        This method is designed to run in the background and will clear the active evaluator
-        upon completion or failure.
-
-        Args:
-            evaluator_class (type[Evaluator]): The evaluator class to instantiate.
-            request_data (RequestData): Contains the paths for input and
-            output data necessary for the process.
-        """
+    @classmethod
+    def __run_evaluator(cls, evaluator: Evaluator,
+                        render_config: EvaluatorConfig) -> None:
         try:
-            evaluator = evaluator_class(request_data.output_folder)
-            evaluator.process(request_data.input_folder)
+            evaluator.process()
         finally:
-            self.active_evaluator = None
+            cls.__active_evaluator = None
 
-    def check_is_already_evaluating(self) -> None:
+    @classmethod
+    def check_is_already_evaluating(cls) -> None:
         """Checks if an evaluation process is already active and raises an HTTPException if so.
 
         This method ensures that the system enforces the rule of having only one active
@@ -92,9 +82,9 @@ class EvaluatorsManager:
             HTTPException: If an evaluation process is already active,
             to prevent concurrent evaluations.
         """
-        error = (f"Evaluator '{self.active_evaluator}' is already running. "
-                 f"You can run only one evaluator at the same time. "
-                 f"Wait until the evaluator is done before run next process")
-        if self.active_evaluator:
-            logger.error(error)
-            raise HTTPException(status_code=409, detail=error)
+        error_massage = (f"Evaluator '{cls.__active_evaluator}' is already running. "
+                         f"You can run only one evaluator at the same time. "
+                         f"Wait until the evaluator is done before run next process.")
+        if cls.__active_evaluator:
+            logger.error(error_massage)
+            raise HTTPException(status_code=409, detail=error_massage)

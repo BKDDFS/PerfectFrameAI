@@ -21,7 +21,7 @@ import logging
 import cv2
 import numpy as np
 
-from app.evaluator import Evaluator
+from .evaluator import Evaluator
 
 logger = logging.getLogger(__name__)
 

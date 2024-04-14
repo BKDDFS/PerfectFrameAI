@@ -18,32 +18,21 @@ Endpoints:
 import logging
 
 import uvicorn
-from fastapi import FastAPI
+from fastapi import FastAPI, BackgroundTasks
 
-from app.pydantic_models import RequestData, Message, EvaluatorStatus
+from app.schemas import EvaluatorConfig, Message, EvaluatorStatus
 from app.top_frames_selector import TopFramesSelector
-from app.best_frames_extractor import BestFramesExtractor
 from app.evaluators_manager import EvaluatorsManager
 
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
 
 app = FastAPI()
-evaluation_manager = EvaluatorsManager()
 
 
-@app.get("/frames_evaluators/status")
-def get_evaluators_status() -> EvaluatorStatus:
-    """Provides the status of the currently active evaluator.
-
-    Returns:
-        EvaluatorStatus: A Pydantic model containing the name of the active evaluator.
-    """
-    return EvaluatorStatus(active_evaluator=evaluation_manager.active_evaluator)
-
-
-@app.post("/frames_evaluators/best_frames_extractor")
-def extract_best_frames(request_data: RequestData) -> Message:
+@app.post("/frames_evaluators/{evaluator}")
+def extract_best_frames(background_tasks: BackgroundTasks, evaluator: str,
+                        evaluator_config: EvaluatorConfig) -> Message:
     """Initiates the best frames extraction process based on the provided request data.
 
     Args:
@@ -51,23 +40,22 @@ def extract_best_frames(request_data: RequestData) -> Message:
 
     Returns:
         Message: A Pydantic model containing a message about the initiation status.
+        :param evaluator:
+        :param background_tasks:
+        :param evaluator_config:
     """
-    message = evaluation_manager.start_evaluation_process(BestFramesExtractor, request_data)
+    message = EvaluatorsManager.start_evaluator(background_tasks, evaluator, evaluator_config)
     return Message(message=message)
 
 
-@app.post("/frames_evaluators/top_frames_selector")
-def select_top_frames(request_data: RequestData) -> Message:
-    """Initiates the top frames selection process based on the provided request data.
-
-    Args:
-        request_data (RequestData): A Pydantic model containing input and output folder paths.
+@app.get("/status")
+def get_evaluators_status() -> EvaluatorStatus:
+    """Provides the status of the currently active evaluator.
 
     Returns:
-        Message: A Pydantic model containing a message about the initiation status.
+        EvaluatorStatus: A Pydantic model containing the name of the active evaluator.
     """
-    message = evaluation_manager.start_evaluation_process(TopFramesSelector, request_data)
-    return Message(message=message)
+    return EvaluatorStatus(active_evaluator=evaluation_manager.active_evaluator)
 
 
 if __name__ == "__main__":

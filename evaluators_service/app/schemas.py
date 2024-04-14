@@ -13,22 +13,11 @@ It includes:
     responses within the application.
 """
 import os
-from typing import Optional
 
 from pydantic import BaseModel, field_validator
 
 
-class EvaluatorStatus(BaseModel):
-    """A model representing the status of the current working evaluator in the system.
-
-    Attributes:
-        active_evaluator (str):
-            The name of the currently active evaluator or None if there is no active evaluator.
-    """
-    active_evaluator: Optional[str]
-
-
-class RequestData(BaseModel):
+class EvaluatorConfig(BaseModel):
     """A model for holding the request data for initiating an evaluation process.
 
     Attributes:
@@ -37,11 +26,15 @@ class RequestData(BaseModel):
        output_folder (str):
             The path to the output folder where evaluation results will be saved.
     """
-    input_folder: str
-    output_folder: str
+    input_directory: str
+    output_directory: str
+    videos_extensions: tuple[str]
+    processed_video_prefix: str = "frames_extracted_"
+    frames_to_compare: int = 5
 
-    @field_validator("input_folder")
+
     @classmethod
+    @field_validator("input_folder")
     def validate_input_folder(cls, input_folder) -> str:
         """Validates that the input folder exists and is a directory.
 
@@ -58,8 +51,8 @@ class RequestData(BaseModel):
             raise NotADirectoryError(f"The path '{input_folder}' is not a directory.")
         return input_folder
 
-    @field_validator("output_folder")
     @classmethod
+    @field_validator("output_folder")
     def validate_output_folder(cls, output_folder) -> str:
         """
         Validates the output folder path and creates the directory if it does not exist.
@@ -90,3 +83,13 @@ class Message(BaseModel):
         message (str): The message content.
     """
     message: str
+
+
+class EvaluatorStatus(BaseModel):
+    """A model representing the status of the current working evaluator in the system.
+
+    Attributes:
+        active_evaluator (str):
+            The name of the currently active evaluator or None if there is no active evaluator.
+    """
+    active_evaluator: str | None
