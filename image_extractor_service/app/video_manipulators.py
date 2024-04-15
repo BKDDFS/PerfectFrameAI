@@ -1,30 +1,102 @@
-"""This module provides the TopFramesSelector class
-for selecting the top frames from a series of images.
-It is designed for image and video evaluation tasks that
-require identifying and processing the most significant frames based on
-specific image quality assessment (IQA) metrics.
-
-Classes:
-    TopFramesSelector: Extends the Evaluator class to select and
-    process the top frames from a set of images. It includes methods
-    for loading frames from a specified folder, scoring each frame using
-    IQA metrics, and saving the top-scored frames based on a percentile threshold.
-
-Usage:
-    This class is intended to be used in scenarios where it's crucial to
-    identify and process the most significant or highest quality frames from a
-    collection of images, such as in video analysis, quality control in image processing,
-    or content curation in media applications.
-"""
 import logging
+from abc import ABC, abstractmethod
+from typing import Generator
+from contextlib import contextmanager
+from pathlib import Path
 
 import cv2
 import numpy as np
 
-from .evaluator import Evaluator
-
 logger = logging.getLogger(__name__)
 
+
+class VideoManipulator(ABC):
+    @classmethod
+    @abstractmethod
+    def get_next_video_frames(cls, video_path: Path, quantity: int) -> Generator[list[np.ndarray]]:
+        pass
+
+
+class OpenCVVideo(VideoManipulator):
+    class CantOpenVideoCapture(Exception):
+        """Exception raised when the video file cannot be opened."""
+        pass
+
+    class VideoCaptureClosed(Exception):
+        """Exception raised when the video capture is prematurely closed."""
+        pass
+
+    @classmethod
+    def get_next_video_frames(cls, video_path: Path, quantity: int) -> list[np.ndarray]:
+        with cls._video_capture(str(video_path)) as video_cap:
+            for frames_pack in cls._get_video_frames_pack(video_cap, quantity):
+                yield frames_pack
+
+    @staticmethod
+    @contextmanager
+    def _video_capture(video_path: str) -> cv2.VideoCapture:
+        video_cap = cv2.VideoCapture(video_path)
+        try:
+            if not video_cap.isOpened():
+                error_massage = f"Can't open video file: {video_path}"
+                logger.error(error_massage)
+                raise OpenCVVideo.CantOpenVideoCapture(error_massage)
+            yield video_cap
+        finally:
+            video_cap.release()
+
+    @classmethod
+    def _get_video_frames_pack(cls, video_cap: cv2.VideoCapture, required_size: int) -> Generator[list[np.ndarray]]:
+        """Process video frames to extract and save the best frame.
+
+        Reads every frame sequentially to handle inter-frame
+         dependencies in compressed video formats (like H.264).
+        This ensures complete and accurate information for each frame,
+         especially important when extracting frames
+        at one-second intervals based on the video's FPS.
+
+        Args:
+            video_cap (cv2.VideoCapture): VideoCapture object for the video.
+            frames_to_compare (int): Number of
+                frames to compare to extract the best one.
+                :param required_size:
+                :param video_cap:
+                :param frames_pack_size:
+        """
+        fps = cls._get_video_frame_rate(video_cap)
+        frame_count = 0
+        frames_pack = []
+        while True:
+            if not video_cap.isOpened():
+                error_massage = "Video capture was shut down before getting frames has been finished."
+                logger.error(error_massage)
+                raise OpenCVVideo.VideoCaptureClosed(error_massage)
+            read_result, bgr_frame = video_cap.read()
+            if not read_result:
+                yield frames_pack
+                break
+            frame_count += 1
+            if frame_count % fps != 0:  # get frame every 1 second
+                continue
+            frames_pack.append(bgr_frame)
+            if len(frames_pack) == required_size:
+                yield frames_pack
+                frames_pack = []
+
+    @staticmethod
+    def _get_video_frame_rate(video_cap: cv2.VideoCapture) -> int:
+        if not video_cap.isOpened():
+            error_massage = "Provided invalid video_cap."
+            logger.error(error_massage)
+            raise ValueError(error_massage)
+        video_frame_rate = video_cap.get(cv2.CAP_PROP_FPS)
+        if video_frame_rate <= 0:
+            error_massage = f"Invalid frame rate retrieved: {video_frame_rate}"
+            logger.error(error_massage)
+            raise ValueError(error_massage)
+        logger.debug("Input video frame rate: %s", video_frame_rate)
+        video_frame_rate = int(round(video_frame_rate))
+        return video_frame_rate
 
 class TopFramesSelector(Evaluator):
     """The TopFramesSelector class extends

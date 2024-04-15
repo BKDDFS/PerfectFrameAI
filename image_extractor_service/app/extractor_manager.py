@@ -11,12 +11,11 @@ Key Components:
     monitors their execution in background threads,
     and maintains the status of the currently active evaluator.
 """
-import threading
 import logging
 from fastapi import HTTPException, BackgroundTasks
 
-from .evaluator import Evaluator
-from .schemas import RequestData, EvaluatorConfig
+from .extractors import Evaluator
+from .schemas import ExtractorConfig
 
 logger = logging.getLogger(__name__)
 
