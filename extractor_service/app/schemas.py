@@ -15,23 +15,24 @@ class ExtractorConfig(BaseModel):
        output_directory (str):
             The path to the output folder where evaluation results will be saved.
     """
-    input_directory: Path
-    output_directory: Path
-    videos_extensions: tuple[str]
+    input_directory: str | Path = Path("app/input_directory")
+    output_directory: str | Path = Path("app/output_directory")
+    video_extensions: tuple[str] = (".mp4",)
     processed_video_prefix: str = "frames_extracted_"
-    model_name: str = "nima"
-    comparing_group_size: int = 5
-    processing_group_size: int = 50
-    top_images_percent: int = 90
+    metric_model: str = "nima"
+    compering_group_size: int = 5
+    batch_size: int = 60
+    top_image_threshold: int = 90
 
     @classmethod
-    @field_validator("input_directory", "output_directory", mode="before")
-    def validate_input_folder(cls, directory: Path) -> Path:
+    @field_validator("input_directory", "output_directory", mode="after")
+    def validate_directory(cls, directory: str) -> Path:
         """Validates that the directories are valid.
 
         Raises:
             NotADirectoryError: If the directory path is invalid.
         """
+        directory = Path(directory)
         if not directory.is_dir():
             raise NotADirectoryError(f"The path '{directory}' is not a directory.")
         return directory

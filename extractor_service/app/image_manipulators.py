@@ -49,7 +49,7 @@ class OpenCVImage(ImageManipulator):
 
     @staticmethod
     def save_image(image: np.ndarray, output_directory: Path,
-                   output_filename: str, output_format: str = "jpg") -> Path:
+                   output_filename: str, output_format: str = ".jpg") -> Path:
         """Saves a ndarray image frame to a file in the specified format.
 
         Args:

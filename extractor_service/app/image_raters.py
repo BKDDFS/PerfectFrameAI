@@ -13,18 +13,18 @@ logger = logging.getLogger(__name__)
 class ImageRater(ABC):
     @classmethod
     @abstractmethod
-    def rate_images(cls, images: list[np.ndarray], model_name: str) -> list[float]:
+    def rate_images(cls, images: list[np.ndarray], metric_model: str) -> list[float]:
         pass
 
 
 class PyIQA:
     @classmethod
-    def rate_images(cls, images: list[np.ndarray], model_name: str = "nima") -> list[float]:
+    def rate_images(cls, images: list[np.ndarray], metric_model: str = "nima") -> list[float]:
         torch_device = cls._get_torch_device()
-        iqa_metric = pyiqa.create_metric(model_name, device=torch_device).to(torch_device)
+        iqa_metric = pyiqa.create_metric(metric_model, device=torch_device).to(torch_device)
         transforms_compose = transforms.Compose([transforms.ToTensor()])
         tensor_batch = cls._convert_images_to_tensor_batch(images, transforms_compose, torch_device)
-        ratings = iqa_metric(tensor_batch, color_space="bgr").to_list()
+        ratings = iqa_metric(tensor_batch).tolist()
         return ratings
 
     @staticmethod

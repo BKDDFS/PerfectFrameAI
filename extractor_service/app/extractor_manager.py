@@ -12,15 +12,17 @@ Key Components:
     and maintains the status of the currently active evaluator.
 """
 import logging
+from typing import Type
+
 from fastapi import HTTPException, BackgroundTasks
 
-from .extractors import Evaluator
+from .extractors import Extractor, ExtractorFactory
 from .schemas import ExtractorConfig
 
 logger = logging.getLogger(__name__)
 
 
-class EvaluatorsManager:
+class ExtractorManager:
     """Manages the execution of frame evaluation tasks within the application.
 
     This class orchestrates the evaluation process, ensuring that only one evaluator task is
@@ -28,50 +30,36 @@ class EvaluatorsManager:
     completion, and prevents concurrent executions to maintain system stability.
 
     Attributes:
-        active_evaluator (str | None): The name of the currently active evaluator class,
+        __active_evaluator (str | None): The name of the currently active evaluator class,
                                        or None if no evaluation process is underway.
     """
     __active_evaluator = None
 
     @classmethod
-    def start_evaluator(cls, background_tasks: BackgroundTasks,
-                        evaluator_name: str,
-                        evaluator_config: EvaluatorConfig) -> str:
-        """Starts a new evaluation process, ensuring no other process is currently active.
+    def get_active_evaluator(cls):
+        return cls.__active_evaluator
 
-        This function initiates a background thread for the evaluation process, updating
-        the active evaluator status accordingly.
-
-        Args:
-            evaluator_class (type[Evaluator]):
-                The evaluator class to be instantiated and used for the evaluation.
-            request_data (RequestData):
-                The data required for the evaluation process,
-                including input and output directories.
-
-        Returns:
-            str: A message indicating the start of the evaluation process.
-
-        Raises:
-            HTTPException: If an evaluation process is already active.
-        """
-        cls.check_is_already_evaluating()
-        evaluator_class = EvaluatorFactory.get_evaluator(evaluator_name)
-        background_tasks.add_task(cls.__run_evaluator, evaluator_class, evaluator_config)
-        cls.__active_evaluator = evaluator_class.__name__
-        message = f"'{cls.__active_evaluator}' started."
+    @classmethod
+    def start_extractor(cls, background_tasks: BackgroundTasks,
+                        extractor_name: str,
+                        config: ExtractorConfig) -> str:
+        cls.check_is_already_extracting()
+        extractor_class = ExtractorFactory.get_extractor(extractor_name)
+        background_tasks.add_task(cls.__run_extractor, extractor_class, config)
+        message = f"'{extractor_name}' started."
         return message
 
     @classmethod
-    def __run_evaluator(cls, evaluator: Evaluator,
-                        render_config: EvaluatorConfig) -> None:
+    def __run_extractor(cls, extractor: Type[Extractor],
+                        render_config: ExtractorConfig) -> None:
         try:
-            evaluator.process()
+            cls.__active_evaluator = extractor.__name__
+            extractor.process(render_config)
         finally:
             cls.__active_evaluator = None
 
     @classmethod
-    def check_is_already_evaluating(cls) -> None:
+    def check_is_already_extracting(cls) -> None:
         """Checks if an evaluation process is already active and raises an HTTPException if so.
 
         This method ensures that the system enforces the rule of having only one active

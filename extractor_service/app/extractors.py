@@ -15,24 +15,26 @@ import uuid
 from pathlib import Path
 from abc import ABC, abstractmethod
 import logging
+from typing import Type
 
 import numpy as np
 
 from .schemas import ExtractorConfig
 from .video_manipulators import OpenCVVideo
 from .image_manipulators import OpenCVImage
-from .image_rater import PyIQA
+from .image_raters import PyIQA
 
 logger = logging.getLogger(__name__)
 
 
 class Extractor(ABC):
+    @classmethod
     @abstractmethod
-    def process(self, input_directory: str) -> None:
+    def process(cls, config: ExtractorConfig) -> None:
         """Abstract method to process video data.
 
         Args:
-            input_directory: Arguments required for video processing.
+            config: Arguments required for video processing.
 
         This method should be implemented by subclasses.
         """
@@ -52,17 +54,18 @@ class Extractor(ABC):
         ]
         if not files:
             logger.warning("Files with extensions '%s' and without prefix '%s' "
-                           "not found in folder: '%s'", extensions, directory)
+                           "not found in folder: '%s'", extensions, prefix, directory)
         logger.debug("Listed file paths: %s", files)
         return files
 
     @staticmethod
-    def _rate_images(images: list[np.ndarray], model_name: str) -> np.array:
-        ratings = np.array(PyIQA.rate_images(images, model_name))
+    def _rate_images(images: list[np.ndarray], metric_model: str) -> np.array:
+        ratings = np.array(PyIQA.rate_images(images, metric_model))
+        logger.debug("Images rated.")
         return ratings
 
     @staticmethod
-    def _save_images(images: list[np.ndarray], config: ExtractorConfig):
+    def _save_images(images: list[np.ndarray], config: ExtractorConfig,):
         for image in images:
             filename = f"image_{uuid.uuid4()}"
             OpenCVImage.save_image(image, config.output_directory, filename)
@@ -74,6 +77,20 @@ class Extractor(ABC):
         logger.debug("Prefix '%s' added to file '%s'. New path: %s",
                      prefix, input_path, new_path)
         return new_path
+
+
+class ExtractorFactory:
+    @staticmethod
+    def get_extractor(extractor_name: str) -> Type[Extractor]:
+        match extractor_name:
+            case "best_frames_extractor":
+                return BestFramesExtractor
+            case "top_images_extractor":
+                return TopImagesExtractor
+            case _:
+                error_massage = f"Provided unknown extractor name: {extractor_name}"
+                logger.error(error_massage)
+                raise ValueError(error_massage)
 
 
 class BestFramesExtractor(Extractor):
@@ -92,36 +109,38 @@ class BestFramesExtractor(Extractor):
             config (EvaluatorConfig): Path to the folder containing video files.
         """
         logger.info("Starting frames extraction process from '%s'...", config.input_directory)
-        videos_paths = cls.list_directory_files(config.input_directory, config.videos_extension,
+        videos_paths = cls.list_directory_files(config.input_directory, config.video_extensions,
                                                 config.processed_video_prefix)
         for video_path in videos_paths:
-            frames = cls._extract_best_frames(video_path, config.images_to_compare)
-            images = [OpenCVImage.convert_bgr_image_to_rgb(frame) for frame in frames]
-            cls._save_images(images, config)
+            frames = cls._extract_best_frames(video_path, config)
+            cls._save_images(frames, config)
             cls._add_prefix(config.processed_video_prefix, video_path)
 
     @classmethod
     def _extract_best_frames(cls, video_path: Path, config: ExtractorConfig) -> list[np.ndarray]:
         best_frames = []
-        while True:
-            frames = OpenCVVideo.get_next_video_frames(video_path, config.processing_group_size)
+        frames_generator = OpenCVVideo.get_next_video_frames(video_path, config.batch_size)
+        for frames in frames_generator:
             if not frames:
-                return best_frames
-            ratings = cls._rate_images(frames, config.model_name)
-            selected_frames = cls._get_best_images(frames, ratings, config.comparing_group_size)
+                continue
+            logger.debug("Frames pack generated.")
+            ratings = cls._rate_images(frames, config.metric_model)
+            selected_frames = cls._get_best_images(frames, ratings, config.compering_group_size)
             best_frames.extend(selected_frames)
+        return best_frames
 
     @staticmethod
     def _get_best_images(images: list[np.ndarray], ratings: np.array,
                          batch_size: int) -> list[np.ndarray]:
         number_of_batches = (len(ratings) + batch_size - 1) // batch_size
         best_images = []
-        for i in range(number_of_batches):
-            start_index = i * batch_size
+        for batch_index in range(number_of_batches):
+            start_index = batch_index * batch_size
             end_index = start_index + batch_size
             batch_ratings = ratings[start_index:end_index]
             best_index = np.argmax(batch_ratings)
             best_images.append(images[start_index + best_index])
+        logger.debug("Selecting images done.")
         return best_images
 
 
@@ -130,10 +149,12 @@ class TopImagesExtractor(Extractor):
     def process(cls, config: ExtractorConfig) -> None:
         images_paths = cls.list_directory_files(config.input_directory, config.images_extensions,
                                                 config.processed_image_prefix)
-        images = [OpenCVImage.read_image(path) for path in images_paths]
-        ratings = cls._rate_images(images, config.model_name)
-        top_images = cls._get_top_percent_images(images, ratings, config.top_images_percent)
-        cls._save_images(top_images, config)
+        for batch_index in range(0, len(images_paths), config.batch_size):
+            batch_paths = images_paths[batch_index:batch_index + config.batch_size]
+            images = [OpenCVImage.read_image(path) for path in batch_paths]
+            ratings = cls._rate_images(images, config.metric_model)
+            top_images = cls._get_top_percent_images(images, ratings, config.top_images_percent)
+            cls._save_images(top_images, config)
         logger.info("All top images saved.")
 
     @staticmethod

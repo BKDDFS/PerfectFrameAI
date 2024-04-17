@@ -18,21 +18,22 @@ Endpoints:
 import logging
 
 import uvicorn
-from fastapi import FastAPI, BackgroundTasks
+from fastapi import FastAPI, BackgroundTasks, Depends
 
-from app.schemas import EvaluatorConfig, Message, EvaluatorStatus
-from app.top_frames_selector import TopFramesSelector
-from app.evaluators_manager import EvaluatorsManager
+from app.schemas import ExtractorConfig, Message, EvaluatorStatus
+from app.extractor_manager import ExtractorManager
 
-logging.basicConfig(level=logging.DEBUG)
+logging.basicConfig(level=logging.DEBUG,
+                    format='%(asctime)s - %(levelname)s - %(message)s',
+                    datefmt='%Y-%m-%d %H:%M:%S')
 logger = logging.getLogger(__name__)
 
 app = FastAPI()
 
 
-@app.post("/frames_evaluators/{evaluator}")
-def extract_best_frames(background_tasks: BackgroundTasks, evaluator: str,
-                        evaluator_config: EvaluatorConfig) -> Message:
+@app.post("/image_extractors/{extractor_name}")
+def extract_best_frames(background_tasks: BackgroundTasks, extractor_name: str,
+                        config: ExtractorConfig = Depends()) -> Message:
     """Initiates the best frames extraction process based on the provided request data.
 
     Args:
@@ -40,11 +41,11 @@ def extract_best_frames(background_tasks: BackgroundTasks, evaluator: str,
 
     Returns:
         Message: A Pydantic model containing a message about the initiation status.
-        :param evaluator:
+        :param extractor_name:
         :param background_tasks:
-        :param evaluator_config:
+        :param config:
     """
-    message = EvaluatorsManager.start_evaluator(background_tasks, evaluator, evaluator_config)
+    message = ExtractorManager.start_extractor(background_tasks, extractor_name, config)
     return Message(message=message)
 
 
@@ -55,8 +56,8 @@ def get_evaluators_status() -> EvaluatorStatus:
     Returns:
         EvaluatorStatus: A Pydantic model containing the name of the active evaluator.
     """
-    return EvaluatorStatus(active_evaluator=evaluation_manager.active_evaluator)
+    return EvaluatorStatus(active_evaluator=ExtractorManager.get_active_evaluator())
 
 
 if __name__ == "__main__":
-    uvicorn.run("main:app", host="127.0.0.1", port=8100, reload=True)
+    uvicorn.run("main:app", host="localhost", port=8100, reload=True)
