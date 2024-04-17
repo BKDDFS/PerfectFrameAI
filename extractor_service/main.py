@@ -16,6 +16,7 @@ Endpoints:
         Initiates the top frames selection process.
 """
 import logging
+import sys
 
 import uvicorn
 from fastapi import FastAPI, BackgroundTasks, Depends
@@ -25,7 +26,8 @@ from app.extractor_manager import ExtractorManager
 
 logging.basicConfig(level=logging.DEBUG,
                     format='%(asctime)s - %(levelname)s - %(message)s',
-                    datefmt='%Y-%m-%d %H:%M:%S')
+                    datefmt='%Y-%m-%d %H:%M:%S',
+                    handlers=[logging.StreamHandler(sys.stdout)])
 logger = logging.getLogger(__name__)
 
 app = FastAPI()

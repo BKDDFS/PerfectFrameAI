@@ -14,8 +14,7 @@ class VideoManipulator(ABC):
     @classmethod
     @abstractmethod
     def get_next_video_frames(cls, video_path: Path,
-                              quantity: int
-                              ) -> Generator[list[np.ndarray], None, None]:
+                              quantity: int) -> Generator[list[np.ndarray], None, None]:
         pass
 
 

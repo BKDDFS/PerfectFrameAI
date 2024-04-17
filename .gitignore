@@ -5,5 +5,5 @@ __pycache__/
 .coverage
 htmlcov/
 .env
-input_directory/
-output_directory/
+input_directory/*
+output_directory/*

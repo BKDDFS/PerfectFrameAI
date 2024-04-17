@@ -53,8 +53,10 @@ class Extractor(ABC):
             and not entry.name.startswith(prefix)
         ]
         if not files:
-            logger.warning("Files with extensions '%s' and without prefix '%s' "
-                           "not found in folder: '%s'", extensions, prefix, directory)
+            error_massage = (f"Files with extensions '{extensions}' and without prefix '{prefix}' "
+                             f"not found in folder: '{directory}'.")
+            logger.error(error_massage)
+            raise FileNotFoundError(error_massage)
         logger.debug("Listed file paths: %s", files)
         return files
 

@@ -15,8 +15,8 @@ class ExtractorConfig(BaseModel):
        output_directory (str):
             The path to the output folder where evaluation results will be saved.
     """
-    input_directory: str | Path = Path("app/input_directory")
-    output_directory: str | Path = Path("app/output_directory")
+    input_directory: str | Path = Path("/app/input_directory")
+    output_directory: str | Path = Path("/app/output_directory")
     video_extensions: tuple[str] = (".mp4",)
     processed_video_prefix: str = "frames_extracted_"
     metric_model: str = "nima"
