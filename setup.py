@@ -1,66 +1,86 @@
-import subprocess
+import http
+import logging
+import argparse
+import time
+import urllib.error
 from pathlib import Path
+from urllib import request
+
+import config
+from docker_manager import DockerManager
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 
-def main():
-    def run_command(command, capture_output=False):
-        """Pomocnicza funkcja do uruchamiania poleceń z odpowiednim przechwytywaniem wyjścia."""
-        result = subprocess.run(command, capture_output=capture_output, text=True)
-        if capture_output:
-            print(result.stdout)
-            print(result.stderr)
-        return result
+class Setup:
+    def __init__(self) -> None:
+        args = self.__parse_args()
+        self.extractor_name = args.extractor_name
+        self.input_directory = args.input
+        self.output_directory = args.output
+        self.port = args.port
 
+    @staticmethod
+    def __parse_args() -> argparse.Namespace:
+        parser = argparse.ArgumentParser(description="Manage Docker container for image processing.")
+        parser.add_argument("extractor_name",
+                            choices=['best_frames_extractor', 'top_images_extractor'],
+                            help="Name of extractor to run.")
+        parser.add_argument("--input", "-i", default=config.default_input_directory,
+                            help="Full path to the input directory")
+        parser.add_argument("--output", "-o", default=config.default_output_directory,
+                            help="Full path to the output directory")
+        parser.add_argument("--port", "-p", type=int, default=config.default_port,
+                            help="Port to expose the service on the host")
+        args = parser.parse_args()
+        if not Path(args.input).is_dir():
+            error_massage = f"Invalid directory path: {args.input}"
+            logger.error(error_massage)
+            raise NotADirectoryError(error_massage)
+        elif not Path(args.output).is_dir():
+            error_massage = f"Invalid directory path: {args.input}"
+            logger.error(error_massage)
+            raise NotADirectoryError(error_massage)
+        return args
 
-    # Pobierz aktualny katalog roboczy jako obiekt Path
-    current_directory = Path.cwd()
+    def restart_container(self) -> None:
+        docker = DockerManager(
+            config.service_name, self.input_directory,
+            self.output_directory, self.port
+        )
+        docker.build_image()
+        docker.remove_container()
+        docker.run_container()
 
-    # Zdefiniuj ścieżki do lokalnych katalogów
-    input_directory = current_directory / 'input_directory'
-    output_directory = current_directory / 'output_directory'
+    def run_extractor(self) -> None:
+        url = f"http://localhost:{self.port}/image_extractors/{self.extractor_name}"
+        req = urllib.request.Request(url, method="POST")
+        with urllib.request.urlopen(req) as response:
+            response_body = response.read()
+            print("Response from server:", response_body)
 
-    # Upewnij się, że katalogi istnieją
-    input_directory.mkdir(parents=True, exist_ok=True)
-    output_directory.mkdir(parents=True, exist_ok=True)
-
-    # Zdefiniuj komendę budowania obrazu Docker
-    build_command = [
-        'docker', 'build', '-t', 'extractor_service', str(current_directory / 'extractor_service')
-    ]
-    run_command(build_command, capture_output=True)
-
-    # Usuń istniejący kontener, jeśli istnieje
-    remove_command = [
-        'docker', 'rm', '-f', 'extractor_service'
-    ]
-    run_command(remove_command, capture_output=True)
-
-    # Zdefiniuj komendę uruchomienia kontenera Docker
-    run_command = [
-        'docker', 'run', '--name', 'extractor_service', '--gpus', 'all',
-        '-p', '8100:8100',
-        '-v', f'{input_directory}:/app/input_directory',
-        '-v', f'{output_directory}:/app/output_directory',
-        '-i', 'extractor_service'
-    ]
-
-    # Uruchom komendę i przechwytuj wyjście
-    process = subprocess.Popen(run_command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
-
-    # Odczytaj i wydrukuj wyjście
-    try:
+    def wait_for_service(self, url, timeout=60):
+        start_time = time.time()
         while True:
-            output = process.stdout.readline()
-            if output == '' and process.poll() is not None:
-                break
-            if output:
-                print(output.strip())
-        stderr = process.stderr.read()
-        if stderr:
-            print('STDERR:', stderr.strip())
-    finally:
-        process.terminate()
+            try:
+                with urllib.request.urlopen(url) as response:
+                    if response.status == 200:
+                        print("Service is ready!")
+                        break
+            except urllib.error.URLError as e:
+                print("Waiting for service to be available...")
+                time.sleep(3)
+            except http.client.RemoteDisconnected as e:
+                print("Remote end closed connection, retrying...")
+                time.sleep(3)
+            if time.time() - start_time > timeout:
+                raise TimeoutError("Timed out waiting for service to respond")
 
 
 if __name__ == "__main__":
-    main()
+    setup = Setup()
+    setup.restart_container()
+    # time.sleep(5)
+    setup.wait_for_service(f"http://localhost:{setup.port}/health")
+    setup.run_extractor()

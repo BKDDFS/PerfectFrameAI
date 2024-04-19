@@ -61,5 +61,10 @@ def get_evaluators_status() -> EvaluatorStatus:
     return EvaluatorStatus(active_evaluator=ExtractorManager.get_active_evaluator())
 
 
+@app.get("/health")
+async def health_check():
+    return {"status": "ok"}
+
+
 if __name__ == "__main__":
     uvicorn.run("main:app", host="localhost", port=8100, reload=True)

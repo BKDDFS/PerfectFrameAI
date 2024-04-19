@@ -1,57 +1,53 @@
-# Frames Evaluators Project
+# Images Extractors AI
+English version: [EN](README.md)
+#### Video Demo: <>
 
-#### Video Demo: <https://www.youtube.com/watch?v=5qIiYmVvFzE>
+### Wymagania:
+- Niezależnie od wybranego sposobu instalacji musisz mieć zainstalowanego dockera dla ułatwienia instalacji np. docker desktop:
+<https://www.docker.com/products/docker-desktop/>
+- Musisz mieć zainstalowanego pythona.
+- Przetwarzanie obrazów/filmów to wymagające obliczeniowo zadania. Zalecam korzystanie z projektu tylko na PC z GPU ze rdzeniami CUDA (Nvidia).
+- Musisz przygotować video (.mp4) i/lub obrazy (.jpg) jako input. Możesz je umieścić w domyślnym folderze 'input_directory' dla ułatwienia, ale nie musisz.
 
-#### Description:
+### Instalacja:
+Upewnij się, że spełniasz wymagania opisane wyżej.
+#### Sposób 1:
+Najszybszy sposób to włączenie jednego ze skryptów demonstracyjnych:
+- **quick_demo.bat(Windows)**
+- **quick_demo.ssh(Linux/Mac)** \
+Skypty korzystają z wartości domyślnych: \
+**extractor:** best_frames_extractor \
+**input_directory:** ./input_directory \
+**output_directory:** ./output_directory \
+**port:** 8100
 
-The tool is designed for evaluating and selecting best looking frames from video content, utilizing advanced image processing techniques.
+#### Sposób 2:
+Sposób drugi w dalszym ciągu korzysta z automatycznego setupu. Natomiast włączając go za pomocą cmd setup.py daje możliwość zmiany domyślnych parametrów. \
+Możesz włączać różne extractory. \
+**Przykład:** \
+`python setup.py best_frames_extractor` \
+albo \
+`python setup.py top_images_extractor` \
+Możemy skonfigurować także inne parametry używając flag: \
+**--port, -p** -> do zmiany portu na którym będzie działał extractor service (domyślnie 8100) \
+**--input, -i** -> do zmiany lokalizacji, w której jest input (video/obrazy do ekstrakcji z nich najelpszych obrazów) (domyślnie jest input_directory) \
+**--output, -o** -> do zmiany lokalizacji, w której będzie output (najlepsze obrazy) (domyślnie jest output_directory) \
+**Przykład:** \
+`python setup.py best_frames_extractor -p <your_port_here> -i <your_input_dir_here> -o <your_output_dir_here>` \
+Note: Inne domyślne parametry możesz edytować w config.py. (Upewnij się że wiesz co robisz..)
 
-### Features:
-
-- ### Frames Evaluator Status:
-    #### GET /:
-    Initially, check the status of the frames' evaluator. If no evaluator is active, proceed to the next step.
-
-- ### Run Best Frames Evaluator: 
-    #### POST /frames_evaluators/best_frames_extractor
-    Input the folder with videos to start extracting the best frames. The progress can be monitored as frames start appearing in the output folder.
-
-- ### Run Top Frames Selector:
-    #### POST /frames_evaluators/top_frames_selector
-    Once the best frames are extracted, activate this feature. It will process the extracted frames and select the best among them based on the defined criteria.
-
-## Installation:
-This project requires specific dependencies to be installed and set up properly.
-Follow these steps to ensure everything is ready for use:
-
-### Step 1: Install Required Libraries
-First, install the necessary libraries listed in requirements.txt.
-You can do this by running the following command in your terminal:
-
-`pip install -r requirements.txt`
-
-### Step 2: Install CUDA 1.2.1
-Ensure that you have CUDA version 1.2.1 installed on your system.
-CUDA is necessary for running operations on the GPU.
-You can download and install it from the NVIDIA CUDA Toolkit website.
-
-### Step 3: Install PyTorch with CUDA Support
-Install PyTorch, torchvision, and torchaudio with CUDA 1.2.1 support using the following pip command:
-
-`pip3 install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu121`
-
-### Step 4: Verify CUDA Availability
-To check if CUDA is properly installed and available for PyTorch,
-use the display_cuda_info.py script.
-Run the script, and you should see an output indicating that CUDA is available:
-
-`python display_cuda_info.py`
-
-You must see the output:
-#### CUDA Available: True
-
-If you see CUDA Available: True, then you're all set! If not, you may need to troubleshoot your CUDA installation.
-
+### Sposób 3:
+Ten sposób polega na zrobieniu ręcznie tego co robi setup.py.
+**Krok 1:** \
+Stworzenie obrazu z Dockerfile. \
+`docker build -t extractor_service_image ./extractor_service` \
+**Krok 2:** \
+Utworzenie kontenera z obrazu z wybranymi ścieżkami i portem, dając mu dostęp do GPU. Zmień domyślne wartości wedle uznania, ale pamiętaj, że  \
+`docker run --name extractor_service --gpus all -p 8100:8100 -v ./input_directory:/app/input_directory -v ./output_directory:/app/output_directory -d extractor_service_image` \
+Note: 
+**Krok 3:** \
+Wysłanie `` \
+**Krok 1:** Skorzystaj ze skryptu z wybranym extractorem.\
 
 ## Modules description:
 

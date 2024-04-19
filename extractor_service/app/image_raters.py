@@ -17,7 +17,7 @@ class ImageRater(ABC):
         pass
 
 
-class PyIQA:
+class PyIQA(ImageRater):
     @classmethod
     def rate_images(cls, images: list[np.ndarray], metric_model: str = "nima") -> list[float]:
         torch_device = cls._get_torch_device()
