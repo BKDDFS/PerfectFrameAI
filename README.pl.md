@@ -22,24 +22,21 @@ Image Extractor AI jest jednym z serwisów mojego głównego projektu. W porówn
   
 ## Jak używać:  
 Upewnij się, że spełniasz wymagania opisane wyżej.  [Wymagania]
-#### Sposób 1:  
-Najszybszy sposób to włączenie jednego ze skryptów demonstracyjnych:  
-- **quick_demo.bat(Windows)**  
-- **quick_demo.ssh(Linux/Mac)** \  
-Skypty korzystają z wartości domyślnych: \  
-**extractor:** best_frames_extractor \  
-**input_directory:** ./input_directory \  
-**output_directory:** ./output_directory \  
-**port:** 8100  
   
-#### Sposób 2:  
-Sposób drugi w dalszym ciągu korzysta z automatycznego setupu, tutaj możemy zmienić także domyślne parametry.\  
-Możesz wybrać inny extractor.\  
+#### Sposób 1:  
+Najszybszy sposób to skorzystanie z setup.py, które zrobi wszystko za nas. \ 
+Jeśli korzystasz z Windows możesz po prostu skorzystać z pliku .bat.
+Natomiast jeśli korzystasz z innego systemu lub chcesz uruchomić setup.py z terminala, to zrobisz to w następujący sposób: 
 **Przykład:** \  
 `python setup.py best_frames_extractor` \  
 albo \  
 `python setup.py top_images_extractor` \  
-Możemy skonfigurować także najważniejsze parametry używają flag: \  
+#### Domyślne ustawinia: \
+- **extractor:** best_frames_extractor \  
+- **input_directory:** ./input_directory \  
+- **output_directory:** ./output_directory \  
+- **port:** 8100  
+#### Możemy skonfigurować także najważniejsze parametry używają flag: 
 **--port, -p** -> do zmiany portu na którym będzie działał extractor service (domyślnie 8100) \  
 **--input, -i** -> do zmiany lokalizacji, w której jest input (video/obrazy do ekstrakcji z nich najelpszych obrazów) (domyślnie jest input_directory) \  
 **--output, -o** -> do zmiany lokalizacji, w której będzie output (najlepsze obrazy) (domyślnie jest output_directory) \  
@@ -47,7 +44,7 @@ Możemy skonfigurować także najważniejsze parametry używają flag: \
 `python setup.py best_frames_extractor -p <your_port_here> -i <your_input_dir_here> -o <your_output_dir_here>` \  
 Note: Inne domyślne parametry możesz edytować w config.py, ale upewnij się że wiesz co robisz.  
 
-### Sposób 3:  
+### Sposób 2:  
 Ten sposób polega na zrobieniu ręcznie tego co robi setup.py, dzięki czemu nie wymaga zainstalowanego Pythona. \
 **Ułatwienie:** \  
 Jeśli chcesz pominąć kroki 1 i 2 skorzystaj z docker-compose: \
