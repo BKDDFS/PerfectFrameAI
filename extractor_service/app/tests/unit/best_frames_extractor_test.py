@@ -41,7 +41,7 @@ def test_process(evaluator, caplog):
 
 def test_extract_best_frames_from_all_videos_in_folder(evaluator):
     evaluator.filter_videos_from_files = Mock(return_value=[(TEST_VIDEO_PATH, TEST_VIDEO_FILENAME)])
-    evaluator.extract_best_frames_from_video = Mock()
+    evaluator._extract_best_frames_from_video = Mock()
     evaluator.change_processed_video_name = Mock()
 
     evaluator.extract_best_frames_from_all_videos_in_folder(TEST_INPUT_FOLDER, TEST_VIDEO_EXTENSION,
@@ -49,8 +49,8 @@ def test_extract_best_frames_from_all_videos_in_folder(evaluator):
 
     evaluator.filter_videos_from_files.assert_called_once_with(TEST_INPUT_FOLDER,
                                                                TEST_VIDEO_EXTENSION, TEST_DONE_VIDEO_PREFIX)
-    evaluator.extract_best_frames_from_video.assert_called_once_with(TEST_VIDEO_PATH,
-                                                                     TEST_NUMBER_OF_FRAMES)
+    evaluator._extract_best_frames_from_video.assert_called_once_with(TEST_VIDEO_PATH,
+                                                                      TEST_NUMBER_OF_FRAMES)
     evaluator.change_processed_video_name.assert_called_once_with(TEST_INPUT_FOLDER, TEST_VIDEO_PATH,
                                                                   TEST_VIDEO_FILENAME, TEST_DONE_VIDEO_PREFIX)
 
@@ -84,7 +84,7 @@ def test_extract_best_frames_from_video(evaluator, caplog):
     evaluator.process_video_frames = Mock()
     evaluator.get_video_capture.return_value.release = TEST_CAP
     with caplog.at_level(logging.DEBUG):
-        evaluator.extract_best_frames_from_video(TEST_VIDEO_PATH, TEST_NUMBER_OF_FRAMES)
+        evaluator._extract_best_frames_from_video(TEST_VIDEO_PATH, TEST_NUMBER_OF_FRAMES)
 
     evaluator.get_video_capture.assert_called_once_with(TEST_VIDEO_PATH)
     evaluator.process_video_frames.assert_called_once_with(TEST_CAP,
@@ -99,7 +99,7 @@ def test_extract_best_frames_from_video_invalid_number_of_frame_to_compare(evalu
                         f"You provided: {invalid_number_of_frames}.")
     with pytest.raises(ValueError, match=expected_message), \
             caplog.at_level(logging.DEBUG):
-        evaluator.extract_best_frames_from_video(TEST_VIDEO_PATH, invalid_number_of_frames)
+        evaluator._extract_best_frames_from_video(TEST_VIDEO_PATH, invalid_number_of_frames)
         assert not caplog.messages
 
 
@@ -109,27 +109,27 @@ def test_process_video_frames(evaluator):
     mock_cap.read.side_effect = [(True, 'frame1'), (True, 'frame2'), (True, 'frame3')]
     mock_cap.get.return_value = 1
 
-    evaluator._extract_and_save_best_frame = Mock()
+    evaluator._get_best_frame = Mock()
 
     evaluator.process_video_frames(mock_cap, 2)
 
-    assert evaluator._extract_and_save_best_frame.call_count == 3
-    evaluator._extract_and_save_best_frame.assert_any_call('frame1', [], 2)
-    evaluator._extract_and_save_best_frame.assert_any_call('frame2', [], 2)
-    evaluator._extract_and_save_best_frame.assert_any_call('frame3', [], 2)
+    assert evaluator._get_best_frame.call_count == 3
+    evaluator._get_best_frame.assert_any_call('frame1', [], 2)
+    evaluator._get_best_frame.assert_any_call('frame2', [], 2)
+    evaluator._get_best_frame.assert_any_call('frame3', [], 2)
 
 
 def test_process_video_frames_false_read_result(evaluator):
     mock_cap = create_autospec(cv2.VideoCapture, instance=True)
     mock_cap.isOpened.return_value = True
     mock_cap.read.return_value = (False, "")
-    evaluator._extract_and_save_best_frame = Mock()
+    evaluator._get_best_frame = Mock()
 
     evaluator.process_video_frames(mock_cap, 2)
 
     mock_cap.isOpened.assert_called_once()
     mock_cap.read.assert_called_once()
-    evaluator._extract_and_save_best_frame.assert_not_called()
+    evaluator._get_best_frame.assert_not_called()
 
 
 def test_extract_and_save_best_frame(evaluator, caplog):
@@ -138,7 +138,7 @@ def test_extract_and_save_best_frame(evaluator, caplog):
     evaluator.save_ndarray_frame = Mock()
 
     with caplog.at_level(logging.DEBUG):
-        evaluator._extract_and_save_best_frame(TEST_BGR_FRAME, batch_frames, 2)
+        evaluator._get_best_frame(TEST_BGR_FRAME, batch_frames, 2)
 
     evaluator.save_ndarray_frame.assert_called_once_with(evaluator.output_folder, TEST_BGR_FRAME)
     assert f"Frame '{TEST_BGR_FRAME}' saved." in caplog.messages[0]
