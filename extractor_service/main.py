@@ -33,7 +33,7 @@ logger = logging.getLogger(__name__)
 app = FastAPI()
 
 
-@app.post("/image_extractors/{extractor_name}")
+@app.post("/extractors/{extractor_name}")
 def extract_best_frames(background_tasks: BackgroundTasks, extractor_name: str,
                         config: ExtractorConfig = Depends()) -> Message:
     """Initiates the best frames extraction process based on the provided request data.
@@ -59,11 +59,6 @@ def get_evaluators_status() -> EvaluatorStatus:
         EvaluatorStatus: A Pydantic model containing the name of the active evaluator.
     """
     return EvaluatorStatus(active_evaluator=ExtractorManager.get_active_evaluator())
-
-
-@app.get("/health")
-async def health_check():
-    return {"status": "ok"}
 
 
 if __name__ == "__main__":

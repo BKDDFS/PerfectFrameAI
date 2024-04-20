@@ -1,4 +1,5 @@
 import subprocess
+import sys
 from pathlib import Path
 import logging
 
@@ -11,8 +12,10 @@ class DockerManager:
     def __init__(self, container_name, input_dir, output_dir, port=8100):
         self.container_name = container_name
         self.image_name = f"{container_name}_image"
-        self.input_dir = Path(input_dir).resolve()
-        self.output_dir = Path(output_dir).resolve()
+        self.input_directory = Path(input_dir).resolve()
+        logger.debug(self.input_directory)
+        self.output_directory = Path(output_dir).resolve()
+        logger.debug(self.output_directory)
         self.port = port
 
     def build_image(self):
@@ -33,30 +36,29 @@ class DockerManager:
         command = [
             'docker', 'run', '--name', self.container_name, '--gpus', 'all',
             '-p', f'{self.port}:{config.default_port}',
-            '-v', f'{self.input_dir}:{config.service_default_input_directory}',
-            '-v', f'{self.output_dir}:{config.service_default_output_directory}',
+            '-v', f'{self.input_directory}:{config.service_default_input_directory}',
+            '-v', f'{self.output_directory}:{config.service_default_output_directory}',
             '-d',
             self.image_name
         ]
         self.run_command(command, silent=True)
-        # process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
-        # self.stream_output(process)
 
-    @staticmethod
-    def stream_output(process: subprocess):
-        """Streams output from the Docker container and handles process termination."""
+    def follow_logs(self):
+        """Follows logs from the running Docker container."""
+        logger.info(f"Following logs for {self.container_name}...")
+        command = ['docker', 'logs', '-f', self.container_name]
+        process = subprocess.Popen(
+            command, stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT, text=True, encoding="utf-8"
+        )
         try:
-            while True:
-                output = process.stdout.readline()
-                if output == '' and process.poll() is not None:
-                    break
-                if output:
-                    print(output.strip())
-            stderr = process.stderr.read()
-            if stderr:
-                print('STDERR:', stderr.strip())
+            for line in iter(process.stdout.readline, ''):
+                sys.stdout.write(line)
+        except KeyboardInterrupt:
+            print("Process stopped. Remember that service is still up in the docker container.")
         finally:
             process.terminate()
+            process.wait()
 
     @staticmethod
     def run_command(command, silent=False):

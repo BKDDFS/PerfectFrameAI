@@ -44,43 +44,42 @@ class Setup:
             raise NotADirectoryError(error_massage)
         return args
 
-    def restart_container(self) -> None:
-        docker = DockerManager(
-            config.service_name, self.input_directory,
-            self.output_directory, self.port
-        )
-        docker.build_image()
-        docker.remove_container()
-        docker.run_container()
-
     def run_extractor(self) -> None:
-        url = f"http://localhost:{self.port}/image_extractors/{self.extractor_name}"
-        req = urllib.request.Request(url, method="POST")
-        with urllib.request.urlopen(req) as response:
-            response_body = response.read()
-            print("Response from server:", response_body)
-
-    def wait_for_service(self, url, timeout=60):
         start_time = time.time()
+        url = f"http://localhost:{self.port}/extractors/{self.extractor_name}"
+        req = urllib.request.Request(url, method="POST")
         while True:
-            try:
-                with urllib.request.urlopen(url) as response:
-                    if response.status == 200:
-                        print("Service is ready!")
-                        break
-            except urllib.error.URLError as e:
-                print("Waiting for service to be available...")
-                time.sleep(3)
-            except http.client.RemoteDisconnected as e:
-                print("Remote end closed connection, retrying...")
-                time.sleep(3)
-            if time.time() - start_time > timeout:
-                raise TimeoutError("Timed out waiting for service to respond")
+            extraction_started = self.__try_to_run_extractor(req, start_time)
+            if extraction_started:
+                break
+
+    @staticmethod
+    def __try_to_run_extractor(req, start_time, timeout=60) -> bool:
+        try:
+            with urllib.request.urlopen(req) as response:
+                if response.status == 200:
+                    response_body = response.read()
+                    print("Response from server:", response_body)
+                    return True
+        except urllib.error.URLError:
+            print("Waiting for service to be available...")
+            time.sleep(3)
+        except http.client.RemoteDisconnected:
+            print("Remote end closed connection, retrying...")
+            time.sleep(3)
+        if time.time() - start_time > timeout:
+            raise TimeoutError("Timed out waiting for service to respond")
+        return False
 
 
 if __name__ == "__main__":
     setup = Setup()
-    setup.restart_container()
-    # time.sleep(5)
-    setup.wait_for_service(f"http://localhost:{setup.port}/health")
+    docker = DockerManager(
+        config.service_name, setup.input_directory,
+        setup.output_directory, setup.port
+    )
+    docker.build_image()
+    docker.remove_container()
+    docker.run_container()
     setup.run_extractor()
+    docker.follow_logs()

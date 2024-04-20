@@ -3,7 +3,7 @@ managing evaluator processes in a frame evaluation application.
 """
 from pathlib import Path
 
-from pydantic import BaseModel, field_validator, model_validator
+from pydantic import BaseModel, model_validator
 
 
 class ExtractorConfig(BaseModel):
@@ -24,19 +24,6 @@ class ExtractorConfig(BaseModel):
     batch_size: int = 60
     top_image_threshold: int = 90
 
-    # @classmethod
-    # @field_validator("input_directory", "output_directory", mode="after")
-    # def validate_directory(cls, directory: str) -> Path:
-    #     """Validates that the directories are valid.
-    #
-    #     Raises:
-    #         NotADirectoryError: If the directory path is invalid.
-    #     """
-    #     path_directory = Path(directory)
-    #     if not path_directory.is_dir():
-    #         raise NotADirectoryError(f"The path '{path_directory}' is not a directory.")
-    #     return path_directory
-
     @model_validator(mode="after")
     def validate_directory(self):
         """Validates that the directories are valid.
@@ -44,9 +31,7 @@ class ExtractorConfig(BaseModel):
         Raises:
             NotADirectoryError: If the directory path is invalid.
         """
-        self.input_directory = Path(self.input_directory)
-        self.output_directory = Path(self.output_directory)
-        directories = [self.input_directory, self.output_directory]
+        directories = [Path(self.input_directory), Path(self.output_directory)]
         for directory in directories:
             if not directory.is_dir():
                 raise NotADirectoryError(f"The path '{directory}' is not a directory.")
