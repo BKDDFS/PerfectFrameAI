@@ -55,7 +55,7 @@ class Extractor(ABC):
         if not files:
             error_massage = (f"Files with extensions '{extensions}' and without prefix '{prefix}' "
                              f"not found in folder: '{directory}'."
-                             f"HINT: You probably haven't got input or you haven't changed prefixes.")
+                             f"\nHINT: You probably don't have input or you haven't changed prefixes.")
             logger.error(error_massage)
             raise FileNotFoundError(error_massage)
         logger.debug("Listed file paths: %s", files)
