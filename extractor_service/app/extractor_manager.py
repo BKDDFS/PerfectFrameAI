@@ -51,10 +51,10 @@ class ExtractorManager:
 
     @classmethod
     def __run_extractor(cls, extractor: Type[Extractor],
-                        render_config: ExtractorConfig) -> None:
+                        config: ExtractorConfig) -> None:
         try:
             cls.__active_evaluator = extractor.__name__
-            extractor.process(render_config)
+            extractor(config).process()
         finally:
             cls.__active_evaluator = None
 

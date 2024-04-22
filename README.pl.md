@@ -58,9 +58,5 @@ Utwórz kontener z obrazu z wybranymi voluminami i portem, dając mu dostęp do 
 Uwaga! Zniechęcam do zmieniania domyślnych wartości dla kontenera. Patrz krok 3. \  
 `docker run --name extractor_service --gpus all -p 8100:8100 -v ./input_directory:/app/input_directory -v ./output_directory:/app/output_directory -d extractor_service_image`  \     
 **Krok 3:** \  
-Wyślij zapytanie do serwisu. Jeśli nie zmieniłeś wartości domyślnych dla kontenera to nie musisz wysyłać nic w body do servisu. Service skorzysta z ustawień domyślnych zdefiniowanych w modelach pydantic w schemas.py. Wyślij jedynie zapytanie do wybranego przez siebie serwisu. Endpoint wygląda w następujący sposób: \
-**POST/ http://localhost:<your_port_here>/extractors/<choosed_extractor_here>** \
-**Przykłady:** \
-`curl -X POST http://localhost:<your_port_here>/extractors/<choosed_extractor_here>` \
-`curl -X POST http://localhost:8100/extractors/best_frames_extractor`
-`
+Wyślij zapytanie do serwisu. Jeśli nie zmieniłeś wartości domyślnych dla kontenera to nie musisz wysyłać nic w body do servisu. Service skorzysta z ustawień domyślnych zdefiniowanych w modelach pydantic w schemas.py. Wyślij jedynie zapytanie do wybranego przez siebie serwisu np. za pomocą Postman. Endpoint wygląda w następujący sposób: \
+**POST http://localhost:<your_port_here>/extractors/<choosed_extractor_here>** \
