@@ -6,7 +6,7 @@ services:
     ports:
       - "8100:8100"
     volumes:
-      - cache_volume:/root/.cache
+      - model_cache:/root/.cache
       - "B:/frames_evaluators/input_directory:/app/input_directory"
       - "B:/frames_evaluators/output_directory:/app/output_directory"
     environment:
@@ -14,6 +14,13 @@ services:
       - NVIDIA_DRIVER_CAPABILITIES=compute,video,utility
     working_dir: /app
     command: [ "uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8100" ]
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [ gpu ]
 
 volumes:
-  cache_volume:
+  model_cache:

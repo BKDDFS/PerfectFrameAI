@@ -30,6 +30,7 @@ class OpenCVImage(ImageManipulator):
     @staticmethod
     def read_image(image_path: Path) -> np.ndarray:
         image = cv2.imread(str(image_path))
+        logger.debug("Image '%s' has successfully read.")
         return image
 
     @staticmethod

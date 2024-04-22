@@ -22,27 +22,31 @@ import numpy as np
 from .schemas import ExtractorConfig
 from .video_manipulators import OpenCVVideo
 from .image_manipulators import OpenCVImage
-from .image_raters import PyIQA
+from .image_raters import PyIQA, ImageRater
 
 logger = logging.getLogger(__name__)
 
 
 class Extractor(ABC):
-    @classmethod
+    class EmptyInputDirectoryError(Exception):
+        pass
+
+    def __init__(self, config: ExtractorConfig) -> None:
+        self.config = config
+        self.image_rater = None
+
     @abstractmethod
-    def process(cls, config: ExtractorConfig) -> None:
+    def process(self) -> None:
         """Abstract method to process video data.
-
-        Args:
-            config: Arguments required for video processing.
-
-        This method should be implemented by subclasses.
         """
+    def _get_image_rater(self) -> ImageRater:
+        self.image_rater = PyIQA(self.config.metric_model)
+        return self.image_rater
 
-    @staticmethod
-    def list_directory_files(directory: Path, extensions: tuple[str], prefix: str) -> list[Path]:
+    def _list_input_directory_files(self, extensions: tuple[str], prefix: str) -> list[Path]:
+        directory = self.config.input_directory
         if not directory.is_dir():
-            error_massage = f"Invalid directory: {directory}"
+            error_massage = f"Invalid directory: {str(directory)}"
             logger.error(error_massage)
             raise NotADirectoryError(error_massage)
         entries = directory.iterdir()
@@ -53,25 +57,26 @@ class Extractor(ABC):
             and not entry.name.startswith(prefix)
         ]
         if not files:
-            error_massage = (f"Files with extensions '{extensions}' and without prefix '{prefix}' "
-                             f"not found in folder: '{directory}'."
-                             f"\nHINT: You probably don't have input or you haven't changed prefixes.")
+            error_massage = (
+                f"Files with extensions '{extensions}' and without prefix '{prefix}' "
+                f"not found in folder: '{directory}'."
+                f"\n-->HINT: You probably don't have input or you haven't changed prefixes. "
+                f"\nCheck input directory."
+            )
             logger.error(error_massage)
-            raise FileNotFoundError(error_massage)
+            raise Extractor.EmptyInputDirectoryError(error_massage)
+        logger.info(f"Directory '%s' files listed.", str(directory))
         logger.debug("Listed file paths: %s", files)
         return files
 
-    @staticmethod
-    def _rate_images(images: list[np.ndarray], metric_model: str) -> np.array:
-        ratings = np.array(PyIQA.rate_images(images, metric_model))
-        logger.debug("Images rated.")
+    def _rate_images(self, images: list[np.ndarray]) -> np.array:
+        ratings = np.array(self.image_rater.rate_images(images))
         return ratings
 
-    @staticmethod
-    def _save_images(images: list[np.ndarray], config: ExtractorConfig,):
+    def _save_images(self, images: list[np.ndarray]):
         for image in images:
             filename = f"image_{uuid.uuid4()}"
-            OpenCVImage.save_image(image, config.output_directory, filename)
+            OpenCVImage.save_image(image, self.config.output_directory, filename)
 
     @staticmethod
     def _add_prefix(prefix: str, input_path: Path) -> Path:
@@ -80,6 +85,10 @@ class Extractor(ABC):
         logger.debug("Prefix '%s' added to file '%s'. New path: %s",
                      prefix, input_path, new_path)
         return new_path
+
+    @staticmethod
+    def _display_info_after_extraction():
+        logger.info("Press ctrl+c to exit.")
 
 
 class ExtractorFactory:
@@ -104,31 +113,32 @@ class BestFramesExtractor(Extractor):
     class. It filters video files based on their format and whether they have already
     been processed.
     """
-    @classmethod
-    def process(cls, config: ExtractorConfig) -> None:
-        """Process all videos in the given folder to extract best frames.
-
-        Args:
-            config (EvaluatorConfig): Path to the folder containing video files.
+    def process(self) -> None:
+        """Process all videos in the given folder to extract the best frames.
         """
-        logger.info("Starting frames extraction process from '%s'...", config.input_directory)
-        videos_paths = cls.list_directory_files(config.input_directory, config.video_extensions,
-                                                config.processed_video_prefix)
+        logger.info("Starting frames extraction process from '%s'.",
+                    self.config.input_directory)
+        videos_paths = self._list_input_directory_files(self.config.video_extensions,
+                                                        self.config.processed_video_prefix)
+        self._get_image_rater()
         for video_path in videos_paths:
-            frames = cls._extract_best_frames(video_path, config)
-            cls._save_images(frames, config)
-            cls._add_prefix(config.processed_video_prefix, video_path)
+            frames = self._extract_best_frames(video_path)
+            self._save_images(frames)
+            self._add_prefix(self.config.processed_video_prefix, video_path)
+            logger.info("Frames extraction has finished for video: %s", video_path)
+        logger.info("Extraction process finished. All frames extracted.")
+        self._display_info_after_extraction()
 
-    @classmethod
-    def _extract_best_frames(cls, video_path: Path, config: ExtractorConfig) -> list[np.ndarray]:
+    def _extract_best_frames(self, video_path: Path) -> list[np.ndarray]:
         best_frames = []
-        frames_generator = OpenCVVideo.get_next_video_frames(video_path, config.batch_size)
+        frames_generator = OpenCVVideo.get_next_video_frames(video_path, self.config.batch_size)
         for frames in frames_generator:
             if not frames:
                 continue
             logger.debug("Frames pack generated.")
-            ratings = cls._rate_images(frames, config.metric_model)
-            selected_frames = cls._get_best_images(frames, ratings, config.compering_group_size)
+            ratings = self._rate_images(frames)
+            selected_frames = self._get_best_images(frames, ratings,
+                                                    self.config.compering_group_size)
             best_frames.extend(selected_frames)
         return best_frames
 
@@ -143,22 +153,25 @@ class BestFramesExtractor(Extractor):
             batch_ratings = ratings[start_index:end_index]
             best_index = np.argmax(batch_ratings)
             best_images.append(images[start_index + best_index])
-        logger.debug("Selecting images done.")
+        logger.info("Best images selected.")
         return best_images
 
 
 class TopImagesExtractor(Extractor):
-    @classmethod
-    def process(cls, config: ExtractorConfig) -> None:
-        images_paths = cls.list_directory_files(config.input_directory, config.images_extensions,
-                                                config.processed_image_prefix)
-        for batch_index in range(0, len(images_paths), config.batch_size):
-            batch_paths = images_paths[batch_index:batch_index + config.batch_size]
+    def process(self) -> None:
+        images_paths = self._list_input_directory_files(self.config.images_extensions,
+                                                        self.config.processed_image_prefix)
+        self._get_image_rater()
+        for batch_index in range(0, len(images_paths), self.config.batch_size):
+            batch_paths = images_paths[batch_index:batch_index + self.config.batch_size]
             images = [OpenCVImage.read_image(path) for path in batch_paths]
-            ratings = cls._rate_images(images, config.metric_model)
-            top_images = cls._get_top_percent_images(images, ratings, config.top_images_percent)
-            cls._save_images(top_images, config)
-        logger.info("All top images saved.")
+            ratings = self._rate_images(images)
+            top_images = self._get_top_percent_images(images, ratings,
+                                                      self.config.top_images_percent)
+            self._save_images(top_images)
+        logger.info("Extraction process finished. All top images extracted from directory: %s.",
+                    self.config.input_directory)
+        self._display_info_after_extraction()
 
     @staticmethod
     def _get_top_percent_images(images: list[np.ndarray], ratings: np.array,
@@ -176,4 +189,5 @@ class TopImagesExtractor(Extractor):
         percentile_threshold = 100 - top_percent
         threshold = np.percentile(ratings, percentile_threshold)
         top_images = [img for img, rate in zip(images, ratings) if rate > threshold]
+        logger.info("Top images selected.")
         return top_images
