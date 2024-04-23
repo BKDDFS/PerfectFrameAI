@@ -26,7 +26,6 @@ class Setup:
         parser = argparse.ArgumentParser(description="Manage Docker container for image processing.")
         parser.add_argument("extractor_name",
                             choices=['best_frames_extractor', 'top_images_extractor'],
-                            default=config.default_extractor,
                             help="Name of extractor to run.")
         parser.add_argument("--input", "-i", default=config.default_input_directory,
                             help="Full path to the input directory")
@@ -62,9 +61,6 @@ class Setup:
                     response_body = response.read()
                     print("Response from server:", response_body)
                     return True
-        # except URLError:
-        #     print("Waiting for service to be available...")
-        #     time.sleep(3)
         except RemoteDisconnected:
             print("Waiting for service to be available...")
             time.sleep(3)

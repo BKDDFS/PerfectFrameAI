@@ -11,7 +11,6 @@ Classes:
                video analysis tasks, leveraging different IQA metrics and processing
                techniques.
 """
-import uuid
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 from abc import ABC, abstractmethod
@@ -40,22 +39,20 @@ class Extractor(ABC):
     def process(self) -> None:
         """Abstract method to process video data.
         """
+
     def _get_image_rater(self) -> ImageRater:
         self.image_rater = PyIQA(self.config.metric_model)
         return self.image_rater
 
-    def _list_input_directory_files(self, extensions: tuple[str], prefix: str) -> list[Path]:
+    def _list_input_directory_files(self, extensions: tuple[str],
+                                    prefix: str | None = None) -> list[Path]:
         directory = self.config.input_directory
-        if not directory.is_dir():
-            error_massage = f"Invalid directory: {str(directory)}"
-            logger.error(error_massage)
-            raise NotADirectoryError(error_massage)
         entries = directory.iterdir()
         files = [
             entry for entry in entries
             if entry.is_file()
             and entry.suffix in extensions
-            and not entry.name.startswith(prefix)
+            and not entry.name.startswith(prefix) if prefix
         ]
         if not files:
             error_massage = (
@@ -65,7 +62,7 @@ class Extractor(ABC):
                 f"\nCheck input directory."
             )
             logger.error(error_massage)
-            raise Extractor.EmptyInputDirectoryError(error_massage)
+            raise self.EmptyInputDirectoryError(error_massage)
         logger.info(f"Directory '%s' files listed.", str(directory))
         logger.debug("Listed file paths: %s", files)
         return files
@@ -79,7 +76,7 @@ class Extractor(ABC):
             futures = [executor.submit(
                 OpenCVImage.save_image, image,
                 self.config.output_directory,
-                f"image_{uuid.uuid4()}"
+                self.config.images_output_format
             ) for image in images]
             for future in futures:
                 future.result()
@@ -165,8 +162,7 @@ class BestFramesExtractor(Extractor):
 
 class TopImagesExtractor(Extractor):
     def process(self) -> None:
-        images_paths = self._list_input_directory_files(self.config.images_extensions,
-                                                        self.config.processed_image_prefix)
+        images_paths = self._list_input_directory_files(self.config.images_extensions)
         self._get_image_rater()
         for batch_index in range(0, len(images_paths), self.config.batch_size):
             batch_paths = images_paths[batch_index:batch_index + self.config.batch_size]
