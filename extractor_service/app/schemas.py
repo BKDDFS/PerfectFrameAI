@@ -18,11 +18,13 @@ class ExtractorConfig(BaseModel):
     input_directory: str | Path = Path("/app/input_directory")
     output_directory: str | Path = Path("/app/output_directory")
     video_extensions: tuple[str] = (".mp4",)
+    images_extensions: tuple[str] = (".jpg",)
     processed_video_prefix: str = "frames_extracted_"
     metric_model: str = "nima"
     compering_group_size: int = 5
     batch_size: int = 60
-    top_image_threshold: int = 90
+    top_images_percent: int = 90
+    images_output_format: str = ".jpg"
 
     @model_validator(mode="after")
     def validate_directory(self):
