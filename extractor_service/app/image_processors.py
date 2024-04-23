@@ -8,16 +8,16 @@ import numpy as np
 logger = logging.getLogger(__name__)
 
 
-class ImageManipulator(ABC):
+class ImageProcessor(ABC):
     @staticmethod
     @abstractmethod
     def read_image(image_path: Path) -> np.ndarray:
         pass
 
-    @staticmethod
-    @abstractmethod
-    def convert_bgr_image_to_rgb(bgr_image: np.ndarray) -> np.ndarray:
-        pass
+    # @staticmethod
+    # @abstractmethod
+    # def convert_bgr_image_to_rgb(bgr_image: np.ndarray) -> np.ndarray:
+    #     pass
 
     @staticmethod
     @abstractmethod
@@ -26,27 +26,27 @@ class ImageManipulator(ABC):
         pass
 
 
-class OpenCVImage(ImageManipulator):
+class OpenCVImage(ImageProcessor):
     @staticmethod
     def read_image(image_path: Path) -> np.ndarray:
         image = cv2.imread(str(image_path))
         logger.debug("Image '%s' has successfully read.")
         return image
 
-    @staticmethod
-    def convert_bgr_image_to_rgb(bgr_frame: np.ndarray) -> np.ndarray:
-        """Converts an image frame from BGR to RGB format.
-
-        Args:
-            bgr_frame (np.ndarray): The image frame in BGR format.
-
-        Returns:
-            np.ndarray: The converted image frame in RGB format.
-
-        """
-        rgb_frame = cv2.cvtColor(bgr_frame, cv2.COLOR_BGR2RGB)
-        logger.debug("Frame converted from BGR to RGB.")
-        return rgb_frame
+    # @staticmethod
+    # def convert_bgr_image_to_rgb(bgr_frame: np.ndarray) -> np.ndarray:
+    #     """Converts an image frame from BGR to RGB format.
+    #
+    #     Args:
+    #         bgr_frame (np.ndarray): The image frame in BGR format.
+    #
+    #     Returns:
+    #         np.ndarray: The converted image frame in RGB format.
+    #
+    #     """
+    #     rgb_frame = cv2.cvtColor(bgr_frame, cv2.COLOR_BGR2RGB)
+    #     logger.debug("Frame converted from BGR to RGB.")
+    #     return rgb_frame
 
     @staticmethod
     def save_image(image: np.ndarray, output_directory: Path,

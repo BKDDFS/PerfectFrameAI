@@ -10,7 +10,7 @@ import numpy as np
 logger = logging.getLogger(__name__)
 
 
-class VideoManipulator(ABC):
+class VideoProcessor(ABC):
     @classmethod
     @abstractmethod
     def get_next_video_frames(cls, video_path: Path,
@@ -18,35 +18,7 @@ class VideoManipulator(ABC):
         pass
 
 
-# class FFmpegPythonVideo:
-#     @staticmethod
-#     def get_next_video_frames(video_path: Path, quantity: int, fps: int) -> Generator[np.ndarray, None, None]:
-#         # Utwórz proces ffmpeg, który odczytuje klatki co określony interwał czasu (co sekundę)
-#         out, _ = (
-#             ffmpeg
-#             .input(str(video_path), hwaccel='cuda', hwaccel_device=0, vsync='0')  # Ustawienia dla CUDA mogą wymagać odpowiedniej konfiguracji
-#             .output('pipe:', format='rawvideo', pix_fmt='rgb24', r=fps)
-#             .run(capture_stdout=True, capture_stderr=True)
-#         )
-#
-#         # Przetwarzaj dane wyjściowe na klatki
-#         video_width = int(ffmpeg.probe(str(video_path))['streams'][0]['width'])
-#         video_height = int(ffmpeg.probe(str(video_path))['streams'][0]['height'])
-#         frame_size = video_width * video_height * 3  # RGB ma 3 bajty na piksel
-#
-#         frames = []
-#         for i in range(0, len(out), frame_size):
-#             if len(frames) < quantity:
-#                 frame = np.frombuffer(out[i:i+frame_size], np.uint8).reshape((video_height, video_width, 3))
-#                 frames.append(frame)
-#             if len(frames) == quantity:
-#                 yield frames
-#                 frames = []
-#
-#         if frames:
-#             yield frames
-
-class OpenCVVideo(VideoManipulator):
+class OpenCVVideo(VideoProcessor):
     class CantOpenVideoCapture(Exception):
         """Exception raised when the video file cannot be opened."""
         pass
@@ -76,31 +48,6 @@ class OpenCVVideo(VideoManipulator):
             if frames_batch:
                 logger.info("Returning last frames batch.")
                 yield frames_batch
-
-    # @classmethod
-    # def get_next_video_frames(cls, video_path: Path,
-    #                           quantity: int) -> Generator[list[np.ndarray], None, None]:
-    #     with cls._video_capture(str(video_path)) as video_cap:
-    #         fps = cls._get_video_frame_rate(video_cap)
-    #         frame_count = 0
-    #         frames = []
-    #         while True:
-    #             if not video_cap.isOpened():
-    #                 error_massage = "Video capture was shut down before getting frames has been finished."
-    #                 logger.error(error_massage)
-    #                 raise OpenCVVideo.VideoCaptureClosed(error_massage)
-    #             read_result, bgr_frame = video_cap.read()
-    #             if not read_result:
-    #                 yield frames
-    #                 break
-    #             frame_count += 1
-    #             if frame_count % fps != 0:  # get frame every 1 second
-    #                 continue
-    #             frames.append(bgr_frame)
-    #             logger.debug("Frame appended to frames pack.")
-    #             if len(frames) == quantity:
-    #                 yield frames
-    #                 frames = []
 
     @staticmethod
     @contextmanager

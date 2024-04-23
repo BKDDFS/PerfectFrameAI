@@ -12,6 +12,7 @@ Classes:
                techniques.
 """
 import uuid
+from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 from abc import ABC, abstractmethod
 import logging
@@ -20,8 +21,8 @@ from typing import Type
 import numpy as np
 
 from .schemas import ExtractorConfig
-from .video_manipulators import OpenCVVideo
-from .image_manipulators import OpenCVImage
+from .video_processors import OpenCVVideo
+from .image_processors import OpenCVImage
 from .image_raters import PyIQA, ImageRater
 
 logger = logging.getLogger(__name__)
@@ -74,9 +75,14 @@ class Extractor(ABC):
         return ratings
 
     def _save_images(self, images: list[np.ndarray]):
-        for image in images:
-            filename = f"image_{uuid.uuid4()}"
-            OpenCVImage.save_image(image, self.config.output_directory, filename)
+        with ThreadPoolExecutor() as executor:
+            futures = [executor.submit(
+                OpenCVImage.save_image, image,
+                self.config.output_directory,
+                f"image_{uuid.uuid4()}"
+            ) for image in images]
+            for future in futures:
+                future.result()
 
     @staticmethod
     def _add_prefix(prefix: str, input_path: Path) -> Path:
