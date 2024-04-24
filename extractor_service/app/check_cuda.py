@@ -15,7 +15,7 @@ def check_cuda_availability(print_info: bool = True) -> bool:
         - Number of CUDA devices detected.
     """
     cuda_availability = torch.cuda.is_available()
-    if print_info:
+    if print_info and cuda_availability:
         print(f"CUDA Available: {cuda_availability}")
         print(f"CUDA Version: {torch.version.cuda}")
         print(f"CUDA Device Count: {torch.cuda.device_count()}")

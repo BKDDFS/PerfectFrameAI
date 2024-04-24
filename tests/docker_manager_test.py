@@ -13,18 +13,17 @@ def docker():
         config.default_output_directory,
         config.default_port
     )
-    yield docker
+    return docker
 
 
 def test_docker_manager_init(caplog):
-    class_name = DockerManager.__class__.__name__
     image_name = f"{config.service_name}_image"
     expected_logs = (
-        f"{class_name}: container_name: {config.service_name}",
-        f"{class_name}: image_name: {image_name}",
-        f"{class_name}: Input directory from user: {config.default_input_directory}",
-        f"{class_name}: Output directory from user: {config.default_output_directory}",
-        f"{class_name}: Port from user: {config.default_port}"
+        f"container_name: {config.service_name}",
+        f"image_name: {image_name}",
+        f"Input directory from user: {config.default_input_directory}",
+        f"Output directory from user: {config.default_output_directory}",
+        f"Port from user: {config.default_port}"
     )
 
     with caplog.at_level(logging.DEBUG):

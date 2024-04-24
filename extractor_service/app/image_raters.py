@@ -17,7 +17,7 @@ class ImageRater(ABC):
 
 
 class PyIQA(ImageRater):
-    def __init__(self, metric_model: str = "nima"):
+    def __init__(self, metric_model: str = "nima") -> None:
         self.torch_device = self._get_torch_device()
         self.iqa_metric = pyiqa.create_metric(metric_model, device=self.torch_device).to(self.torch_device)
         self.transforms_compose = transforms.Compose([transforms.ToTensor()])
@@ -43,6 +43,7 @@ class PyIQA(ImageRater):
         return torch.device("cpu")
 
     def _convert_images_to_tensor_batch(self, images: list[np.ndarray]) -> torch.Tensor:
-        tensor_images = torch.stack([self.transforms_compose(image).to(self.torch_device) for image in images])
-        logger.info("Images batch converted from RGB to TENSOR.")
+        tensor_images_list = [self.transforms_compose(image).to(self.torch_device) for image in images]
+        tensor_images = torch.stack(tensor_images_list)
+        logger.debug("Images batch converted from RGB to TENSOR.")
         return tensor_images
