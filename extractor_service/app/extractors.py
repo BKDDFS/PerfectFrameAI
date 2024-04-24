@@ -52,12 +52,13 @@ class Extractor(ABC):
             entry for entry in entries
             if entry.is_file()
             and entry.suffix in extensions
-            and not entry.name.startswith(prefix) if prefix
+            and (prefix is None or not entry.name.startswith(prefix))
         ]
         if not files:
+            prefix = prefix if prefix else "Prefix not provided"
             error_massage = (
                 f"Files with extensions '{extensions}' and without prefix '{prefix}' "
-                f"not found in folder: '{directory}'."
+                f"not found in folder: {directory}."
                 f"\n-->HINT: You probably don't have input or you haven't changed prefixes. "
                 f"\nCheck input directory."
             )

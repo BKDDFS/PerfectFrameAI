@@ -1,6 +1,5 @@
 import concurrent
 import logging
-import unittest
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 
@@ -9,9 +8,10 @@ from unittest.mock import patch, MagicMock
 import numpy as np
 import pytest
 
-from extractor_service.app.extractors import Extractor, ExtractorFactory, BestFramesExtractor, TopImagesExtractor
-import extractor_service.app.image_raters as image_raters
-from extractor_service.app.image_processors import OpenCVImage
+from extractor_service.app.extractors import (Extractor,
+                                              ExtractorFactory,
+                                              BestFramesExtractor,
+                                              TopImagesExtractor)
 from extractor_service.app.schemas import ExtractorConfig
 
 current_directory = Path.cwd()
@@ -37,6 +37,20 @@ def test_extractor_initialization():
 @pytest.fixture
 def extractor():
     return TestExtractor(CONFIG)
+
+
+# @patch("extractor_service.app.image_raters.PyIQA")
+# def test_get_image_rater(mock_rater, extractor):
+#     expected_rater = MagicMock()
+#     mock_rater.return_value = expected_rater
+#
+#     result = extractor._get_image_rater()
+#
+#     mock_rater.assert_called_once_with(CONFIG.metric_model)
+#     assert result == expected_rater, \
+#         "The method did not return the correct ImageRater instance."
+#     assert extractor.image_rater == expected_rater, \
+#         "The ImageRater instance was not stored correctly in the extractor."
 
 
 def test_rate_images(extractor):
@@ -79,6 +93,67 @@ def test_rate_images(extractor):
 #         assert future.result.called, "result was not called on future"
 
 
+@patch('pathlib.Path.iterdir')
+@patch('pathlib.Path.is_file')
+def test_list_input_directory_files(mock_is_file, mock_iterdir, extractor, caplog):
+    mock_files = [Path("/fake/directory/file1.txt"), Path("/fake/directory/file2.log")]
+    mock_extensions = ('.txt', '.log')
+    mock_iterdir.return_value = mock_files
+    mock_is_file.return_value = True
+
+    with caplog.at_level(logging.DEBUG):
+        result = extractor._list_input_directory_files(mock_extensions, None)
+
+    assert result == mock_files
+    assert f"Directory '{CONFIG.input_directory}' files listed." in caplog.text
+    assert f"Listed file paths: {mock_files}"
+
+
+@patch('pathlib.Path.iterdir')
+def test_list_input_directory_files_no_files_found(mock_iterdir, extractor, caplog):
+    mock_files = []
+    mock_extensions = ('.txt', '.log')
+    mock_iterdir.return_value = mock_files
+    error_massage = (
+        f"Files with extensions '{mock_extensions}' and "
+        f"without prefix 'Prefix not provided' not found in folder: {CONFIG.input_directory}."
+        f"\n-->HINT: You probably don't have input or you haven't changed prefixes. "
+        f"\nCheck input directory."
+    )
+
+    with pytest.raises(BestFramesExtractor.EmptyInputDirectoryError), \
+            caplog.at_level(logging.ERROR):
+        extractor._list_input_directory_files(mock_extensions)
+
+    assert error_massage in caplog.text
+
+
+# @patch('extractor_service.app.image_processors.OpenCVImage.save_image')
+# @patch('concurrent.futures.ThreadPoolExecutor', autospec=True)
+# def test_save_images(mock_executor, mock_save_image, extractor):
+#     fake_images = [MagicMock(spec=np.ndarray) for _ in range(3)]
+#     mock_executor_instance = MagicMock(spec=ThreadPoolExecutor)
+#     mock_executor.return_value.__enter__.return_value = mock_executor_instance
+#     mock_future = MagicMock()
+#     mock_future.result = MagicMock()
+#     mock_executor_instance.submit.return_value = mock_future
+#
+#     extractor._save_images(fake_images)
+#
+#     mock_executor.assert_called_once_with()
+#     assert mock_executor_instance.submit.call_count == len(fake_images), "Not all images were submitted for saving"
+#
+#     # # Verify each image was submitted correctly
+#     # expected_calls = [call(
+#     #         mock_save_image, image, extractor.config.output_directory,
+#     #         extractor.config.images_output_format) for image in fake_images]
+#     # mock_executor_instance.submit.assert_has_calls(expected_calls, any_order=True)
+#
+#     # Verify result() was called for each future
+#     for _ in fake_images:
+#         mock_future.result.assert_called_once()
+
+
 def test_add_prefix(extractor, caplog):
     test_prefix = "prefix_"
     test_path = Path("test_path\\file.mp4")
@@ -99,29 +174,6 @@ def test_display_info_after_extraction(extractor, caplog):
     with caplog.at_level(logging.INFO):
         extractor._display_info_after_extraction()
         assert expected_massage in caplog.text
-
-# @pytest.mark.parametrize("video_path, has_succeed", (
-#         (TEST_VIDEO_PATH, True),
-#         (f"{TEST_INPUT_FOLDER}done_video.mp4", False),
-#         (f"{TEST_INPUT_FOLDER}video_done.mp4", True),
-#         (f"{TEST_INPUT_FOLDER}videodone_.mp4", True),
-# ))
-# def test_filter_videos_from_files(evaluator, caplog, video_path, has_succeed):
-#     available_extensions = (".avi", ".mp4", ".mov", ".webm", ".wmv", ".flv")
-#     evaluator.get_files_with_specific_extension_from_folder = Mock(return_value=[video_path])
-#     with caplog.at_level(logging.DEBUG):
-#         result = list(evaluator.filter_videos_from_files(TEST_INPUT_FOLDER,
-#                                                          TEST_VIDEO_EXTENSION, TEST_DONE_VIDEO_PREFIX))
-#         evaluator.get_files_with_specific_extension_from_folder.assert_called_once_with(TEST_INPUT_FOLDER,
-#                                                                                         TEST_VIDEO_EXTENSION,
-#                                                                                         available_extensions)
-#         if has_succeed:
-#             file_name = os.path.basename(video_path)
-#             assert f"Valid video found. Video: '{file_name}'." in caplog.messages[0]
-#             assert (video_path, file_name) in result
-#         else:
-#             assert not caplog.messages
-#             assert not result
 
 
 def test_get_extractor_known_extractors():

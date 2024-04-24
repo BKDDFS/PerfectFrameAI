@@ -21,7 +21,7 @@ import sys
 import uvicorn
 from fastapi import FastAPI, BackgroundTasks, Depends
 
-from app.schemas import ExtractorConfig, Message, EvaluatorStatus
+from app.schemas import ExtractorConfig, Message, ExtractorStatus
 from app.extractor_manager import ExtractorManager
 
 logging.basicConfig(level=logging.INFO,
@@ -52,13 +52,13 @@ def extract_best_frames(background_tasks: BackgroundTasks, extractor_name: str,
 
 
 @app.get("/status")
-def get_evaluators_status() -> EvaluatorStatus:
+def get_evaluators_status() -> ExtractorStatus:
     """Provides the status of the currently active evaluator.
 
     Returns:
-        EvaluatorStatus: A Pydantic model containing the name of the active evaluator.
+        ExtractorStatus: A Pydantic model containing the name of the active evaluator.
     """
-    return EvaluatorStatus(active_evaluator=ExtractorManager.get_active_evaluator())
+    return ExtractorStatus(active_evaluator=ExtractorManager.get_active_evaluator())
 
 
 if __name__ == "__main__":

@@ -1,9 +1,12 @@
 """This module defines models and validators for
 managing evaluator processes in a frame evaluation application.
 """
+import logging
 from pathlib import Path
 
-from pydantic import BaseModel, model_validator
+from pydantic import BaseModel, DirectoryPath
+
+logger = logging.getLogger(__name__)
 
 
 class ExtractorConfig(BaseModel):
@@ -15,8 +18,8 @@ class ExtractorConfig(BaseModel):
        output_directory (str):
             The path to the output folder where evaluation results will be saved.
     """
-    input_directory: str | Path = Path("/app/input_directory")
-    output_directory: str | Path = Path("/app/output_directory")
+    input_directory: DirectoryPath = Path("/app/input_directory")
+    output_directory: DirectoryPath = Path("/app/output_directory")
     video_extensions: tuple[str] = (".mp4",)
     images_extensions: tuple[str] = (".jpg",)
     processed_video_prefix: str = "frames_extracted_"
@@ -25,19 +28,6 @@ class ExtractorConfig(BaseModel):
     batch_size: int = 60
     top_images_percent: int = 90
     images_output_format: str = ".jpg"
-
-    @model_validator(mode="after")
-    def validate_directory(self):
-        """Validates that the directories are valid.
-
-        Raises:
-            NotADirectoryError: If the directory path is invalid.
-        """
-        directories = [Path(self.input_directory), Path(self.output_directory)]
-        for directory in directories:
-            if not directory.is_dir():
-                raise NotADirectoryError(f"The path '{directory}' is not a directory.")
-        return self
 
 
 class Message(BaseModel):
@@ -49,11 +39,11 @@ class Message(BaseModel):
     message: str
 
 
-class EvaluatorStatus(BaseModel):
+class ExtractorStatus(BaseModel):
     """A model representing the status of the current working evaluator in the system.
 
     Attributes:
-        active_evaluator (str):
+        active_extractor (str):
             The name of the currently active evaluator or None if there is no active evaluator.
     """
-    active_evaluator: str | None
+    active_extractor: str | None
