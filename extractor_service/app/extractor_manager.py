@@ -28,38 +28,31 @@ class ExtractorManager:
     This class orchestrates the evaluation process, ensuring that only one evaluator task is
     active at any given time. It manages the lifecycle of these tasks, from initiation to
     completion, and prevents concurrent executions to maintain system stability.
-
-    Attributes:
-        __active_evaluator (str | None): The name of the currently active evaluator class,
-                                       or None if no evaluation process is underway.
     """
-    __active_evaluator = None
+    def __init__(self, config: ExtractorConfig) -> None:
+        self.__active_extractor = None
+        self.config = config
 
-    @classmethod
-    def get_active_evaluator(cls):
-        return cls.__active_evaluator
+    @property
+    def active_extractor(self):
+        return self.__active_extractor
 
-    @classmethod
-    def start_extractor(cls, background_tasks: BackgroundTasks,
-                        extractor_name: str,
-                        config: ExtractorConfig) -> str:
-        cls.check_is_already_extracting()
+    def start_extractor(self, background_tasks: BackgroundTasks,
+                        extractor_name: str) -> str:
+        self.check_is_already_extracting()
         extractor_class = ExtractorFactory.get_extractor(extractor_name)
-        background_tasks.add_task(cls.__run_extractor, extractor_class, config)
+        background_tasks.add_task(self.__run_extractor, extractor_class)
         message = f"'{extractor_name}' started."
         return message
 
-    @classmethod
-    def __run_extractor(cls, extractor: Type[Extractor],
-                        config: ExtractorConfig) -> None:
+    def __run_extractor(self, extractor: Type[Extractor]) -> None:
         try:
-            cls.__active_evaluator = extractor.__name__
-            extractor(config).process()
+            self.__active_extractor = extractor.__name__
+            extractor(self.config).process()
         finally:
-            cls.__active_evaluator = None
+            self.__active_extractor = None
 
-    @classmethod
-    def check_is_already_extracting(cls) -> None:
+    def check_is_already_extracting(self) -> None:
         """Checks if an evaluation process is already active and raises an HTTPException if so.
 
         This method ensures that the system enforces the rule of having only one active
@@ -69,9 +62,11 @@ class ExtractorManager:
             HTTPException: If an evaluation process is already active,
             to prevent concurrent evaluations.
         """
-        error_massage = (f"Evaluator '{cls.__active_evaluator}' is already running. "
-                         f"You can run only one evaluator at the same time. "
-                         f"Wait until the evaluator is done before run next process.")
-        if cls.__active_evaluator:
+        if self.__active_extractor:
+            error_massage = (
+                f"Extractor '{self.__active_extractor}' is already running. "
+                f"You can run only one extractor at the same time. "
+                f"Wait until the evaluator is done before run next process."
+            )
             logger.error(error_massage)
             raise HTTPException(status_code=409, detail=error_massage)

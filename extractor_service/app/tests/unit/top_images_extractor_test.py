@@ -1,7 +1,8 @@
 import logging
 from pathlib import Path
-from unittest.mock import MagicMock, patch
+from unittest.mock import MagicMock, patch, call
 
+import numpy as np
 import pytest
 
 from extractor_service.app.extractors import TopImagesExtractor
@@ -44,7 +45,7 @@ def test_process_with_images(mock_read_image, extractor, caplog):
     # Check that the internal methods were called as expected
     extractor._list_input_directory_files.assert_called_once_with(
         extractor.config.images_extensions)
-    mock_read_image.assert_has_calls([patch.call(path) for path in test_images])
+    mock_read_image.assert_has_calls([call(path) for path in test_images])
     extractor._rate_images.assert_called_once_with([mock_read_image.return_value]*3)
     extractor._get_top_percent_images.assert_called_once_with(
         [mock_read_image.return_value]*3, test_ratings, extractor.config.top_images_percent)
@@ -57,3 +58,16 @@ def test_process_with_images(mock_read_image, extractor, caplog):
     )
     assert expected_massage in caplog.text
     extractor._display_info_after_extraction.assert_called_once()
+
+
+def test_get_top_percent_images(extractor, caplog):
+    images = [MagicMock(spec=np.ndarray) for _ in range(5)]
+    ratings = np.array([55, 70, 85, 40, 20])
+    top_percent = 50
+    expected_images = [images[1], images[2]]
+
+    with caplog.at_level(logging.INFO):
+        selected_images = extractor._get_top_percent_images(images, ratings, top_percent)
+
+    assert selected_images == expected_images, "The selected images do not match the expected top percent images."
+    assert "Top images selected." in caplog.text
