@@ -3,7 +3,6 @@ import argparse
 import time
 from pathlib import Path
 from urllib.request import urlopen, Request
-from urllib.error import URLError
 from http.client import RemoteDisconnected
 
 import config
@@ -40,15 +39,16 @@ class Setup:
     def __check_directory(directory: str) -> Path:
         directory = Path(directory)
         if not directory.is_dir():
-            error_massage = f"Invalid directory path: {directory}"
+            error_massage = f"Invalid directory path: {str(directory)}"
             logger.error(error_massage)
             raise NotADirectoryError(error_massage)
         return directory
 
     def run_extractor(self) -> None:
-        start_time = time.time()
         url = f"http://localhost:{self.port}/extractors/{self.extractor_name}"
         req = Request(url, method="POST")
+        logger.info("Waiting for service to be available...")
+        start_time = time.time()
         while True:
             if self._try_to_run_extractor(req, start_time):
                 break
@@ -59,10 +59,9 @@ class Setup:
             with urlopen(req) as response:
                 if response.status == 200:
                     response_body = response.read()
-                    print("Response from server:", response_body)
+                    logger.info("Response from server:", response_body)
                     return True
         except RemoteDisconnected:
-            print("Waiting for service to be available...")
             time.sleep(3)
         if time.time() - start_time > timeout:
             raise TimeoutError("Timed out waiting for service to respond.")
