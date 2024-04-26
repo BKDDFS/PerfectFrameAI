@@ -47,14 +47,12 @@ class Setup:
     def run_extractor(self) -> None:
         url = f"http://localhost:{self.port}/extractors/{self.extractor_name}"
         req = Request(url, method="POST")
-        logger.info("Waiting for service to be available...")
         start_time = time.time()
         while True:
             if self._try_to_run_extractor(req, start_time):
                 break
 
-    @staticmethod
-    def _try_to_run_extractor(req, start_time, timeout=60) -> bool:
+    def _try_to_run_extractor(self, req: Request, start_time: float, timeout: int = 60) -> bool:
         try:
             with urlopen(req) as response:
                 if response.status == 200:
@@ -62,10 +60,17 @@ class Setup:
                     logger.info("Response from server:", response_body)
                     return True
         except RemoteDisconnected:
+            logger.info("Waiting for service to be available...")
+            self.__check_timeout(start_time, timeout)
             time.sleep(3)
-        if time.time() - start_time > timeout:
-            raise TimeoutError("Timed out waiting for service to respond.")
         return False
+
+    @staticmethod
+    def __check_timeout(start_time: float, timeout: int) -> None:
+        if time.time() - start_time > timeout:
+            error_massage = "Timed out waiting for service to respond."
+            logger.error(error_massage)
+            raise TimeoutError(error_massage)
 
 
 if __name__ == "__main__":

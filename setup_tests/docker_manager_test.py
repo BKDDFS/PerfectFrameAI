@@ -159,6 +159,19 @@ def test_run_container(mock_subprocess_run, docker):
     mock_subprocess_run.assert_called_once_with(expected_command, check=True)
 
 
+@patch.object(subprocess, "Popen", autospec=True)
+def test_run_log_process(mock_popen, docker):
+    command = ("docker", "logs", "-f", "--since", "1s", docker.container_name)
+
+    result = docker._DockerManager__run_log_process()
+
+    mock_popen.assert_called_once_with(
+        command, stdout=subprocess.PIPE,
+        stderr=subprocess.STDOUT, text=True, encoding="utf-8"
+    )
+    assert result
+
+
 @patch("docker_manager.subprocess.run")
 def test_stop_container_success(mock_subprocess_run, docker, caplog):
     mock_subprocess_run.return_value = MagicMock()
@@ -172,9 +185,9 @@ def test_stop_container_success(mock_subprocess_run, docker, caplog):
     assert "Container stopped." in caplog.text
 
 
-@patch('docker_manager.subprocess.Popen')
-@patch('docker_manager.sys.stdout.write')
-@patch('docker_manager.DockerManager._DockerManager__run_log_process')
+@patch("docker_manager.subprocess.Popen")
+@patch("docker_manager.sys.stdout.write")
+@patch("docker_manager.DockerManager._DockerManager__run_log_process")
 @patch("docker_manager.DockerManager._stop_container")
 def test_follow_container_logs(mock_stop_container, mock_run_log_process, mock_stdout_write, mock_popen, docker, caplog):
     mock_process = MagicMock()
@@ -196,16 +209,3 @@ def test_follow_container_logs(mock_stop_container, mock_run_log_process, mock_s
 
     assert f"Following logs for {docker.container_name}" in caplog.text
     assert "Process stopped by user." in caplog.text
-
-
-@patch.object(subprocess, "Popen", autospec=True)
-def test_run_log_process(mock_popen, docker):
-    command = ("docker", "logs", "-f", "--since", "1s", docker.container_name)
-
-    result = docker._DockerManager__run_log_process()
-
-    mock_popen.assert_called_once_with(
-        command, stdout=subprocess.PIPE,
-        stderr=subprocess.STDOUT, text=True, encoding="utf-8"
-    )
-    assert result
