@@ -6,7 +6,7 @@ from unittest.mock import patch, MagicMock
 
 import pytest
 
-from setup import Setup
+from setup import Setup, check_directory
 
 EXTRACTOR_NAME = "test_extractor"
 INPUT_DIRECTORY = Path("mock/input")
@@ -21,29 +21,32 @@ def setup():
     mock_args.input = INPUT_DIRECTORY
     mock_args.output = OUTPUT_DIRECTORY
     mock_args.port = PORT
-    with patch("setup.Setup._Setup__check_directory"), \
+    with patch("setup.check_directory"), \
             patch("setup.argparse.ArgumentParser.parse_args") as mock_parse_args:
         mock_parse_args.return_value = mock_args
         setup = Setup()
     return setup
 
 
-@patch('setup.argparse.ArgumentParser.parse_args')
-def test_check_invalid_directory(mock_parse_args, caplog):
+def test_check_invalid_directory(caplog):
     invalid_directory = Path("/invalid/input")
     error_massage = f"Invalid directory path: {str(invalid_directory)}"
-    mock_args = MagicMock()
-    mock_args.extractor_name = "extractor_name"
-    mock_args.input = invalid_directory
-    mock_args.output = invalid_directory
-    mock_args.port = 8100
-    mock_parse_args.return_value = mock_args
 
     with pytest.raises(NotADirectoryError), \
             caplog.at_level(logging.ERROR):
-        Setup()
+        check_directory(str(invalid_directory))
 
-    assert error_massage in caplog.text
+    assert error_massage in caplog.text, "Invalid logging."
+
+
+def test_check_valid_directory():
+    valid_directory = "/valid/input"
+
+    with patch("pathlib.Path.is_dir"):
+        result = check_directory(valid_directory)
+
+    assert result
+    assert isinstance(result, Path)
 
 
 @pytest.mark.parametrize("arg_set", (
@@ -53,7 +56,7 @@ def test_check_invalid_directory(mock_parse_args, caplog):
          'input': '/another/input', 'output': '/another/output', 'port': 9000}
     ))
 @patch('setup.argparse.ArgumentParser.parse_args')
-@patch('setup.Setup._Setup__check_directory')
+@patch('setup.check_directory')
 def test_setup_various_args(mock_check_directory, mock_parse_args, arg_set):
     mock_args = MagicMock()
     mock_args.extractor_name = arg_set['extractor_name']
