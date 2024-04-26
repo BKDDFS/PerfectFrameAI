@@ -12,11 +12,20 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 
+def check_directory(directory: str) -> Path:
+    directory = Path(directory)
+    if not directory.is_dir():
+        error_massage = f"Invalid directory path: {str(directory)}"
+        logger.error(error_massage)
+        raise NotADirectoryError(error_massage)
+    return directory
+
+
 class Setup:
     def __init__(self) -> None:
         args = self.__parse_args()
-        self.input_directory = self.__check_directory(args.input)
-        self.output_directory = self.__check_directory(args.output)
+        self.input_directory = check_directory(args.input)
+        self.output_directory = check_directory(args.output)
         self.extractor_name = args.extractor_name
         self.port = args.port
 
@@ -34,15 +43,6 @@ class Setup:
                             help="Port to expose the service on the host")
         args = parser.parse_args()
         return args
-
-    @staticmethod
-    def __check_directory(directory: str) -> Path:
-        directory = Path(directory)
-        if not directory.is_dir():
-            error_massage = f"Invalid directory path: {str(directory)}"
-            logger.error(error_massage)
-            raise NotADirectoryError(error_massage)
-        return directory
 
     def run_extractor(self) -> None:
         url = f"http://localhost:{self.port}/extractors/{self.extractor_name}"
@@ -71,11 +71,16 @@ class Setup:
 if __name__ == "__main__":
     setup = Setup()
     docker = DockerManager(
+        config.service_name,
         setup.input_directory,
         setup.output_directory,
         setup.port
     )
-    docker.build_image()
-    docker.deploy_container()
+    docker.build_image(config.dockerfile_path)
+    docker.deploy_container(
+        config.default_port,
+        config.default_container_input_directory,
+        config.default_container_output_directory
+    )
     setup.run_extractor()
-    docker.follow_logs()
+    docker.follow_container_logs()
