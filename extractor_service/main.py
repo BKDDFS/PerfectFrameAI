@@ -24,7 +24,7 @@ from fastapi import FastAPI, BackgroundTasks, Depends
 from app.schemas import ExtractorConfig, Message, ExtractorStatus
 from app.extractor_manager import ExtractorManager
 
-logging.basicConfig(level=logging.INFO,
+logging.basicConfig(level=logging.DEBUG,
                     format='%(asctime)s - %(levelname)s - %(message)s',
                     datefmt='%Y-%m-%d %H:%M:%S',
                     handlers=[logging.StreamHandler(sys.stdout)])
@@ -47,7 +47,7 @@ def extract_best_frames(background_tasks: BackgroundTasks, extractor_name: str,
         :param background_tasks:
         :param config:
     """
-    message = ExtractorManager.start_extractor(background_tasks, extractor_name, config)
+    message = ExtractorManager(config).start_extractor(background_tasks, extractor_name)
     return Message(message=message)
 
 
@@ -56,9 +56,9 @@ def get_evaluators_status() -> ExtractorStatus:
     """Provides the status of the currently active evaluator.
 
     Returns:
-        ExtractorStatus: A Pydantic model containing the name of the active evaluator.
+        ExtractorStatus: Pydantic model containing the name of the active extractor.
     """
-    return ExtractorStatus(active_evaluator=ExtractorManager.get_active_evaluator())
+    return ExtractorStatus(active_extractor=ExtractorManager.get_active_extractor())
 
 
 if __name__ == "__main__":

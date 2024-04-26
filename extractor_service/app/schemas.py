@@ -40,10 +40,10 @@ class Message(BaseModel):
 
 
 class ExtractorStatus(BaseModel):
-    """A model representing the status of the current working evaluator in the system.
+    """Representing the status of the currently working extractor in the system.
 
     Attributes:
         active_extractor (str):
-            The name of the currently active evaluator or None if there is no active evaluator.
+            The name of the currently active extractor.
     """
     active_extractor: str | None

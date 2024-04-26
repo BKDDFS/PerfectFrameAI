@@ -7,3 +7,4 @@ htmlcov/
 .env
 input_directory/*
 output_directory/*
+test_video.mp4

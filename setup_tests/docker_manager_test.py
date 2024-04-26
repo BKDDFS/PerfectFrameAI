@@ -93,10 +93,10 @@ def test_container_status(mock_subprocess_run, code, output, status, docker):
 
 @pytest.mark.parametrize(
     "status, log_message", (
-        ("exited", "Starting the existing container..."),
+        ("'exited'", "Starting the existing container..."),
         (None, "Container does not exist. Running a new container..."),
-        ("running", "Container is already running."),
-        ("dead", f"Container in unsupported status: dead. Fix container on your own.")
+        ("'running'", "Container is already running."),
+        ("'dead'", f"Container in unsupported status: dead. Fix container on your own.")
     )
 )
 @patch("docker_manager.DockerManager._run_container")
@@ -119,10 +119,10 @@ def test_deploy_container(mock_container_status, mock_start_container,
     if status is None:
         mock_start_container.assert_not_called()
         mock_run_container.assert_called_once_with(*deploy_container_args)
-    elif status == "exited":
+    elif status == "'exited'":
         mock_start_container.assert_called_once()
         mock_run_container.assert_not_called()
-    elif status == "running":
+    elif status == "'running'":
         mock_start_container.assert_not_called()
         mock_run_container.assert_not_called()
     else:

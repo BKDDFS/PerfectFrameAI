@@ -45,5 +45,5 @@ class PyIQA(ImageRater):
     def _convert_images_to_tensor_batch(self, images: list[np.ndarray]) -> torch.Tensor:
         tensor_images_list = [self.transforms_compose(image).to(self.torch_device) for image in images]
         tensor_images = torch.stack(tensor_images_list)
-        logger.debug("Images batch converted from RGB to TENSOR.")
+        logger.debug("Images batch converted to tensor.")
         return tensor_images

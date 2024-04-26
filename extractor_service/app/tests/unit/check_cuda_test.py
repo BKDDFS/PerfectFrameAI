@@ -1,7 +1,7 @@
-import pytest
 from unittest.mock import patch, call
 
 import torch
+import pytest
 
 from extractor_service.app.check_cuda import check_cuda_availability
 

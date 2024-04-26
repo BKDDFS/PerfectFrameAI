@@ -29,13 +29,14 @@ class ExtractorManager:
     active at any given time. It manages the lifecycle of these tasks, from initiation to
     completion, and prevents concurrent executions to maintain system stability.
     """
-    def __init__(self, config: ExtractorConfig) -> None:
-        self.__active_extractor = None
-        self.config = config
+    __active_extractor = None
 
-    @property
-    def active_extractor(self):
-        return self.__active_extractor
+    @classmethod
+    def get_active_extractor(cls):
+        return cls.__active_extractor
+
+    def __init__(self, config: ExtractorConfig) -> None:
+        self.config = config
 
     def start_extractor(self, background_tasks: BackgroundTasks,
                         extractor_name: str) -> str:

@@ -115,7 +115,7 @@ def test_convert_images_to_tensor_batch(mock_stack, mock_to, pyiqa_rater):
     assert result_tensor is tensor_batch, "Returned tensor batch is not correct."
 
 
-@patch('torch.stack')
+@patch("torch.stack")
 @patch.object(torch.Tensor, "to", return_value=MagicMock())
 def test_convert_images_to_tensor_batch(mock_to, mock_stack, pyiqa_rater, caplog):
     mock_transform = MagicMock()
@@ -124,6 +124,7 @@ def test_convert_images_to_tensor_batch(mock_to, mock_stack, pyiqa_rater, caplog
     expected_result = MagicMock(spec=torch.Tensor)
     mock_stack.return_value = expected_result
     mock_transform.return_value.to = mock_to
+
     with caplog.at_level(logging.DEBUG):
         result = pyiqa_rater._convert_images_to_tensor_batch(images)
 
@@ -132,4 +133,4 @@ def test_convert_images_to_tensor_batch(mock_to, mock_stack, pyiqa_rater, caplog
     assert mock_to.call_count == len(images)
     mock_to.assert_called_with(pyiqa_rater.torch_device)
     assert isinstance(result, torch.Tensor), "Result should be a torch.Tensor"
-    assert "Images batch converted from RGB to TENSOR." in caplog.text
+    assert "Images batch converted to tensor." in caplog.text
