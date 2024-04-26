@@ -57,7 +57,7 @@ class Setup:
             with urlopen(req) as response:
                 if response.status == 200:
                     response_body = response.read()
-                    logger.info("Response from server:", response_body)
+                    logger.info("Response from server: %s", response_body)
                     return True
         except RemoteDisconnected:
             logger.info("Waiting for service to be available...")

@@ -2,7 +2,6 @@ import concurrent
 import logging
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
-
 from unittest.mock import patch, MagicMock
 
 import numpy as np

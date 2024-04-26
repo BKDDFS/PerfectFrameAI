@@ -72,6 +72,19 @@ class Extractor(ABC):
         ratings = np.array(self.image_rater.rate_images(images))
         return ratings
 
+    @staticmethod
+    def _read_images(paths: list[Path]) -> list[np.ndarray]:
+        with ThreadPoolExecutor() as executor:
+            images = []
+            futures = [executor.submit(
+                OpenCVImage.read_image, path,
+            ) for path in paths]
+            for future in futures:
+                image = future.result()
+                if image is not None:
+                    images.append(image)
+            return images
+
     def _save_images(self, images: list[np.ndarray]):
         with ThreadPoolExecutor() as executor:
             futures = [executor.submit(
@@ -166,8 +179,8 @@ class TopImagesExtractor(Extractor):
         images_paths = self._list_input_directory_files(self.config.images_extensions)
         self._get_image_rater()
         for batch_index in range(0, len(images_paths), self.config.batch_size):
-            batch_paths = images_paths[batch_index:batch_index + self.config.batch_size]
-            images = [OpenCVImage.read_image(path) for path in batch_paths]
+            batch = images_paths[batch_index:batch_index + self.config.batch_size]
+            images = self._read_images(batch)
             ratings = self._rate_images(images)
             top_images = self._get_top_percent_images(images, ratings,
                                                       self.config.top_images_percent)
@@ -189,8 +202,7 @@ class TopImagesExtractor(Extractor):
         Returns:
             list[np.ndarray]: Images with ratings in the top X percent.
         """
-        percentile_threshold = 100 - top_percent
-        threshold = np.percentile(ratings, percentile_threshold)
+        threshold = np.percentile(ratings, top_percent)
         top_images = [img for img, rate in zip(images, ratings) if rate > threshold]
         logger.info("Top images selected.")
         return top_images

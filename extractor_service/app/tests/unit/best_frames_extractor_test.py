@@ -28,7 +28,7 @@ def test_process(extractor, caplog):
     # Setup
     test_videos = ["/fake/directory/video1.mp4", "/fake/directory/video2.mp4"]
     test_frames = ["frame1", "frame2"]
-    # Mock internal methods
+    # Mock
     extractor._list_input_directory_files = MagicMock(return_value=test_videos)
     extractor._get_image_rater = MagicMock()
     extractor._extract_best_frames = MagicMock(return_value=test_frames)
@@ -53,7 +53,7 @@ def test_process(extractor, caplog):
         extractor._extract_best_frames.assert_any_call(video)
         extractor._save_images.assert_any_call(test_frames)
 
-    # Check logging
+    # Logging
         assert f"Frames extraction has finished for video: {video}" in caplog.text
     assert f"Starting frames extraction process from '{CONFIG.input_directory}'." in caplog.text
 
@@ -62,13 +62,14 @@ def test_process(extractor, caplog):
 def test_extract_best_frames(mock_get_next_video_frames, extractor, caplog):
     # Setup
     video_path = Path("/fake/video.mp4")
-    frames_batch_1 = [MagicMock() for _ in range(10)]
+    frames_batch = [MagicMock() for _ in range(10)]
+    frames_batch_1 = frames_batch
     frames_batch_2 = []
-    frames_batch_3 = [MagicMock() for _ in range(10)]
+    frames_batch_3 = frames_batch
     mock_get_next_video_frames.return_value = iter([frames_batch_1, frames_batch_2, frames_batch_3])
-
-    # Mock internal methods
-    extractor._rate_images = MagicMock(return_value=[5, 6, 3, 8, 5, 2, 9, 1, 4, 7])
+    test_ratings = [5, 6, 3, 8, 5, 2, 9, 1, 4, 7]
+    # Mock
+    extractor._rate_images = MagicMock(return_value=test_ratings)
     extractor._get_best_images = MagicMock(
         side_effect=lambda frames, ratings, group_size: [frames[i] for i in [3, 6]])
 
@@ -78,23 +79,18 @@ def test_extract_best_frames(mock_get_next_video_frames, extractor, caplog):
 
     # Verification
     mock_get_next_video_frames.assert_called_once_with(video_path, extractor.config.batch_size)
-    assert extractor._rate_images.call_count == 2  # Called twice, not for empty batch
+    assert extractor._rate_images.call_count == 2
     assert extractor._get_best_images.call_count == 2
-    assert len(best_frames) == 4  # Should contain 4 frames, two from each non-empty batch
+    assert len(best_frames) == 4
     extractor._rate_images.assert_any_call(frames_batch_1)
     extractor._rate_images.assert_any_call(frames_batch_3)
-    extractor._get_best_images.assert_any_call(
-        frames_batch_1,
-        [5, 6, 3, 8, 5, 2, 9, 1, 4, 7],
-        extractor.config.compering_group_size
-    )
-    extractor._get_best_images.assert_any_call(
-        frames_batch_3,
-        [5, 6, 3, 8, 5, 2, 9, 1, 4, 7],
-        extractor.config.compering_group_size
-    )
-
-    # Check logging
+    for batch in [frames_batch_1, frames_batch_3]:
+        extractor._get_best_images.assert_any_call(
+            batch,
+            test_ratings,
+            extractor.config.compering_group_size
+        )
+    # Logging
     assert caplog.text.count("Frames pack generated.") == 2
 
 

@@ -1,8 +1,9 @@
 from pathlib import Path
+from unittest.mock import patch, MagicMock
 
 import pytest
 from fastapi import HTTPException, BackgroundTasks
-from unittest.mock import patch, MagicMock
+
 from extractor_service.app.extractor_manager import ExtractorManager
 from extractor_service.app.schemas import ExtractorConfig
 
@@ -20,7 +21,7 @@ def manager():
 
 
 def test_get_active_extractor(manager):
-    assert manager.active_extractor is None
+    assert manager.get_active_extractor() is None
 
 
 @patch("extractor_service.app.extractors.ExtractorFactory.get_extractor")
@@ -54,9 +55,10 @@ def test_run_extractor(mock_extractor, manager):
 
 
 def test_check_is_already_evaluating_true(manager):
-    manager._ExtractorManager__active_extractor = "active_evaluator"
+    test_extractor = "active_extractor"
+    manager._ExtractorManager__active_extractor = test_extractor
     expected_error_massage = (
-        f"Extractor '{manager.active_extractor}' is already running. "
+        f"Extractor '{test_extractor}' is already running. "
         f"You can run only one extractor at the same time. "
         f"Wait until the evaluator is done before run next process."
     )

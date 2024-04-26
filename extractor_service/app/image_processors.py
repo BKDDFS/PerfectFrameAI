@@ -23,8 +23,11 @@ class ImageProcessor(ABC):
 
 class OpenCVImage(ImageProcessor):
     @staticmethod
-    def read_image(image_path: Path) -> np.ndarray:
+    def read_image(image_path: Path) -> np.ndarray | None:
         image = cv2.imread(str(image_path))
+        if image is None:
+            logger.warning("Can't read image, image is None. Image path: %s", image_path)
+            return None
         logger.debug("Image '%s' has successfully read.", image_path)
         return image
 
