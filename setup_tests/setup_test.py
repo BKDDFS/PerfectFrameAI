@@ -1,7 +1,9 @@
 import logging
-from datetime import time
+import time
+import urllib.request
 from http.client import RemoteDisconnected
 from pathlib import Path
+from unittest import mock
 from unittest.mock import patch, MagicMock
 
 import pytest
@@ -12,6 +14,7 @@ EXTRACTOR_NAME = "test_extractor"
 INPUT_DIRECTORY = Path("mock/input")
 OUTPUT_DIRECTORY = Path("mock/output")
 PORT = 8000
+MOCK_REQUEST = MagicMock(spec=urllib.request.Request)
 
 
 @pytest.fixture
@@ -54,7 +57,7 @@ def test_check_valid_directory():
          'input': '/valid/input', 'output': '/valid/output', 'port': 8000},
         {'extractor_name': 'top_images_extractor',
          'input': '/another/input', 'output': '/another/output', 'port': 9000}
-    ))
+))
 @patch('setup.argparse.ArgumentParser.parse_args')
 @patch('setup.check_directory')
 def test_setup_various_args(mock_check_directory, mock_parse_args, arg_set):
@@ -78,49 +81,59 @@ def test_setup_various_args(mock_check_directory, mock_parse_args, arg_set):
     mock_parse_args.assert_called_once()
 
 
-# @patch('urllib.request.Request')
-# @patch('time.time')
-# @patch.object(Setup, '_try_to_run_extractor')
-# def test_run_extractor(mock_try_to_run_extractor, mock_time, mock_request, setup):
-#     mock_try_to_run_extractor.side_effect = [False, False, True]  # will loop three times
-#
-#     setup.run_extractor()
-#
-#     assert mock_try_to_run_extractor.call_count == 3, "The loop did not execute the expected number of times"
-#     assert mock_request.call_count == 1, "Request was not created"
-#     # mock_request.assert_called_with(f"http://localhost:8080/extractors/test_extractor", method="POST")
-#
-#     assert mock_time.call_count == 1, "Time was not checked correctly"
-
-
-@patch('setup.urlopen')
-@patch('setup.time.time')
-@patch('setup.time.sleep')  # Mock sleep to ensure no delay in the test
-def test_try_to_run_extractor(mock_sleep, mock_time, mock_urlopen, setup):
-    # Setup for time mocking
+@patch("setup.time.time")
+def test_run_extractor(mock_time, setup):
+    test_url = f"http://localhost:{setup.port}/extractors/{setup.extractor_name}"
+    test_method = "POST"
     start_time = 100
-    mock_time.side_effect = [start_time, start_time + 30, start_time + 65]  # Normal progression, then timeout
+    mock_time.side_effect = [start_time, start_time + 1, start_time + 2, start_time + 3]
+    mock_try = MagicMock(side_effect=[False, False, True])
+    setup._try_to_run_extractor = mock_try
 
-    # Setup for urlopen mock
-    response_mock = MagicMock()
-    response_mock.status = 200
-    response_mock.read.return_value = 'Successful response'
-    mock_urlopen.return_value = response_mock
+    setup.run_extractor()
 
-    # Test successful request
-    req = MagicMock()
-    assert setup._try_to_run_extractor(req, start_time) is True
-    response_mock.read.assert_called_once()
-    mock_sleep.assert_not_called()
+    assert mock_try.call_count == 3
+    mock_try.assert_any_call(mock.ANY, start_time)
+    last_call = mock_try.call_args
+    request_obj = last_call[0][0]
+    assert request_obj.method == test_method
+    assert request_obj.full_url == test_url
 
-    # Test the function with a disconnection
-    mock_urlopen.side_effect = RemoteDisconnected("Remote host closed connection")
-    assert setup._try_to_run_extractor(req, start_time) is False
-    mock_sleep.assert_called_once_with(3)
 
-    # Test timeout
-    mock_urlopen.side_effect = lambda x: time.sleep(1)  # Delay to trigger timeout
-    with pytest.raises(TimeoutError) as exc_info:
-        setup._try_to_run_extractor(req, start_time)
-    assert "Timed out waiting for service to respond." in str(exc_info.value)
-    assert mock_time.call_count >= 3  # Ensure time was checked multiple times
+@patch("setup.urlopen")
+def test_try_to_run_extractor_success(mock_urlopen, setup):
+    mock_response = MagicMock()
+    mock_response.status = 200
+    mock_response.read.return_value = b'Response content'
+    mock_urlopen.return_value.__enter__.return_value = mock_response
+
+    result = setup._try_to_run_extractor(MOCK_REQUEST, time.time())
+
+    mock_urlopen.assert_called_once()
+    assert result is True
+
+
+@patch("setup.urlopen", side_effect=RemoteDisconnected)
+@patch("setup.time.sleep")
+def test_try_to_run_extractor_remote_disconnected(mock_sleep, mock_urlopen, setup, caplog):
+    with caplog.at_level(logging.INFO):
+        result = setup._try_to_run_extractor(MOCK_REQUEST, time.time())
+
+    mock_sleep.assert_called_with(3)
+    mock_urlopen.assert_called_once()
+    assert result is False
+    assert "Waiting for service to be available..." in caplog.text
+
+
+@patch("setup.time.time", return_value=3)
+@patch("setup.urlopen", side_effect=RemoteDisconnected)
+def test_try_to_run_extractor_timeout(mock_urlopen, mock_time, setup, caplog):
+    error_massage = "Timed out waiting for service to respond."
+    start_time = 1
+    with caplog.at_level(logging.ERROR), \
+            pytest.raises(TimeoutError, match=error_massage):
+        setup._try_to_run_extractor(MOCK_REQUEST, start_time, 1)
+
+    mock_urlopen.assert_called_once()
+    mock_time.assert_any_call()
+    assert error_massage in caplog.text
