@@ -32,7 +32,7 @@ def test_process_with_images(mock_read_image, extractor, caplog):
 
     # Mock internal methods
     extractor._list_input_directory_files = MagicMock(return_value=test_images)
-    extractor._get_image_rater = MagicMock()
+    extractor._get_image_evaluator = MagicMock()
     extractor._rate_images = MagicMock(return_value=test_ratings)
     extractor._get_top_percent_images = MagicMock(return_value=best_image)
     extractor._save_images = MagicMock()
@@ -44,11 +44,11 @@ def test_process_with_images(mock_read_image, extractor, caplog):
 
     # Check that the internal methods were called as expected
     extractor._list_input_directory_files.assert_called_once_with(
-        extractor.config.images_extensions)
+        extractor._config.images_extensions)
     mock_read_image.assert_has_calls([call(path) for path in test_images])
     extractor._rate_images.assert_called_once_with([mock_read_image.return_value]*3)
     extractor._get_top_percent_images.assert_called_once_with(
-        [mock_read_image.return_value]*3, test_ratings, extractor.config.top_images_percent)
+        [mock_read_image.return_value]*3, test_ratings, extractor._config.top_images_percent)
     extractor._save_images.assert_called_once_with(best_image)
 
     # Check logging

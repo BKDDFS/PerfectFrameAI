@@ -30,7 +30,7 @@ def test_process(extractor, caplog):
     test_frames = ["frame1", "frame2"]
     # Mock
     extractor._list_input_directory_files = MagicMock(return_value=test_videos)
-    extractor._get_image_rater = MagicMock()
+    extractor._get_image_evaluator = MagicMock()
     extractor._extract_best_frames = MagicMock(return_value=test_frames)
     extractor._save_images = MagicMock()
     extractor._add_prefix = MagicMock()
@@ -43,7 +43,7 @@ def test_process(extractor, caplog):
     # Verification
     extractor._list_input_directory_files.assert_called_once_with(
         CONFIG.video_extensions, CONFIG.processed_video_prefix)
-    extractor._get_image_rater.assert_called_once()
+    extractor._get_image_evaluator.assert_called_once()
     assert extractor._extract_best_frames.call_count == len(test_videos)
     assert extractor._save_images.call_count == len(test_videos)
     assert extractor._add_prefix.call_count == len(test_videos)
@@ -78,7 +78,7 @@ def test_extract_best_frames(mock_get_next_video_frames, extractor, caplog):
         best_frames = extractor._extract_best_frames(video_path)
 
     # Verification
-    mock_get_next_video_frames.assert_called_once_with(video_path, extractor.config.batch_size)
+    mock_get_next_video_frames.assert_called_once_with(video_path, extractor._config.batch_size)
     assert extractor._rate_images.call_count == 2
     assert extractor._get_best_images.call_count == 2
     assert len(best_frames) == 4
@@ -88,7 +88,7 @@ def test_extract_best_frames(mock_get_next_video_frames, extractor, caplog):
         extractor._get_best_images.assert_any_call(
             batch,
             test_ratings,
-            extractor.config.compering_group_size
+            extractor._config.compering_group_size
         )
     # Logging
     assert caplog.text.count("Frames pack generated.") == 2

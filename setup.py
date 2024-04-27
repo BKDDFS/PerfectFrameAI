@@ -1,3 +1,6 @@
+"""
+
+"""
 import logging
 import argparse
 import time
@@ -13,6 +16,18 @@ logger = logging.getLogger(__name__)
 
 
 def check_directory(directory: str) -> Path:
+    """
+    Validates if the provided directory path is an actual directory.
+
+    Args:
+        directory (str): The directory path to validate.
+
+    Returns:
+        Path: The validated directory as a Path object.
+
+    Raises:
+        NotADirectoryError: If the provided path is not a directory.
+    """
     directory = Path(directory)
     if not directory.is_dir():
         error_massage = f"Invalid directory path: {str(directory)}"
@@ -22,7 +37,12 @@ def check_directory(directory: str) -> Path:
 
 
 class Setup:
+    """
+    Handles command-line input and manages the setup and
+    execution of Docker-based image processing tasks.
+    """
     def __init__(self) -> None:
+        """Initializes the setup by parsing and validating command line arguments."""
         args = self.__parse_args()
         self.input_directory = check_directory(args.input)
         self.output_directory = check_directory(args.output)
@@ -31,6 +51,12 @@ class Setup:
 
     @staticmethod
     def __parse_args() -> argparse.Namespace:
+        """
+        Parses command line arguments.
+
+        Returns:
+            argparse.Namespace: The namespace populated with command line arguments.
+        """
         parser = argparse.ArgumentParser(description="Manage Docker container for image processing.")
         parser.add_argument("extractor_name",
                             choices=['best_frames_extractor', 'top_images_extractor'],
@@ -45,6 +71,7 @@ class Setup:
         return args
 
     def run_extractor(self) -> None:
+        """Send POST request to local port extractor service to start chosen extractor."""
         url = f"http://localhost:{self.port}/extractors/{self.extractor_name}"
         req = Request(url, method="POST")
         start_time = time.time()
@@ -53,6 +80,18 @@ class Setup:
                 break
 
     def _try_to_run_extractor(self, req: Request, start_time: float, timeout: int = 60) -> bool:
+        """
+        Attempts to send a request to the extractor service
+        and handles service availability and timeouts.
+
+        Args:
+            req (Request): The request object to send.
+            start_time (float): The timestamp at the start of the operation for timeout management.
+            timeout (int): Maximum time in seconds to wait for the service to become available.
+
+        Returns:
+            bool: True if the service response as expected, False otherwise.
+        """
         try:
             with urlopen(req) as response:
                 if response.status == 200:
@@ -67,6 +106,16 @@ class Setup:
 
     @staticmethod
     def __check_timeout(start_time: float, timeout: int) -> None:
+        """
+        Checks if the operation has timed out based on the start time and specified timeout.
+
+        Args:
+            start_time (float): The start time of the operation.
+            timeout (int): The maximum allowable duration for the operation.
+
+        Raises:
+            TimeoutError: If the current time exceeds the start time by the timeout duration.
+        """
         if time.time() - start_time > timeout:
             error_massage = "Timed out waiting for service to respond."
             logger.error(error_massage)

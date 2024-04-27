@@ -21,12 +21,27 @@ def test_read_image(mock_imread, opencv, caplog):
     mock_path = Path("some/path/to/image.jpg")
     expected_image = MagicMock(spec=np.ndarray)
     mock_imread.return_value = expected_image
+
     with caplog.at_level(logging.DEBUG):
         result = opencv.read_image(mock_path)
 
     assert result == expected_image
     mock_imread.assert_called_once_with(str(mock_path))
     assert f"Image '{mock_path}' has successfully read." in caplog.text
+
+
+@patch.object(cv2, "imread")
+def test_read_image_invalid_image(mock_imread, opencv, caplog):
+    mock_path = Path("some/path/to/image.jpg")
+    mock_imread.return_value = None
+
+    with caplog.at_level(logging.WARNING):
+        result = opencv.read_image(mock_path)
+
+    assert result is None
+    mock_imread.assert_called_once_with(str(mock_path))
+    assert (f"Can't read image. OpenCV reading not returns np.ndarray"
+            f" for image path: {str(mock_path)}") in caplog.text
 
 
 @patch.object(uuid, "uuid4")
