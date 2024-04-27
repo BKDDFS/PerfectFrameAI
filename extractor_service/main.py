@@ -1,19 +1,11 @@
-"""This module defines a FastAPI web application for managing frame evaluation processes.
-
-The application provides functionality to start and monitor frame evaluation tasks such
-as extracting the best frames and selecting the top frames from given input.
-It is designed to run one evaluation process at a time and offers API
-endpoints to initiate these processes and check their current status.
-Evaluation processes are executed in the background using
-threading, and their states are managed through the `EvaluatorsManager` class.
+"""
+This module defines a FastAPI web application for managing image extractors.
 
 Endpoints:
-    GET /frames_evaluators/status:
-        Provides the status of the active evaluator.
-    POST /frames_evaluators/best_frames_extractor:
-        Initiates the best frames extraction process.
-    POST /frames_evaluators/top_frames_selector:
-        Initiates the top frames selection process.
+    GET /status:
+        For checking is some extractor already running.
+    POST /extractors/{extractor_name}:
+        For running chosen extractor.
 """
 import logging
 import sys
@@ -33,32 +25,35 @@ logger = logging.getLogger(__name__)
 app = FastAPI()
 
 
-@app.post("/extractors/{extractor_name}")
-def extract_best_frames(background_tasks: BackgroundTasks, extractor_name: str,
-                        config: ExtractorConfig = Depends()) -> Message:
-    """Initiates the best frames extraction process based on the provided request data.
-
-    Args:
-        request_data (RequestData): A Pydantic model containing input and output folder paths.
+@app.get("/status")
+def get_extractors_status() -> ExtractorStatus:
+    """
+    Checks is some extractor already running on service.
 
     Returns:
-        Message: A Pydantic model containing a message about the initiation status.
-        :param extractor_name:
-        :param background_tasks:
-        :param config:
+        ExtractorStatus: Contains the name of the currently active extractor.
+    """
+    return ExtractorStatus(active_extractor=ExtractorManager.get_active_extractor())
+
+
+@app.post("/extractors/{extractor_name}")
+def run_extractor(background_tasks: BackgroundTasks, extractor_name: str,
+                  config: ExtractorConfig = Depends()) -> Message:
+    """
+    Runs provided extractor.
+
+    Args:
+        background_tasks (BackgroundTasks): A FastAPI tool for running tasks in background,
+            which allows non-blocking operation of long-running tasks.
+        extractor_name (str): The name of the extractor that will be used.
+        config (ExtractorConfig): A Pydantic model with configuration
+            parameters for the extractor
+
+    Returns:
+        Message: Contains the operation status.
     """
     message = ExtractorManager(config).start_extractor(background_tasks, extractor_name)
     return Message(message=message)
-
-
-@app.get("/status")
-def get_evaluators_status() -> ExtractorStatus:
-    """Provides the status of the currently active evaluator.
-
-    Returns:
-        ExtractorStatus: Pydantic model containing the name of the active extractor.
-    """
-    return ExtractorStatus(active_extractor=ExtractorManager.get_active_extractor())
 
 
 if __name__ == "__main__":

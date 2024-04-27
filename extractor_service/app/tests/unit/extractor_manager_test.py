@@ -64,6 +64,6 @@ def test_check_is_already_evaluating_true(manager):
     )
 
     with pytest.raises(HTTPException, match=expected_error_massage) as exc_info:
-        manager.check_is_already_extracting()
+        manager._check_is_already_extracting()
 
     assert exc_info.value.status_code == 409

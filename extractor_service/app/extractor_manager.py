@@ -1,15 +1,6 @@
-"""This module provides the core functionality for managing frame
-evaluation processes within a FastAPI application.
-
-It defines the `EvaluatorsManager` class,
-which orchestrates the initiation and management of frame evaluation tasks.
-
-Key Components:
-- `EvaluatorsManager`:
-    A class that manages the lifecycle of frame evaluation processes.
-    It controls the initiation of new processes,
-    monitors their execution in background threads,
-    and maintains the status of the currently active evaluator.
+"""
+This module provides manager class for running extractors and
+managing extraction process lifecycle.
 """
 import logging
 from typing import Type
@@ -23,51 +14,76 @@ logger = logging.getLogger(__name__)
 
 
 class ExtractorManager:
-    """Manages the execution of frame evaluation tasks within the application.
-
-    This class orchestrates the evaluation process, ensuring that only one evaluator task is
-    active at any given time. It manages the lifecycle of these tasks, from initiation to
-    completion, and prevents concurrent executions to maintain system stability.
+    """
+    This class orchestrates extractors, ensuring that only one extractor is active at once,
+    maintaining system stability.
     """
     __active_extractor = None
 
     @classmethod
-    def get_active_extractor(cls):
+    def get_active_extractor(cls) -> str:
+        """
+        Getter for class active extractor.
+
+        Returns:
+            str: Active extractor name.
+        """
         return cls.__active_extractor
 
     def __init__(self, config: ExtractorConfig) -> None:
+        """
+        Initializes the manager with the given extractor configuration.
+
+        Args:
+            config (ExtractorConfig): A Pydantic model with configuration
+                parameters for the extractor.
+        """
         self.config = config
 
     def start_extractor(self, background_tasks: BackgroundTasks,
                         extractor_name: str) -> str:
-        self.check_is_already_extracting()
+        """
+        Initializes the extractor class and runs the extraction process in the background.
+
+        Args:
+            background_tasks: A FastAPI tool for running tasks in background,
+                which allows non-blocking operation of long-running tasks.
+            extractor_name (str): The name of the extractor that will be used.
+
+        Returns:
+            str: Endpoint feedback message with started extractor name.
+        """
+        self._check_is_already_extracting()
         extractor_class = ExtractorFactory.get_extractor(extractor_name)
         background_tasks.add_task(self.__run_extractor, extractor_class)
         message = f"'{extractor_name}' started."
         return message
 
     def __run_extractor(self, extractor: Type[Extractor]) -> None:
+        """
+        Run extraction process and clean after it's done.
+
+        Args:
+            extractor (Extractor): Extractor that will be used for extraction.
+        """
         try:
             self.__active_extractor = extractor.__name__
             extractor(self.config).process()
         finally:
             self.__active_extractor = None
 
-    def check_is_already_extracting(self) -> None:
-        """Checks if an evaluation process is already active and raises an HTTPException if so.
-
-        This method ensures that the system enforces the rule of having only one active
-        evaluation process at any time.
+    def _check_is_already_extracting(self) -> None:
+        """
+        Checks if some extractor is already active and raises an HTTPException if so.
 
         Raises:
-            HTTPException: If an evaluation process is already active,
-            to prevent concurrent evaluations.
+            HTTPException: If extractor is already active to prevent concurrent extractions.
         """
         if self.__active_extractor:
-            error_massage = (
+            error_message = (
                 f"Extractor '{self.__active_extractor}' is already running. "
                 f"You can run only one extractor at the same time. "
-                f"Wait until the evaluator is done before run next process."
+                f"Wait until the extractor is done before run next process."
             )
-            logger.error(error_massage)
-            raise HTTPException(status_code=409, detail=error_massage)
+            logger.error(error_message)
+            raise HTTPException(status_code=409, detail=error_message)

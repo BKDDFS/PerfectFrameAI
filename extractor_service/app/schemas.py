@@ -1,5 +1,9 @@
-"""This module defines models and validators for
-managing evaluator processes in a frame evaluation application.
+"""
+This module defines Pydantic models and validators.
+Models:
+    - ExtractorConfig: Model containing the extractors configuration parameters.
+    - Message: Model for encapsulating messages returned by the application.
+    - ExtractorStatus: Model representing the status of the currently working extractor in the system.
 """
 import logging
 from pathlib import Path
@@ -10,28 +14,38 @@ logger = logging.getLogger(__name__)
 
 
 class ExtractorConfig(BaseModel):
-    """A model for holding the request data for initiating an evaluation process.
+    """
+    A Pydantic model containing the extractors configuration parameters.
 
     Attributes:
-       input_directory (str):
-            The path to the input folder containing data for evaluation.
-       output_directory (str):
-            The path to the output folder where evaluation results will be saved.
+        input_directory (DirectoryPath): Input directory path containing entries for extraction.
+            By default, it sets value for docker container volume.
+        output_directory (DirectoryPath): Output directory path where extraction results will be saved.
+            By default, it sets value for docker container volume.
+        video_extensions (tuple[str]): Supported videos' extensions in service for reading videos.
+        images_extensions (tuple[str]): Supported images' extensions in service for reading images.
+        processed_video_prefix (str): Prefix that will be added to processed video filename after extraction.
+        batch_size (int): Maximum number of images processed in a single batch.
+        compering_group_size (int): Maximum number of images in a group to compare for finding the best one.
+        top_images_percent (float): Percentage threshold to determine the top images based on scores.
+        images_output_format (str): Format for saving output images, e.g., '.jpg', '.png'.
+        metric_model (str): Name of the AI metric model that will be used for evaluating images.
     """
     input_directory: DirectoryPath = Path("/app/input_directory")
     output_directory: DirectoryPath = Path("/app/output_directory")
     video_extensions: tuple[str] = (".mp4",)
     images_extensions: tuple[str] = (".jpg",)
     processed_video_prefix: str = "frames_extracted_"
-    metric_model: str = "nima"
-    compering_group_size: int = 5
     batch_size: int = 60
-    top_images_percent: int = 90
+    compering_group_size: int = 5
+    top_images_percent: float = 90.0
     images_output_format: str = ".jpg"
+    metric_model: str = "nima"
 
 
 class Message(BaseModel):
-    """A simple model for encapsulating messages returned by the application.
+    """
+    A Pydantic model for encapsulating messages returned by the application.
 
     Attributes:
         message (str): The message content.
@@ -40,10 +54,10 @@ class Message(BaseModel):
 
 
 class ExtractorStatus(BaseModel):
-    """Representing the status of the currently working extractor in the system.
+    """
+    A Pydantic model representing the status of the currently working extractor in the system.
 
     Attributes:
-        active_extractor (str):
-            The name of the currently active extractor.
+        active_extractor (str): The name of the currently active extractor.
     """
     active_extractor: str | None

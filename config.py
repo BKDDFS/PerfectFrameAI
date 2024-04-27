@@ -1,3 +1,6 @@
+"""
+
+"""
 from pathlib import Path
 
 current_directory = Path.cwd()
@@ -10,4 +13,3 @@ default_container_input_directory = "/app/input_directory"
 default_container_output_directory = "/app/output_directory"
 default_input_directory = str(current_directory / 'input_directory')
 default_output_directory = str(current_directory / 'output_directory')
-

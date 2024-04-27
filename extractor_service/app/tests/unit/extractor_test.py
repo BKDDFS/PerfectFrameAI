@@ -29,8 +29,8 @@ class TestExtractor(Extractor):
 def test_extractor_initialization():
     extractor = TestExtractor(CONFIG)
     assert extractor is not None
-    assert extractor.config == CONFIG
-    assert extractor.image_rater is None
+    assert extractor._config == CONFIG
+    assert extractor._image_evaluator is None
 
 
 @pytest.fixture
@@ -55,13 +55,13 @@ def extractor():
 def test_rate_images(extractor):
     test_input = MagicMock(spec=np.ndarray)
     expected = "expected"
-    extractor.image_rater = MagicMock()
-    extractor.image_rater.rate_images = MagicMock()
-    extractor.image_rater.rate_images.return_value = expected
+    extractor._image_evaluator = MagicMock()
+    extractor._image_evaluator.rate_images = MagicMock()
+    extractor._image_evaluator.rate_images.return_value = expected
 
     result = extractor._rate_images(test_input)
 
-    extractor.image_rater.rate_images.assert_called_once_with(test_input)
+    extractor._image_evaluator.rate_images.assert_called_once_with(test_input)
     assert result == expected
 
 

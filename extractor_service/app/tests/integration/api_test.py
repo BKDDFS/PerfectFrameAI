@@ -9,7 +9,7 @@ from extractor_service.main import app
 CURRENT_DIRECTORY = Path.cwd()
 
 
-@pytest.fixture
+@pytest.fixture(scope="module")
 def client():
     with TestClient(app) as client:
         yield client
@@ -23,7 +23,7 @@ def test_get_active_extractors_status_default(client):
 
 
 # @pytest.mark.skip(reason="Test time-consuming and dependent on hardware performance")
-def test_extract_best_frames_and_get_evaluators_status(client):
+def test_best_frames_extractor_and_extractors_status(client):
     input_folder = CURRENT_DIRECTORY / "test_files"
     output_folder = CURRENT_DIRECTORY / "test_files/best_images"
     video_path = input_folder / "test_video.mp4"
@@ -44,7 +44,7 @@ def test_extract_best_frames_and_get_evaluators_status(client):
 
     response = client.post("/extractors/best_frames_extractor", json=config)
 
-    # check active evaluator
+    # check active extractor
     status_response = client.get("/status")
     active_extractor = status_response.json()["active_extractor"]
     assert active_extractor == "BestFramesExtractor"
@@ -52,7 +52,7 @@ def test_extract_best_frames_and_get_evaluators_status(client):
     assert response.status_code == 200
     assert response.json()["message"] == f"'{active_extractor}' started."
 
-    # wait for evaluator work completion
+    # wait for extractor completion
     while client.get("/status").json()["active_extractor"] is not None:
         time.sleep(1)
 
