@@ -139,8 +139,8 @@ if __name__ == "__main__":
     docker.build_image(config.dockerfile_path)
     docker.deploy_container(
         config.default_port,
-        config.default_container_input_directory,
-        config.default_container_output_directory
+        config.volume_input_directory,
+        config.volume_output_directory
     )
     service.run_extractor()
     docker.follow_container_logs()
