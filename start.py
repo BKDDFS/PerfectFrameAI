@@ -2,6 +2,7 @@
 This module provide a tool to manage and execute
 image processing tasks within a Docker container.
 """
+import json
 import logging
 import argparse
 import time
@@ -99,7 +100,9 @@ class ServiceInitializer:
             with urlopen(req) as response:
                 if response.status == 200:
                     response_body = response.read()
-                    logger.info("Response from server: %s", response_body)
+                    response_body = json.loads(response_body.decode("utf-8"))
+                    message = response_body.get("message", "No message returned")
+                    logger.info("Response from server: %s", message)
                     return True
         except RemoteDisconnected:
             logger.info("Waiting for service to be available...")

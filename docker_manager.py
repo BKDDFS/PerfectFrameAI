@@ -92,7 +92,7 @@ class DockerManager:
         command = ["docker", "inspect", "--format='{{.State.Status}}'", self.container_name]
         result = subprocess.run(command, capture_output=True, text=True)
         if result.returncode == 0:
-            return result.stdout.strip().replace('"', '') # to jest źle
+            return result.stdout.strip().replace("'", "")
 
     def deploy_container(self, container_port: int, container_input_directory: str,
                          container_output_directory: str) -> None:
@@ -107,10 +107,10 @@ class DockerManager:
         if status is None:
             logging.info("Container does not exist. Running a new container...")
             self._run_container(container_port, container_input_directory, container_output_directory)
-        elif status == "'exited'":
+        elif status == "exited":
             logging.info("Starting the existing container...")
             self._start_container()
-        elif status == "'running'":
+        elif status == "running":
             logging.info(f"Container is already running.")
         else:
             logging.warning(f"Container in unsupported status: %s. Fix container on your own.",

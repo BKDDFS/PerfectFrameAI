@@ -46,7 +46,7 @@ def test_docker_manager_init(caplog):
 @pytest.mark.parametrize("mock_image, is_exists", (("some_image", True), ("", False)))
 @patch("docker_manager.subprocess.run")
 def test_check_image_exists(mock_run, mock_image, is_exists, docker):
-    expected_command = ("docker", "images", "-q", docker.image_name)
+    expected_command = ["docker", "images", "-q", docker.image_name]
 
     mock_run.return_value = MagicMock(stdout=mock_image)
     assert docker.docker_image is is_exists
@@ -57,7 +57,7 @@ def test_check_image_exists(mock_run, mock_image, is_exists, docker):
 @patch("docker_manager.DockerManager._check_image_exists")
 def test_build_image(mock_check_image_exists, mock_subprocess_run, docker, caplog):
     mock_check_image_exists.return_value = False
-    expected_command = ("docker", "build", "-t", docker.image_name, DOCKERFILE)
+    expected_command = ["docker", "build", "-t", docker.image_name, DOCKERFILE]
 
     docker.build_image(DOCKERFILE)
 
@@ -83,7 +83,7 @@ def test_container_status(mock_subprocess_run, code, output, status, docker):
     command_output.returncode = code
     command_output.stdout = output
     mock_subprocess_run.return_value = command_output
-    expected_command = ("docker", "inspect", "--format='{{.State.Status}}'", docker.container_name)
+    expected_command = ["docker", "inspect", "--format='{{.State.Status}}'", docker.container_name]
 
     status = docker.container_status
 
@@ -93,10 +93,10 @@ def test_container_status(mock_subprocess_run, code, output, status, docker):
 
 @pytest.mark.parametrize(
     "status, log_message", (
-        ("'exited'", "Starting the existing container..."),
+        ("exited", "Starting the existing container..."),
         (None, "Container does not exist. Running a new container..."),
-        ("'running'", "Container is already running."),
-        ("'dead'", f"Container in unsupported status: dead. Fix container on your own.")
+        ("running", "Container is already running."),
+        ("dead", f"Container in unsupported status: dead. Fix container on your own.")
     )
 )
 @patch("docker_manager.DockerManager._run_container")
@@ -119,10 +119,10 @@ def test_deploy_container(mock_container_status, mock_start_container,
     if status is None:
         mock_start_container.assert_not_called()
         mock_run_container.assert_called_once_with(*deploy_container_args)
-    elif status == "'exited'":
+    elif status == "exited":
         mock_start_container.assert_called_once()
         mock_run_container.assert_not_called()
-    elif status == "'running'":
+    elif status == "running":
         mock_start_container.assert_not_called()
         mock_run_container.assert_not_called()
     else:
@@ -134,7 +134,7 @@ def test_deploy_container(mock_container_status, mock_start_container,
 @patch("docker_manager.subprocess.run")
 def test_start_container_success(mock_subprocess_run, docker):
     mock_subprocess_run.return_value = MagicMock()
-    expected_command = ("docker", "start", docker.container_name)
+    expected_command = ["docker", "start", docker.container_name]
 
     docker._start_container()
 
@@ -145,14 +145,14 @@ def test_start_container_success(mock_subprocess_run, docker):
 def test_run_container(mock_subprocess_run, docker):
     input_directory = str(INPUT_DIRECTORY)
     output_directory = str(OUTPUT_DIRECTORY)
-    expected_command = (
+    expected_command = [
         "docker", "run", "--name", docker.container_name, "--gpus", "all",
         "--restart", "unless-stopped", "-d",
         "-p", f"{docker.port}:{PORT}",
         "-v", f"{docker.input_directory}:{input_directory}",
         "-v", f"{docker.output_directory}:{output_directory}",
         docker.image_name
-    )
+    ]
 
     docker._run_container(PORT, input_directory, output_directory)
 
@@ -161,7 +161,7 @@ def test_run_container(mock_subprocess_run, docker):
 
 @patch.object(subprocess, "Popen", autospec=True)
 def test_run_log_process(mock_popen, docker):
-    command = ("docker", "logs", "-f", "--since", "1s", docker.container_name)
+    command = ["docker", "logs", "-f", "--since", "1s", docker.container_name]
 
     result = docker._DockerManager__run_log_process()
 
@@ -175,7 +175,7 @@ def test_run_log_process(mock_popen, docker):
 @patch("docker_manager.subprocess.run")
 def test_stop_container_success(mock_subprocess_run, docker, caplog):
     mock_subprocess_run.return_value = MagicMock()
-    expected_command = ("docker", "stop", docker.container_name)
+    expected_command = ["docker", "stop", docker.container_name]
 
     with caplog.at_level(logging.INFO):
         docker._stop_container()
