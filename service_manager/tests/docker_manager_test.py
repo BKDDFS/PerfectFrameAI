@@ -5,7 +5,7 @@ from unittest.mock import patch, MagicMock, PropertyMock, call
 
 import pytest
 
-from docker_manager import DockerManager
+from service_manager.docker_manager import DockerManager
 
 CONTAINER_NAME = "test_container"
 INPUT_DIRECTORY = Path("mock/input")
@@ -44,7 +44,7 @@ def test_docker_manager_init(caplog):
 
 
 @pytest.mark.parametrize("mock_image, is_exists", (("some_image", True), ("", False)))
-@patch("docker_manager.subprocess.run")
+@patch("service_manager.docker_manager.subprocess.run")
 def test_check_image_exists(mock_run, mock_image, is_exists, docker):
     expected_command = ["docker", "images", "-q", docker.image_name]
 
@@ -53,8 +53,8 @@ def test_check_image_exists(mock_run, mock_image, is_exists, docker):
     mock_run.assert_called_with(expected_command, capture_output=True, text=True)
 
 
-@patch("docker_manager.subprocess.run")
-@patch("docker_manager.DockerManager._check_image_exists")
+@patch("service_manager.docker_manager.subprocess.run")
+@patch("service_manager.docker_manager.DockerManager._check_image_exists")
 def test_build_image(mock_check_image_exists, mock_subprocess_run, docker, caplog):
     mock_check_image_exists.return_value = False
     expected_command = ["docker", "build", "-t", docker.image_name, DOCKERFILE]
@@ -64,8 +64,8 @@ def test_build_image(mock_check_image_exists, mock_subprocess_run, docker, caplo
     mock_subprocess_run.assert_called_once_with(expected_command)
 
 
-@patch("docker_manager.subprocess.run")
-@patch("docker_manager.DockerManager._check_image_exists")
+@patch("service_manager.docker_manager.subprocess.run")
+@patch("service_manager.docker_manager.DockerManager._check_image_exists")
 def test_build_image_when_image_exists(mock_check_image_exists, mock_subprocess_run, docker, caplog):
     mock_check_image_exists.return_value = True
 
@@ -77,7 +77,7 @@ def test_build_image_when_image_exists(mock_check_image_exists, mock_subprocess_
 
 
 @pytest.mark.parametrize("code, output, status", ((1, "", None), (0, "'running'", "'running'")))
-@patch("docker_manager.subprocess.run")
+@patch("service_manager.docker_manager.subprocess.run")
 def test_container_status(mock_subprocess_run, code, output, status, docker):
     command_output = MagicMock()
     command_output.returncode = code
@@ -99,9 +99,9 @@ def test_container_status(mock_subprocess_run, code, output, status, docker):
         ("dead", f"Container in unsupported status: dead. Fix container on your own.")
     )
 )
-@patch("docker_manager.DockerManager._run_container")
-@patch("docker_manager.DockerManager._start_container")
-@patch("docker_manager.DockerManager.container_status", new_callable=PropertyMock)
+@patch("service_manager.docker_manager.DockerManager._run_container")
+@patch("service_manager.docker_manager.DockerManager._start_container")
+@patch("service_manager.docker_manager.DockerManager.container_status", new_callable=PropertyMock)
 def test_deploy_container(mock_container_status, mock_start_container,
                           mock_run_container, status, log_message, docker, caplog):
     container_input_directory = "/container_input_directory/"
@@ -131,7 +131,7 @@ def test_deploy_container(mock_container_status, mock_start_container,
     assert log_message in caplog.text
 
 
-@patch("docker_manager.subprocess.run")
+@patch("service_manager.docker_manager.subprocess.run")
 def test_start_container_success(mock_subprocess_run, docker):
     mock_subprocess_run.return_value = MagicMock()
     expected_command = ["docker", "start", docker.container_name]
@@ -141,7 +141,7 @@ def test_start_container_success(mock_subprocess_run, docker):
     mock_subprocess_run.assert_called_once_with(expected_command, check=True)
 
 
-@patch("docker_manager.subprocess.run")
+@patch("service_manager.docker_manager.subprocess.run")
 def test_run_container(mock_subprocess_run, docker):
     input_directory = str(INPUT_DIRECTORY)
     output_directory = str(OUTPUT_DIRECTORY)
@@ -172,7 +172,7 @@ def test_run_log_process(mock_popen, docker):
     assert result
 
 
-@patch("docker_manager.subprocess.run")
+@patch("service_manager.docker_manager.subprocess.run")
 def test_stop_container_success(mock_subprocess_run, docker, caplog):
     mock_subprocess_run.return_value = MagicMock()
     expected_command = ["docker", "stop", docker.container_name]
@@ -185,10 +185,10 @@ def test_stop_container_success(mock_subprocess_run, docker, caplog):
     assert "Container stopped." in caplog.text
 
 
-@patch("docker_manager.subprocess.Popen")
-@patch("docker_manager.sys.stdout.write")
-@patch("docker_manager.DockerManager._DockerManager__run_log_process")
-@patch("docker_manager.DockerManager._stop_container")
+@patch("service_manager.docker_manager.subprocess.Popen")
+@patch("service_manager.docker_manager.sys.stdout.write")
+@patch("service_manager.docker_manager.DockerManager._DockerManager__run_log_process")
+@patch("service_manager.docker_manager.DockerManager._stop_container")
 def test_follow_container_logs(mock_stop_container, mock_run_log_process, mock_stdout_write, mock_popen, docker, caplog):
     mock_process = MagicMock()
     mock_process.stdout.readline.side_effect = ["log line 1\n", "log line 2\n", KeyboardInterrupt()]

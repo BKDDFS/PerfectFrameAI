@@ -1,146 +1,60 @@
 """
-This module provide a tool to manage and execute
-image processing tasks within a Docker container.
+This module provide script for starting extraction process with
+given arguments in fast and easy way.
 """
-import json
 import logging
 import argparse
-import time
-from pathlib import Path
-from urllib.request import urlopen, Request
-from http.client import RemoteDisconnected
 
-import config
-from docker_manager import DockerManager
+from config import Config
+from service_manager.docker_manager import DockerManager
+from service_manager.service_initializer import ServiceInitializer
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 
-def check_directory(directory: str) -> Path:
-    """
-    Validates if the provided directory path is an actual directory.
-
-    Args:
-        directory (str): The directory path to validate.
-
-    Returns:
-        Path: The validated directory as a Path object.
-
-    Raises:
-        NotADirectoryError: If the provided path is not a directory.
-    """
-    directory = Path(directory)
-    if not directory.is_dir():
-        error_massage = f"Invalid directory path: {str(directory)}"
-        logger.error(error_massage)
-        raise NotADirectoryError(error_massage)
-    return directory
-
-
-class ServiceInitializer:
-    """
-    Handles command-line input and manages the setup and
-    execution of Docker-based image processing tasks.
-    """
-    def __init__(self) -> None:
-        """Initializes the setup by parsing and validating command line arguments."""
-        args = self.__parse_args()
-        self.input_directory = check_directory(args.input)
-        self.output_directory = check_directory(args.output)
-        self.extractor_name = args.extractor_name
-        self.port = args.port
-
-    @staticmethod
-    def __parse_args() -> argparse.Namespace:
-        """
-        Parses command line arguments.
-
-        Returns:
-            argparse.Namespace: The namespace populated with command line arguments.
-        """
-        parser = argparse.ArgumentParser(
-            description="Tool to manage and execute image processing tasks within a Docker container."
-        )
-        parser.add_argument("extractor_name",
-                            choices=["best_frames_extractor", "top_images_extractor"],
-                            help="Name of extractor to run.")
-        parser.add_argument("--input", "-i", default=config.default_input_directory,
-                            help="Full path to the extractors input directory.")
-        parser.add_argument("--output", "-o", default=config.default_output_directory,
-                            help="Full path to the extractors output directory.")
-        parser.add_argument("--port", "-p", type=int, default=config.default_port,
-                            help="Port to expose the service on the host.")
-        args = parser.parse_args()
-        return args
-
-    def run_extractor(self) -> None:
-        """Send POST request to local port extractor service to start chosen extractor."""
-        url = f"http://localhost:{self.port}/extractors/{self.extractor_name}"
-        req = Request(url, method="POST")
-        start_time = time.time()
-        while True:
-            if self._try_to_run_extractor(req, start_time):
-                break
-
-    def _try_to_run_extractor(self, req: Request, start_time: float, timeout: int = 60) -> bool:
-        """
-        Attempts to send a request to the extractor service
-        and handles service availability and timeouts.
-
-        Args:
-            req (Request): The request object to send.
-            start_time (float): The timestamp at the start of the operation for timeout management.
-            timeout (int): Maximum time in seconds to wait for the service to become available.
-
-        Returns:
-            bool: True if the service response as expected, False otherwise.
-        """
-        try:
-            with urlopen(req) as response:
-                if response.status == 200:
-                    response_body = response.read()
-                    response_body = json.loads(response_body.decode("utf-8"))
-                    message = response_body.get("message", "No message returned")
-                    logger.info("Response from server: %s", message)
-                    return True
-        except RemoteDisconnected:
-            logger.info("Waiting for service to be available...")
-            self.__check_timeout(start_time, timeout)
-            time.sleep(3)
-        return False
-
-    @staticmethod
-    def __check_timeout(start_time: float, timeout: int) -> None:
-        """
-        Checks if the operation has timed out based on the start time and specified timeout.
-
-        Args:
-            start_time (float): The start time of the operation.
-            timeout (int): The maximum allowable duration for the operation.
-
-        Raises:
-            TimeoutError: If the current time exceeds the start time by the timeout duration.
-        """
-        if time.time() - start_time > timeout:
-            error_massage = "Timed out waiting for service to respond."
-            logger.error(error_massage)
-            raise TimeoutError(error_massage)
-
-
-if __name__ == "__main__":
-    service = ServiceInitializer()
+def main() -> None:
+    """Script for starting extractor service and extraction process."""
+    user_input = parse_args()
+    service = ServiceInitializer(user_input)
     docker = DockerManager(
-        config.service_name,
-        service.input_directory,
-        service.output_directory,
-        service.port
+        Config.service_name,
+        user_input.input_dir,
+        user_input.output_dir,
+        user_input.port
     )
-    docker.build_image(config.dockerfile_path)
+    docker.build_image(Config.dockerfile_path)
     docker.deploy_container(
-        config.default_port,
-        config.volume_input_directory,
-        config.volume_output_directory
+        Config.default_port,
+        Config.volume_input_directory,
+        Config.volume_output_directory
     )
     service.run_extractor()
     docker.follow_container_logs()
+
+
+def parse_args() -> argparse.Namespace:
+    """
+    Parses command line arguments from user for extractor service.
+
+    Returns:
+        argparse.Namespace: Arguments from user.
+    """
+    parser = argparse.ArgumentParser(
+        description="Tool to manage and execute image processing tasks within a Docker container."
+    )
+    parser.add_argument("extractor_name",
+                        choices=["best_frames_extractor", "top_images_extractor"],
+                        help="Name of extractor to run.")
+    parser.add_argument("--input_dir", "-i", default=Config.default_input_directory,
+                        help="Full path to the extractors input directory.")
+    parser.add_argument("--output_dir", "-o", default=Config.default_output_directory,
+                        help="Full path to the extractors output directory.")
+    parser.add_argument("--port", "-p", type=int, default=Config.default_port,
+                        help="Port to expose the service on the host.")
+    args = parser.parse_args()
+    return args
+
+
+if __name__ == "__main__":
+    main()
