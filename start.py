@@ -1,5 +1,6 @@
 """
-
+This module provide a tool to manage and execute
+image processing tasks within a Docker container.
 """
 import logging
 import argparse
@@ -36,7 +37,7 @@ def check_directory(directory: str) -> Path:
     return directory
 
 
-class Setup:
+class ServiceInitializer:
     """
     Handles command-line input and manages the setup and
     execution of Docker-based image processing tasks.
@@ -57,16 +58,18 @@ class Setup:
         Returns:
             argparse.Namespace: The namespace populated with command line arguments.
         """
-        parser = argparse.ArgumentParser(description="Manage Docker container for image processing.")
+        parser = argparse.ArgumentParser(
+            description="Tool to manage and execute image processing tasks within a Docker container."
+        )
         parser.add_argument("extractor_name",
-                            choices=['best_frames_extractor', 'top_images_extractor'],
+                            choices=["best_frames_extractor", "top_images_extractor"],
                             help="Name of extractor to run.")
         parser.add_argument("--input", "-i", default=config.default_input_directory,
-                            help="Full path to the input directory")
+                            help="Full path to the extractors input directory.")
         parser.add_argument("--output", "-o", default=config.default_output_directory,
-                            help="Full path to the output directory")
+                            help="Full path to the extractors output directory.")
         parser.add_argument("--port", "-p", type=int, default=config.default_port,
-                            help="Port to expose the service on the host")
+                            help="Port to expose the service on the host.")
         args = parser.parse_args()
         return args
 
@@ -123,12 +126,12 @@ class Setup:
 
 
 if __name__ == "__main__":
-    setup = Setup()
+    service = ServiceInitializer()
     docker = DockerManager(
         config.service_name,
-        setup.input_directory,
-        setup.output_directory,
-        setup.port
+        service.input_directory,
+        service.output_directory,
+        service.port
     )
     docker.build_image(config.dockerfile_path)
     docker.deploy_container(
@@ -136,5 +139,5 @@ if __name__ == "__main__":
         config.default_container_input_directory,
         config.default_container_output_directory
     )
-    setup.run_extractor()
+    service.run_extractor()
     docker.follow_container_logs()
