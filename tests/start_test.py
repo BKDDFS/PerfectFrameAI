@@ -1,3 +1,4 @@
+import json
 import logging
 import time
 import urllib.request
@@ -101,16 +102,21 @@ def test_run_extractor(mock_time, service):
 
 
 @patch("start.urlopen")
-def test_try_to_run_extractor_success(mock_urlopen, service):
+def test_try_to_run_extractor_success(mock_urlopen, service, caplog):
     mock_response = MagicMock()
     mock_response.status = 200
-    mock_response.read.return_value = b'Response content'
+    mock_message = "Success"
+    response_content = json.dumps({"message": mock_message}).encode('utf-8')
+    mock_response.read.return_value = response_content
     mock_urlopen.return_value.__enter__.return_value = mock_response
 
-    result = service._try_to_run_extractor(MOCK_REQUEST, time.time())
+    with caplog.at_level(logging.INFO):
+        result = service._try_to_run_extractor(MOCK_REQUEST, time.time())
 
-    mock_urlopen.assert_called_once()
+    mock_urlopen.assert_called_once_with(MOCK_REQUEST)
     assert result is True
+    mock_response.read.assert_called_once()
+    assert f"Response from server: {mock_message}" in caplog.text
 
 
 @patch("start.urlopen", side_effect=RemoteDisconnected)
