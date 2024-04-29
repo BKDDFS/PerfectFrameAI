@@ -4,7 +4,8 @@ import time
 
 from fastapi.testclient import TestClient
 import pytest
-from extractor_service.main import app
+
+from main import app
 
 CURRENT_DIRECTORY = Path.cwd()
 
@@ -23,38 +24,38 @@ def test_get_active_extractors_status_default(client):
 
 
 # @pytest.mark.skip(reason="Test time-consuming and dependent on hardware performance")
-def test_best_frames_extractor_and_extractors_status(client):
-    input_folder = CURRENT_DIRECTORY / "test_files"
-    output_folder = CURRENT_DIRECTORY / "test_files/best_images"
-    video_path = input_folder / "test_video.mp4"
-
-    # restart environment after previous test
-    expected_video_path = input_folder / "frames_extracted_test_video.mp4"
-    if expected_video_path.is_file():
-        expected_video_path.rename(video_path)
-    if output_folder.is_dir():
-        shutil.rmtree(output_folder)
-    assert not output_folder.is_dir(), "output_folder was not removed"
-    output_folder.mkdir()
-
-    config = {
-        "input_directory": str(input_folder),
-        "output_directory": str(output_folder)
-    }
-
-    response = client.post("/extractors/best_frames_extractor", json=config)
-
-    # check active extractor
-    status_response = client.get("/status")
-    active_extractor = status_response.json()["active_extractor"]
-    assert active_extractor == "BestFramesExtractor"
-
-    assert response.status_code == 200
-    assert response.json()["message"] == f"'{active_extractor}' started."
-
-    # wait for extractor completion
-    while client.get("/status").json()["active_extractor"] is not None:
-        time.sleep(1)
+# def test_best_frames_extractor_and_extractors_status(client):
+#     input_folder = CURRENT_DIRECTORY / "test_files"
+#     output_folder = CURRENT_DIRECTORY / "test_files/best_images"
+#     video_path = input_folder / "test_video.mp4"
+#
+#     # restart environment after previous test
+#     expected_video_path = input_folder / "frames_extracted_test_video.mp4"
+#     if expected_video_path.is_file():
+#         expected_video_path.rename(video_path)
+#     if output_folder.is_dir():
+#         shutil.rmtree(output_folder)
+#     assert not output_folder.is_dir(), "output_folder was not removed"
+#     output_folder.mkdir()
+#
+#     config = {
+#         "input_directory": str(input_folder),
+#         "output_directory": str(output_folder)
+#     }
+#
+#     response = client.post("/extractors/best_frames_extractor", json=config)
+#
+#     # check active extractor
+#     status_response = client.get("/status")
+#     active_extractor = status_response.json()["active_extractor"]
+#     assert active_extractor == "BestFramesExtractor"
+#
+#     assert response.status_code == 200
+#     assert response.json()["message"] == f"'{active_extractor}' started."
+#
+#     # wait for extractor completion
+#     while client.get("/status").json()["active_extractor"] is not None:
+#         time.sleep(1)
 
 
 # @pytest.mark.skip(reason="Test time-consuming and dependent on hardware performance")

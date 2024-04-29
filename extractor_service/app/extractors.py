@@ -224,13 +224,13 @@ class BestFramesExtractor(Extractor):
                 continue
             logger.debug("Frames pack generated.")
             scores = self._evaluate_images(frames)
-            selected_frames = self._get_best_images(frames, scores,
+            selected_frames = self._get_best_frames(frames, scores,
                                                     self._config.compering_group_size)
             best_frames.extend(selected_frames)
         return best_frames
 
     @staticmethod
-    def _get_best_images(images: list[np.ndarray], scores: np.array,
+    def _get_best_frames(images: list[np.ndarray], scores: np.array,
                          comparing_group_size: int) -> list[np.ndarray]:
         """
         Splits images batch for comparing groups and select best image for each group.
@@ -249,7 +249,7 @@ class BestFramesExtractor(Extractor):
             best_index = np.argmax(group)
             global_index = index * comparing_group_size + best_index
             best_images.append(images[global_index])
-        logger.info("Best images selected.")
+        logger.info("Best frames selected.")
         return best_images
 
 

@@ -3,7 +3,7 @@ import os
 import shutil
 import pytest
 
-from app.best_frames_extractor import BestFramesExtractor
+from app.extractors import BestFramesExtractor
 
 current_directory = os.path.dirname(os.path.abspath(__file__))
 INPUT_FOLDER = os.path.join(current_directory, "test_files")

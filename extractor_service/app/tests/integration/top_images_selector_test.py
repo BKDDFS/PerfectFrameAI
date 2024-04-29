@@ -3,7 +3,7 @@ import os
 import shutil
 import pytest
 
-from app.top_frames_selector import TopFramesSelector
+from app.extractors import TopImagesExtractor
 
 current_directory = os.path.dirname(os.path.abspath(__file__))
 INPUT_FOLDER = os.path.join(current_directory, "test_files/best_frames")
@@ -22,7 +22,7 @@ def test_top_frames_selector():
     assert not os.path.isdir(OUTPUT_FOLDER), "OUTPUT_FOLDER was not removed"
     os.makedirs(OUTPUT_FOLDER)
 
-    selector = TopFramesSelector(OUTPUT_FOLDER)
+    selector = TopImagesExtractor(OUTPUT_FOLDER)
     selector.process(INPUT_FOLDER)
 
     files = os.listdir(OUTPUT_FOLDER)

@@ -7,7 +7,7 @@ import cv2
 import numpy as np
 import pytest
 
-from extractor_service.app.image_processors import OpenCVImage
+from app.image_processors import OpenCVImage
 
 
 @pytest.fixture

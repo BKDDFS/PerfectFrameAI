@@ -5,7 +5,7 @@ import numpy as np
 import pytest
 import torch
 
-from extractor_service.app.image_evaluators import PyIQA
+from app.image_evaluators import PyIQA
 
 
 @pytest.fixture
@@ -14,10 +14,10 @@ def pyiqa_evaluator():
     return pyiqa_evaluator
 
 
-@patch("extractor_service.app.image_evaluators.transforms.Compose")
-@patch("extractor_service.app.image_evaluators.pyiqa.create_metric")
-@patch("extractor_service.app.image_evaluators.PyIQA._get_torch_device")
-@patch("extractor_service.app.image_evaluators.transforms.ToTensor", return_value=MagicMock(name='ToTensor'))
+@patch("app.image_evaluators.transforms.Compose")
+@patch("app.image_evaluators.pyiqa.create_metric")
+@patch("app.image_evaluators.PyIQA._get_torch_device")
+@patch("app.image_evaluators.transforms.ToTensor", return_value=MagicMock(name='ToTensor'))
 def test_pyiqa_initialization(mock_to_tensor, mock_get_torch_device, mock_create_metric, mock_transforms_compose):
     mock_model = "some_model"
     mock_device = "cuda"
