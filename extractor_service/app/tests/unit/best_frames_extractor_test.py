@@ -5,8 +5,8 @@ from unittest.mock import MagicMock, patch
 import numpy as np
 import pytest
 
-from extractor_service.app.extractors import BestFramesExtractor
-from extractor_service.app.schemas import ExtractorConfig
+from app.extractors import BestFramesExtractor
+from app.schemas import ExtractorConfig
 
 current_directory = Path.cwd()
 CONFIG = ExtractorConfig(
@@ -52,13 +52,12 @@ def test_process(extractor, caplog):
         extractor._add_prefix.assert_any_call(CONFIG.processed_video_prefix, video)
         extractor._extract_best_frames.assert_any_call(video)
         extractor._save_images.assert_any_call(test_frames)
-
     # Logging
         assert f"Frames extraction has finished for video: {video}" in caplog.text
     assert f"Starting frames extraction process from '{CONFIG.input_directory}'." in caplog.text
 
 
-@patch('extractor_service.app.video_processors.OpenCVVideo.get_next_video_frames')
+@patch("app.video_processors.OpenCVVideo.get_next_video_frames")
 def test_extract_best_frames(mock_get_next_video_frames, extractor, caplog):
     # Setup
     video_path = Path("/fake/video.mp4")
@@ -69,8 +68,8 @@ def test_extract_best_frames(mock_get_next_video_frames, extractor, caplog):
     mock_get_next_video_frames.return_value = iter([frames_batch_1, frames_batch_2, frames_batch_3])
     test_ratings = [5, 6, 3, 8, 5, 2, 9, 1, 4, 7]
     # Mock
-    extractor._rate_images = MagicMock(return_value=test_ratings)
-    extractor._get_best_images = MagicMock(
+    extractor._evaluate_images = MagicMock(return_value=test_ratings)
+    extractor._get_best_frames = MagicMock(
         side_effect=lambda frames, ratings, group_size: [frames[i] for i in [3, 6]])
 
     # Call
@@ -79,13 +78,13 @@ def test_extract_best_frames(mock_get_next_video_frames, extractor, caplog):
 
     # Verification
     mock_get_next_video_frames.assert_called_once_with(video_path, extractor._config.batch_size)
-    assert extractor._rate_images.call_count == 2
-    assert extractor._get_best_images.call_count == 2
+    assert extractor._evaluate_images.call_count == 2
+    assert extractor._get_best_frames.call_count == 2
     assert len(best_frames) == 4
-    extractor._rate_images.assert_any_call(frames_batch_1)
-    extractor._rate_images.assert_any_call(frames_batch_3)
+    extractor._evaluate_images.assert_any_call(frames_batch_1)
+    extractor._evaluate_images.assert_any_call(frames_batch_3)
     for batch in [frames_batch_1, frames_batch_3]:
-        extractor._get_best_images.assert_any_call(
+        extractor._get_best_frames.assert_any_call(
             batch,
             test_ratings,
             extractor._config.compering_group_size
@@ -94,14 +93,14 @@ def test_extract_best_frames(mock_get_next_video_frames, extractor, caplog):
     assert caplog.text.count("Frames pack generated.") == 2
 
 
-def test_get_best_images(caplog, extractor):
+def test_get_best_frames(caplog, extractor):
     images = [MagicMock(spec=np.ndarray) for _ in range(10)]
     ratings = np.array([7, 2, 9, 3, 8, 5, 10, 1, 4, 6])
     batch_size = 3
     expected_best_images = [images[2], images[4], images[6], images[9]]
 
     with caplog.at_level(logging.INFO):
-        best_images = extractor._get_best_images(images, ratings, batch_size)
+        best_images = extractor._get_best_frames(images, ratings, batch_size)
 
     assert best_images == expected_best_images
-    assert "Best images selected." in caplog.text
+    assert "Best frames selected." in caplog.text

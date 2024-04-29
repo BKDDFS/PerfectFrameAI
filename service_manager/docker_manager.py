@@ -44,7 +44,7 @@ class DockerManager:
         logger.debug("Port from user: %s", self.port)
 
     @property
-    def docker_image(self) -> bool:  # to jest źle
+    def docker_image(self) -> bool:
         return self._check_image_exists()
 
     def _check_image_exists(self) -> bool:
@@ -78,7 +78,7 @@ class DockerManager:
         Retrieves the current status of the Docker container.
 
         Returns:
-            str: Name
+            str: Container status.
         """
         return self._check_container_status()
 

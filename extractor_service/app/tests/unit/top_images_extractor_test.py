@@ -5,8 +5,8 @@ from unittest.mock import MagicMock, patch, call
 import numpy as np
 import pytest
 
-from extractor_service.app.extractors import TopImagesExtractor
-from extractor_service.app.schemas import ExtractorConfig
+from app.extractors import TopImagesExtractor
+from app.schemas import ExtractorConfig
 
 current_directory = Path.cwd()
 CONFIG = ExtractorConfig(
@@ -22,7 +22,7 @@ def extractor():
     return extractor
 
 
-@patch('extractor_service.app.image_processors.OpenCVImage.read_image')
+@patch("app.image_processors.OpenCVImage.read_image")
 def test_process_with_images(mock_read_image, extractor, caplog):
     # Setup
     test_images = [
@@ -33,7 +33,7 @@ def test_process_with_images(mock_read_image, extractor, caplog):
     # Mock internal methods
     extractor._list_input_directory_files = MagicMock(return_value=test_images)
     extractor._get_image_evaluator = MagicMock()
-    extractor._rate_images = MagicMock(return_value=test_ratings)
+    extractor._evaluate_images = MagicMock(return_value=test_ratings)
     extractor._get_top_percent_images = MagicMock(return_value=best_image)
     extractor._save_images = MagicMock()
     extractor._display_info_after_extraction = MagicMock()
@@ -46,7 +46,7 @@ def test_process_with_images(mock_read_image, extractor, caplog):
     extractor._list_input_directory_files.assert_called_once_with(
         extractor._config.images_extensions)
     mock_read_image.assert_has_calls([call(path) for path in test_images])
-    extractor._rate_images.assert_called_once_with([mock_read_image.return_value]*3)
+    extractor._evaluate_images.assert_called_once_with([mock_read_image.return_value]*3)
     extractor._get_top_percent_images.assert_called_once_with(
         [mock_read_image.return_value]*3, test_ratings, extractor._config.top_images_percent)
     extractor._save_images.assert_called_once_with(best_image)

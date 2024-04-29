@@ -7,11 +7,11 @@ from unittest.mock import patch, MagicMock
 import numpy as np
 import pytest
 
-from extractor_service.app.extractors import (Extractor,
+from app.extractors import (Extractor,
                                               ExtractorFactory,
                                               BestFramesExtractor,
                                               TopImagesExtractor)
-from extractor_service.app.schemas import ExtractorConfig
+from app.schemas import ExtractorConfig
 
 current_directory = Path.cwd()
 CONFIG = ExtractorConfig(
@@ -52,16 +52,16 @@ def extractor():
 #         "The ImageRater instance was not stored correctly in the extractor."
 
 
-def test_rate_images(extractor):
+def test_evaluate_images(extractor):
     test_input = MagicMock(spec=np.ndarray)
     expected = "expected"
     extractor._image_evaluator = MagicMock()
-    extractor._image_evaluator.rate_images = MagicMock()
-    extractor._image_evaluator.rate_images.return_value = expected
+    extractor._image_evaluator.evaluate_images = MagicMock()
+    extractor._image_evaluator.evaluate_images.return_value = expected
 
-    result = extractor._rate_images(test_input)
+    result = extractor._evaluate_images(test_input)
 
-    extractor._image_evaluator.rate_images.assert_called_once_with(test_input)
+    extractor._image_evaluator.evaluate_images.assert_called_once_with(test_input)
     assert result == expected
 
 
@@ -92,11 +92,11 @@ def test_rate_images(extractor):
 #         assert future.result.called, "result was not called on future"
 
 
-@patch('pathlib.Path.iterdir')
-@patch('pathlib.Path.is_file')
+@patch("pathlib.Path.iterdir")
+@patch("pathlib.Path.is_file")
 def test_list_input_directory_files(mock_is_file, mock_iterdir, extractor, caplog):
     mock_files = [Path("/fake/directory/file1.txt"), Path("/fake/directory/file2.log")]
-    mock_extensions = ('.txt', '.log')
+    mock_extensions = (".txt", ".log")
     mock_iterdir.return_value = mock_files
     mock_is_file.return_value = True
 
@@ -108,10 +108,10 @@ def test_list_input_directory_files(mock_is_file, mock_iterdir, extractor, caplo
     assert f"Listed file paths: {mock_files}"
 
 
-@patch('pathlib.Path.iterdir')
+@patch("pathlib.Path.iterdir")
 def test_list_input_directory_files_no_files_found(mock_iterdir, extractor, caplog):
     mock_files = []
-    mock_extensions = ('.txt', '.log')
+    mock_extensions = (".txt", ".log")
     mock_iterdir.return_value = mock_files
     error_massage = (
         f"Files with extensions '{mock_extensions}' and "

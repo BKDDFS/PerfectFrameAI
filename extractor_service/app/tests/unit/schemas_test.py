@@ -4,7 +4,7 @@ from unittest.mock import patch
 import pytest
 from pydantic import ValidationError
 
-from extractor_service.app.schemas import ExtractorConfig, Message, ExtractorStatus
+from app.schemas import ExtractorConfig, Message, ExtractorStatus
 
 
 def test_config_default():
