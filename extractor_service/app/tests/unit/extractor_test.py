@@ -1,6 +1,4 @@
-import concurrent
 import logging
-from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 from unittest.mock import patch, MagicMock
 
@@ -8,9 +6,9 @@ import numpy as np
 import pytest
 
 from app.extractors import (Extractor,
-                                              ExtractorFactory,
-                                              BestFramesExtractor,
-                                              TopImagesExtractor)
+                            ExtractorFactory,
+                            BestFramesExtractor,
+                            TopImagesExtractor)
 from app.schemas import ExtractorConfig
 
 current_directory = Path.cwd()
@@ -38,18 +36,18 @@ def extractor():
     return TestExtractor(CONFIG)
 
 
-# @patch("extractor_service.app.image_raters.PyIQA")
-# def test_get_image_rater(mock_rater, extractor):
-#     expected_rater = MagicMock()
-#     mock_rater.return_value = expected_rater
-#
-#     result = extractor._get_image_rater()
-#
-#     mock_rater.assert_called_once_with(CONFIG.metric_model)
-#     assert result == expected_rater, \
-#         "The method did not return the correct ImageRater instance."
-#     assert extractor.image_rater == expected_rater, \
-#         "The ImageRater instance was not stored correctly in the extractor."
+@patch("app.extractors.PyIQA")
+def test_get_image_evaluator(mock_evaluator, extractor):
+    expected_evaluator = MagicMock()
+    mock_evaluator.return_value = expected_evaluator
+
+    result = extractor._get_image_evaluator()
+
+    mock_evaluator.assert_called_once_with(CONFIG.metric_model)
+    assert result == expected_evaluator, \
+        "The method did not return the correct ImageEvaluator instance."
+    assert extractor._image_evaluator == expected_evaluator, \
+        "The ImageEvaluator instance was not stored correctly in the extractor."
 
 
 def test_evaluate_images(extractor):
@@ -65,31 +63,45 @@ def test_evaluate_images(extractor):
     assert result == expected
 
 
-# def test_save_images(extractor):
-#     OpenCVImage.save_image = MagicMock()
-#     test_images = [MagicMock(spec=np.ndarray) for _ in range(3)]
-#
-#     with patch(
-#             "concurrent.futures.ThreadPoolExecutor",
-#             return_value=MagicMock(spec=ThreadPoolExecutor)
-#     ) as mock_executor:
-#         extractor._save_images(test_images)
-#
-#         mock_executor_instance = mock_executor.return_value.__enter__.return_value
-#         assert mock_executor_instance.submit.call_count == len(test_images)
-#
-#     expected_calls = [
-#         patch.call(
-#             OpenCVImage.save_image,
-#             image,
-#             CONFIG.output_directory,
-#             CONFIG.images_output_format
-#         ) for image in test_images
-#     ]
-#     OpenCVImage.save_image.assert_has_calls(expected_calls, any_order=True)
-#
-#     for future in mock_executor_instance.submit.return_value:
-#         assert future.result.called, "result was not called on future"
+@pytest.mark.parametrize("image", ("some_image", None))
+@patch("app.extractors.OpenCVImage.read_image", return_value=None)
+@patch("app.extractors.ThreadPoolExecutor")
+def test_save_images(mock_executor, mock_read_image, image, extractor):
+    mock_paths = [MagicMock(spec=Path) for _ in range(3)]
+    mock_executor.return_value.__enter__.return_value = mock_executor
+    mock_executor.submit.return_value.result.return_value = image
+    calls = [
+        ((mock_read_image, path),)
+        for path in mock_paths
+    ]
+
+    result = extractor._read_images(mock_paths)
+
+    assert mock_executor.submit.call_count == len(mock_paths)
+    mock_executor.submit.assert_has_calls(calls, any_order=True)
+    assert mock_executor.submit.return_value.result.call_count == len(mock_paths)
+    if image:
+        assert result
+    else:
+        assert result is None
+
+
+@patch("app.extractors.OpenCVImage.save_image", return_value=None)
+@patch("app.extractors.ThreadPoolExecutor")
+def test_save_images(mock_executor, mock_save_image, extractor):
+    images = [MagicMock(spec=np.ndarray) for _ in range(3)]
+    mock_executor.return_value.__enter__.return_value = mock_executor
+    mock_executor.submit.return_value.result.return_value = None
+    calls = [
+        ((mock_save_image, image, CONFIG.output_directory, CONFIG.images_output_format),)
+        for image in images
+    ]
+
+    extractor._save_images(images)
+
+    assert mock_executor.submit.call_count == len(images)
+    mock_executor.submit.assert_has_calls(calls, any_order=True)
+    assert mock_executor.submit.return_value.result.call_count == len(images)
 
 
 @patch("pathlib.Path.iterdir")

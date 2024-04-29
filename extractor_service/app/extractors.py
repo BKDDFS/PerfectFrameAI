@@ -64,7 +64,7 @@ class Extractor(ABC):
             prefix (str | None): Excluded files filename prefix. Default is None.
 
         Returns:
-            list: All matching files list.
+            list[Path]: All matching files list.
         """
         directory = self._config.input_directory
         entries = directory.iterdir()
@@ -93,7 +93,7 @@ class Extractor(ABC):
         Rating all images in provided images batch using already initialized image evaluator.
 
         Args:
-            images (list): List of images in numpy ndarrays.
+            images (list[np.ndarray]): List of images in numpy ndarrays.
 
         Returns:
             np.array: Array with images scores in given images order.
@@ -107,10 +107,10 @@ class Extractor(ABC):
         Read all images from given paths synonymously.
 
         Args:
-            paths: List of images paths.
+            paths (list[Path]): List of images paths.
 
         Returns:
-            list: List of images in numpy ndarrays.
+            list[np.ndarray]: List of images in numpy ndarrays.
         """
         with ThreadPoolExecutor() as executor:
             images = []
@@ -128,7 +128,7 @@ class Extractor(ABC):
         Save all images in config output directory synonymously.
 
         Args:
-            images: List of images in numpy ndarrays.
+            images (list[np.ndarray]): List of images in numpy ndarrays.
         """
         with ThreadPoolExecutor() as executor:
             futures = [executor.submit(
@@ -145,8 +145,8 @@ class Extractor(ABC):
         Adds prefix to file filename.
         
         Args:
-            prefix: Prefix that will be added.
-            path: Path to file that filename will be changed.
+            prefix (str): Prefix that will be added.
+            path (Path): Path to file that filename will be changed.
 
         Returns:
             Path: Path of the file with new filename.
@@ -212,10 +212,10 @@ class BestFramesExtractor(Extractor):
         Extract best visually frames from given video.
 
         Args:
-            video_path: Path of the video that will be extracted.
+            video_path (Path): Path of the video that will be extracted.
 
         Returns:
-            list: List of best images(frames) in numpy ndarray from the given video.
+            list[np.ndarray]: List of best images(frames) from the given video.
         """
         best_frames = []
         frames_batch_generator = OpenCVVideo.get_next_video_frames(video_path, self._config.batch_size)
@@ -236,12 +236,12 @@ class BestFramesExtractor(Extractor):
         Splits images batch for comparing groups and select best image for each group.
 
         Args:
-            images (list): Batch of images in numpy ndarray.
+            images (list[np.ndarray]): Batch of images in numpy ndarray.
             scores (np.array): Array with images scores with images batch order.
             comparing_group_size (int): The size of the groups into which the batch will be divided.
 
         Returns:
-            list: Best numpy ndarray images list.
+            list[np.ndarray]: Best images list.
         """
         best_images = []
         groups = np.array_split(scores, np.arange(comparing_group_size, len(scores), comparing_group_size))
@@ -280,12 +280,12 @@ class TopImagesExtractor(Extractor):
         Returns images that have scores in the top percent of all scores.
 
         Args:
-            images (list): Batch of images in numpy ndarray.
-            scores (list): Array with images scores with images batch order.
+            images (list[np.ndarray]): Batch of images in numpy ndarray.
+            scores (np.array): Array with images scores with images batch order.
             top_percent (float): The top percentage of scores to include (e.g. 80 for top 80%).
 
         Returns:
-            list: Top images from given images batch.
+            list[np.ndarray]: Top images from given images batch.
         """
         threshold = np.percentile(scores, top_percent)
         top_images = [img for img, score in zip(images, scores) if score > threshold]
