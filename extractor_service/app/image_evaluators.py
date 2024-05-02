@@ -1,15 +1,22 @@
 """
 This module provides abstract class for creating image evaluators and image evaluators.
 Image evaluators:
-    - PyIQA: using PyIQA library and its model in Pytorch to evaluate images.
+    - PyIQA: Removed in v2.0.
+    - NIMA:
 """
 import logging
 from abc import ABC, abstractmethod
+from pathlib import Path
 
-import pyiqa
-import torch
-from torchvision import transforms
+import tensorflow as tf
+import requests
 import numpy as np
+from tensorflow.keras.models import Model
+from tensorflow.keras.layers import Dense, Dropout
+from tensorflow.keras.applications.inception_resnet_v2 import InceptionResNetV2
+
+from .image_processors import OpenCVImage
+from .schemas import ExtractorConfig
 
 logger = logging.getLogger(__name__)
 
@@ -29,61 +36,73 @@ class ImageEvaluator(ABC):
         """
 
 
-class PyIQA(ImageEvaluator):
-    """Implementation of image evaluator using PyIQA library."""
-    def __init__(self, metric_model: str = "nima") -> None:
-        """
-        Initialize Pytorch device and transform_compose. Creating metric from model given model name.
-        If metric model is not available in cache it will be downloaded.
-
-        Args:
-            metric_model (str): Name of metric model that will be used by PyIQA.
-        """
-        self.torch_device = self._get_torch_device()
-        self.iqa_metric = pyiqa.create_metric(metric_model, device=self.torch_device).to(self.torch_device)
-        self.transforms_compose = transforms.Compose([transforms.ToTensor()])
+class NeuralImageAssessment(ImageEvaluator):
+    class DownloadingModelWeightsError(Exception):
+        """"""
+    def __init__(self, config: ExtractorConfig) -> None:
+        self._config = config
+        self._model = self._create_model()
+        logger.debug("Model loaded successfully.")
 
     def evaluate_images(self, images: list[np.ndarray]) -> list[float]:
-        """
-        Converts images to tensor batch. Scores images batch and returns it.
-
-        Args:
-            images (list[np.ndarray]): Batch of images that will be evaluated.
-
-        Returns:
-            list[float]: List of images' scores.
-        """
-        logger.info("Evaluating images...")
-        tensor_batch = self._convert_images_to_tensor_batch(images)
-        scores = self.iqa_metric(tensor_batch).tolist()
+        """Evaluate a list of numpy array images using the model, and return the results."""
+        scores = []
+        for image in images:
+            image = OpenCVImage.normalize_image(image)
+            prediction = self._model.predict(image, batch_size=1, verbose=0)[0]
+            score = self._calculate_weighted_mean(prediction)
+            scores.append(score)
         logger.info("Images batch evaluated.")
+        self._check_scores(images, scores)
         return scores
 
     @staticmethod
-    def _get_torch_device() -> torch.device:
-        """
-        Get a torch device, CUDA if available, otherwise CPU.
+    def _calculate_weighted_mean(scores: list[np.array]) -> float:
+        weights = np.arange(1, 11, 1)
+        weighted_mean = np.sum(scores * weights)
+        return weighted_mean
 
-        Returns:
-            torch.device: The torch device object ('cuda' or 'cpu').
-        """
-        if torch.cuda.is_available():
-            logger.info("Using CUDA for processing.")
-            return torch.device("cuda")
-        logger.warning("CUDA is unavailable!!! Using CPU for processing.")
-        return torch.device("cpu")
+    @staticmethod
+    def _check_scores(images: list[np.ndarray], scores: list[float]) -> None:
+        images_list_length = len(images)
+        scores_list_length = len(scores)
+        logger.debug("Scores: %s", scores)
+        if images_list_length != scores_list_length:
+            logger.warning("Scores and images lists lengths don't match!")
+            logger.debug("Images list length: %s", images_list_length)
+            logger.debug("Scores list length: %s", scores_list_length)
+        else:
+            logger.debug("Scores and images lists length: %s", images_list_length)
 
-    def _convert_images_to_tensor_batch(self, images: list[np.ndarray]) -> torch.Tensor:
-        """
-        Converts numpy ndarray images list to tensor batch.
+    def _create_model(self) -> Model:
+        base_model = InceptionResNetV2(input_shape=(224, 224, 3), include_top=False, pooling="avg", weights=None)
+        x = Dropout(0.75)(base_model.output)
+        x = Dense(10, activation="softmax")(x)
+        model = Model(inputs=base_model.input, outputs=x)
+        weights_path = self._get_weights()
+        model.load_weights(weights_path)
+        return model
 
-        Args:
-            images: Batch of images that will be converted.
+    def _get_weights(self) -> Path:
+        weights_directory = self._config.weights_directory
+        logger.info("Searching for model weights in weights directory: %s", weights_directory)
+        weights_path = Path(weights_directory) / self._config.weights_filename
+        if not weights_path.is_file():
+            logger.debug("Can't find model weights in weights directory: %s", weights_directory)
+            self._download_weights(weights_path)
+        else:
+            logger.debug(f"Model weights loaded from: {weights_path}")
+        return weights_path
 
-        Returns:
-            torch.Tensor: Images batch in tensor object.
-        """
-        tensor_images_list = [self.transforms_compose(image).to(self.torch_device) for image in images]
-        tensor_images = torch.stack(tensor_images_list)
-        logger.debug("Images batch converted to tensor.")
-        return tensor_images
+    def _download_weights(self, weights_path: Path) -> None:
+        url = f"{self._config.weights_repo_url}{self._config.weights_filename}"
+        logger.debug("Downloading model weights from ulr: %s", url)
+        response = requests.get(url, allow_redirects=True)
+        if response.status_code == 200:
+            weights_path.parent.mkdir(parents=True, exist_ok=True)
+            weights_path.write_bytes(response.content)
+            logger.debug(f"Model weights downloaded and saved to %s", weights_path)
+        else:
+            message_error = f"Failed to download the weights: HTTP status code {response.status_code}"
+            logger.error(message_error)
+            raise self.DownloadingModelWeightsError(message_error)

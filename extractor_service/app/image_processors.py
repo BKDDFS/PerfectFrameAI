@@ -95,3 +95,12 @@ class OpenCVImage(ImageProcessor):
         """
         filename = f"image_{uuid.uuid4()}"
         return filename
+
+    @staticmethod
+    def normalize_image(image: np.ndarray, target_size=(224, 224)) -> np.ndarray:
+        """Resize an already loaded image and convert it to a normalized numpy array using OpenCV."""
+        img_resized = cv2.resize(image, target_size, interpolation=cv2.INTER_LANCZOS4)
+        img_rgb = cv2.cvtColor(img_resized, cv2.COLOR_BGR2RGB)
+        img_normalized = img_rgb.astype(np.float32) / 255.0
+        img_normalized = np.expand_dims(img_normalized, axis=0)
+        return img_normalized
