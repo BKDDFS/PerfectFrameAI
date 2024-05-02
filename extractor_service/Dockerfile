@@ -1,4 +1,4 @@
-FROM nvidia/cuda:12.4.1-devel-ubuntu22.04
+FROM tensorflow/tensorflow:latest-gpu
 
 LABEL authors="BKDDFS"
 
@@ -9,8 +9,6 @@ RUN apt-get update && apt-get install -y \
     yasm \
     libx264-dev \
     libx265-dev \
-    libnuma-dev \
-    libfdk-aac-dev \
     libavcodec-dev \
     libavformat-dev \
     libavdevice-dev \
@@ -20,16 +18,17 @@ RUN apt-get update && apt-get install -y \
     pkg-config && \
     rm -rf /var/lib/apt/lists/*
 
-VOLUME /root/.cache
-
-ENV NVIDIA_VISIBLE_DEVICES all
-ENV NVIDIA_DRIVER_CAPABILITIES compute,video,utility
+VOLUME /root/.cache/huggingface
 
 WORKDIR /app
 
 COPY requirements.txt .
 
 RUN pip install --no-cache-dir -r requirements.txt
+
+ENV NVIDIA_VISIBLE_DEVICES all
+ENV NVIDIA_DRIVER_CAPABILITIES compute,video,utility
+
 
 COPY . .
 

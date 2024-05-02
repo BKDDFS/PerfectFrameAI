@@ -17,7 +17,7 @@ import numpy as np
 from .schemas import ExtractorConfig
 from .video_processors import OpenCVVideo
 from .image_processors import OpenCVImage
-from .image_evaluators import PyIQA
+from .image_evaluators import NeuralImageAssessment
 
 logger = logging.getLogger(__name__)
 
@@ -42,15 +42,15 @@ class Extractor(ABC):
     def process(self) -> None:
         """Abstract main method for extraction process implementation."""
 
-    def _get_image_evaluator(self) -> PyIQA:
+    def _get_image_evaluator(self) -> NeuralImageAssessment:
         """
-        Initializes one of image evaluators (currently PyIQA) and
+        Initializes one of image evaluators (currently NIMA) and
             adds it to extractor instance parameters.
 
         Returns:
             PyIQA: Image evaluator class instance for evaluating images.
         """
-        self._image_evaluator = PyIQA(self._config.metric_model)
+        self._image_evaluator = NeuralImageAssessment(self._config)
         return self._image_evaluator
 
     def _list_input_directory_files(self, extensions: tuple[str],
