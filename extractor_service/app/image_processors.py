@@ -102,5 +102,5 @@ class OpenCVImage(ImageProcessor):
         img_resized = cv2.resize(image, target_size, interpolation=cv2.INTER_LANCZOS4)
         img_rgb = cv2.cvtColor(img_resized, cv2.COLOR_BGR2RGB)
         img_normalized = img_rgb.astype(np.float32) / 255.0
-        img_normalized = np.expand_dims(img_normalized, axis=0)
-        return img_normalized
+        img_batch = np.expand_dims(img_normalized, axis=0)
+        return img_batch
