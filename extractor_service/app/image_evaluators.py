@@ -8,7 +8,6 @@ import logging
 from abc import ABC, abstractmethod
 from pathlib import Path
 
-import tensorflow as tf
 import requests
 import numpy as np
 from tensorflow.keras.models import Model
@@ -24,6 +23,14 @@ logger = logging.getLogger(__name__)
 class ImageEvaluator(ABC):
     """Abstraction class for creating image evaluators."""
     @abstractmethod
+    def __init__(self, config: ExtractorConfig) -> None:
+        """
+
+        Args:
+            config:
+        """
+
+    @abstractmethod
     def evaluate_images(self, images: list[np.ndarray]) -> list[float]:
         """
         Evaluates images batch and returns it.
@@ -36,18 +43,82 @@ class ImageEvaluator(ABC):
         """
 
 
-class NeuralImageAssessment(ImageEvaluator):
+class NIMAModel:
     class DownloadingModelWeightsError(Exception):
         """"""
+    _config = None
+    _model = None
+
+    @classmethod
+    def get_model(cls, config: ExtractorConfig) -> Model:
+        if cls._model is None:
+            cls._config = config
+            model_weights_path = cls._get_weights()
+            cls._model = cls._create_model(model_weights_path)
+        return cls._model
+
+    @classmethod
+    @abstractmethod
+    def _create_model(cls, weights_path: Path) -> Model:
+        """
+
+        Args:
+            weights_path:
+
+        Returns:
+
+        """
+
+    @classmethod
+    def _get_weights(cls) -> Path:
+        weights_directory = cls._config.weights_directory
+        logger.info("Searching for model weights in weights directory: %s", weights_directory)
+        weights_path = Path(weights_directory) / cls._config.weights_filename
+        if not weights_path.is_file():
+            logger.debug("Can't find model weights in weights directory: %s", weights_directory)
+            cls._download_weights(weights_path)
+        else:
+            logger.debug(f"Model weights loaded from: {weights_path}")
+        return weights_path
+
+    @classmethod
+    def _download_weights(cls, weights_path: Path) -> None:
+        url = f"{cls._config.weights_repo_url}{cls._config.weights_filename}"
+        logger.debug("Downloading model weights from ulr: %s", url)
+        response = requests.get(url, allow_redirects=True)
+        if response.status_code == 200:
+            weights_path.parent.mkdir(parents=True, exist_ok=True)
+            weights_path.write_bytes(response.content)
+            logger.debug(f"Model weights downloaded and saved to %s", weights_path)
+        else:
+            message_error = f"Failed to download the weights: HTTP status code {response.status_code}"
+            logger.error(message_error)
+            raise cls.DownloadingModelWeightsError(message_error)
+
+
+class InceptionResNetNIMA(NIMAModel):
+    @classmethod
+    def _create_model(cls, weights_path: Path) -> Model:
+        base_model = InceptionResNetV2(
+            input_shape=(224, 224, 3), include_top=False,
+            pooling="avg", weights=None
+        )
+        processed_output = Dropout(0.75)(base_model.output)
+        final_output = Dense(10, activation="softmax")(processed_output)
+        model = Model(inputs=base_model.input, outputs=final_output)
+        model.load_weights(weights_path)
+        return model
+
+
+class NeuralImageAssessment(ImageEvaluator):
     def __init__(self, config: ExtractorConfig) -> None:
-        self._config = config
-        self._model = self._create_model()
+        self._model = InceptionResNetNIMA.get_model(config)
         logger.debug("Model loaded successfully.")
 
     def evaluate_images(self, images: list[np.ndarray]) -> list[float]:
         """Evaluate a list of numpy array images using the model, and return the results."""
         scores = []
-        for image in images:
+        for image in images:  # Register spilling where processing in batches. For loop +30% performance.
             image = OpenCVImage.normalize_image(image)
             prediction = self._model.predict(image, batch_size=1, verbose=0)[0]
             score = self._calculate_weighted_mean(prediction)
@@ -73,36 +144,3 @@ class NeuralImageAssessment(ImageEvaluator):
             logger.debug("Scores list length: %s", scores_list_length)
         else:
             logger.debug("Scores and images lists length: %s", images_list_length)
-
-    def _create_model(self) -> Model:
-        base_model = InceptionResNetV2(input_shape=(224, 224, 3), include_top=False, pooling="avg", weights=None)
-        x = Dropout(0.75)(base_model.output)
-        x = Dense(10, activation="softmax")(x)
-        model = Model(inputs=base_model.input, outputs=x)
-        weights_path = self._get_weights()
-        model.load_weights(weights_path)
-        return model
-
-    def _get_weights(self) -> Path:
-        weights_directory = self._config.weights_directory
-        logger.info("Searching for model weights in weights directory: %s", weights_directory)
-        weights_path = Path(weights_directory) / self._config.weights_filename
-        if not weights_path.is_file():
-            logger.debug("Can't find model weights in weights directory: %s", weights_directory)
-            self._download_weights(weights_path)
-        else:
-            logger.debug(f"Model weights loaded from: {weights_path}")
-        return weights_path
-
-    def _download_weights(self, weights_path: Path) -> None:
-        url = f"{self._config.weights_repo_url}{self._config.weights_filename}"
-        logger.debug("Downloading model weights from ulr: %s", url)
-        response = requests.get(url, allow_redirects=True)
-        if response.status_code == 200:
-            weights_path.parent.mkdir(parents=True, exist_ok=True)
-            weights_path.write_bytes(response.content)
-            logger.debug(f"Model weights downloaded and saved to %s", weights_path)
-        else:
-            message_error = f"Failed to download the weights: HTTP status code {response.status_code}"
-            logger.error(message_error)
-            raise self.DownloadingModelWeightsError(message_error)
