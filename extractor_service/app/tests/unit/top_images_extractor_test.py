@@ -63,11 +63,11 @@ def test_process_with_images(mock_read_image, extractor, caplog):
 def test_get_top_percent_images(extractor, caplog):
     images = [MagicMock(spec=np.ndarray) for _ in range(5)]
     ratings = np.array([55, 70, 85, 40, 20])
-    top_percent = 50
+    top_percent = 70
     expected_images = [images[1], images[2]]
 
     with caplog.at_level(logging.INFO):
         selected_images = extractor._get_top_percent_images(images, ratings, top_percent)
 
     assert selected_images == expected_images, "The selected images do not match the expected top percent images."
-    assert "Top images selected." in caplog.text
+    assert f"Top images selected({len(expected_images)})." in caplog.text
