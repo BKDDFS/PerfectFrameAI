@@ -6,7 +6,6 @@ services:
     ports:
       - "8100:8100"
     volumes:
-      - model_cache:/root/.cache
       - "B:/frames_evaluators/input_directory:/app/input_directory"
       - "B:/frames_evaluators/output_directory:/app/output_directory"
     environment:
@@ -21,6 +20,3 @@ services:
             - driver: nvidia
               count: 1
               capabilities: [ gpu ]
-
-volumes:
-  model_cache:
