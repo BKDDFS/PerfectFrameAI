@@ -1,136 +1,94 @@
 import logging
-from unittest.mock import patch, MagicMock
+from unittest.mock import patch, MagicMock, call
 
 import numpy as np
 import pytest
-import torch
+import tensorflow as tf
 
-from app.image_evaluators import PyIQA
+from app.image_evaluators import InceptionResNetNIMA, _ResNetModel
+from app.image_processors import OpenCVImage
 
 
 @pytest.fixture
-def pyiqa_evaluator():
-    pyiqa_evaluator = PyIQA()
-    return pyiqa_evaluator
+def evaluator():
+    with patch.object(_ResNetModel, "get_model", return_value=MagicMock()):
+        evaluator = InceptionResNetNIMA(MagicMock())
+    return evaluator
 
 
-@patch("app.image_evaluators.transforms.Compose")
-@patch("app.image_evaluators.pyiqa.create_metric")
-@patch("app.image_evaluators.PyIQA._get_torch_device")
-@patch("app.image_evaluators.transforms.ToTensor", return_value=MagicMock(name='ToTensor'))
-def test_pyiqa_initialization(mock_to_tensor, mock_get_torch_device, mock_create_metric, mock_transforms_compose):
-    mock_model = "some_model"
-    mock_device = "cuda"
+@patch.object(_ResNetModel, "get_model")
+def test_evaluator_initialization(mock_get_model):
+    test_model = "some_model"
+    config = MagicMock()
+    mock_get_model.return_value = test_model
 
-    # Mock return the device
-    mock_get_torch_device.return_value = mock_device
+    instance = InceptionResNetNIMA(config)
 
-    # Mock metric creation
-    metric_instance_mock = MagicMock()
-    mock_create_metric.return_value = metric_instance_mock
-    metric_instance_mock.to.return_value = metric_instance_mock  # Return itself to simulate chaining
-
-    # Mock transforms.Compose
-    transforms_compose_mock = MagicMock()
-    mock_transforms_compose.return_value = transforms_compose_mock
-
-    # Call
-    pyiqa_instance = PyIQA(mock_model)
-
-    # Verifications
-    mock_get_torch_device.assert_called_once()
-    mock_create_metric.assert_called_once_with(mock_model, device=mock_device)
-    metric_instance_mock.to.assert_called_once_with(mock_device)
-    mock_transforms_compose.assert_called_once_with([mock_to_tensor()])  # Check transforms setup
-
-    # Assert instance attributes
-    assert pyiqa_instance.torch_device == mock_device, "Torch device not set correctly"
-    assert pyiqa_instance.iqa_metric == metric_instance_mock, "Metric model not set correctly"
-    assert pyiqa_instance.transforms_compose == transforms_compose_mock, "Transform compose not set correctly"
+    mock_get_model.assert_called_once()
+    assert instance._model == test_model
 
 
-@patch.object(PyIQA, "_convert_images_to_tensor_batch")
-def test_evaluate_images(mock_convert_images_to_tensor_batch, pyiqa_evaluator, caplog):
-    mock_iqa_metric = MagicMock()
-    pyiqa_evaluator.iqa_metric = mock_iqa_metric
-    fake_images = [MagicMock(np.ndarray) for _ in range(5)]
-    fake_tensor_batch = MagicMock()
-    mock_convert_images_to_tensor_batch.return_value = fake_tensor_batch
-    mock_scores = [3.5, 4.2, 2.8, 4.0, 3.7]
-    mock_iqa_metric.return_value.tolist.return_value = mock_scores
+@patch.object(OpenCVImage, "normalize_images")
+@patch.object(tf, "convert_to_tensor")
+@patch.object(InceptionResNetNIMA, "_calculate_weighted_mean")
+@patch.object(InceptionResNetNIMA, "_check_scores")
+def test_evaluate_images(mock_check, mock_calculate, mock_convert_to_tensor, mock_normalize_images, evaluator, caplog):
+    fake_images = [MagicMock(np.ndarray) for _ in range(3)]
+    img_array = "some_array"
+    tensor = "some_tensor"
+    predictions = [1.0, 2.0, 3.0]
+    expected_scores = [10.0, 20.0, 30.0]
+    mock_normalize_images.return_value = img_array
+    mock_convert_to_tensor.return_value = tensor
+    mock_calculate.side_effect = expected_scores
+    evaluator._model.predict.return_value = predictions
 
     with caplog.at_level(logging.INFO):
-        scores = pyiqa_evaluator.evaluate_images(fake_images)
+        result = evaluator.evaluate_images(fake_images)
 
-    mock_convert_images_to_tensor_batch.assert_called_once_with(fake_images)
-    mock_iqa_metric.assert_called_once_with(fake_tensor_batch)
-    assert scores == mock_scores, "The scores returned do not match the expected scores."
+    mock_normalize_images.assert_called_once_with(fake_images)
+    mock_convert_to_tensor.assert_called_once_with(img_array)
+    evaluator._model.predict.assert_called_once_with(tensor, batch_size=len(fake_images), verbose=0)
+    mock_calculate.assert_has_calls([
+        call(prediction, _ResNetModel.prediction_weights) for prediction in predictions],
+        any_order=True
+    )
+    mock_check.assert_called_once()
     assert "Evaluating images..." in caplog.text
     assert "Images batch evaluated." in caplog.text
+    assert result == expected_scores
 
 
-@patch("torch.cuda.is_available",)
-@pytest.mark.parametrize("is_available", (True, False))
-def test_get_torch_device(mock_is_available, is_available, pyiqa_evaluator, caplog):
-    mock_is_available.return_value = is_available
-    with caplog.at_level(logging.INFO):
-        result = pyiqa_evaluator._get_torch_device()
+def test_calculate_weighted_mean_with_default_weights(evaluator):
+    prediction = np.array([10, 20, 30])
+    expected_weighted_mean = np.mean(prediction)  # Since default weights are equal
 
-    mock_is_available.assert_called_once()
-    if is_available:
-        assert "Using CUDA for processing." in caplog.text
-        assert result.type == 'cuda'
-    else:
-        assert "CUDA is unavailable!!! Using CPU for processing." in caplog.text
-        assert result.type == 'cpu'
-    assert isinstance(result, torch.device)
+    calculated_mean = evaluator._calculate_weighted_mean(prediction)
+
+    assert np.isclose(calculated_mean, expected_weighted_mean)
 
 
-@patch("torch.Tensor.to")
-@patch("torch.stack")
-def test_convert_images_to_tensor_batch(mock_stack, mock_to, pyiqa_evaluator):
-    mock_transforms_compose = MagicMock()
-    pyiqa_evaluator.transforms_compose = mock_transforms_compose
-    # Setup fake data
-    fake_images = [MagicMock(np.ndarray) for _ in range(3)]
-    transformed_images = [MagicMock() for _ in range(3)]
+def test_calculate_weighted_mean_with_custom_weights(evaluator):
+    prediction = np.array([10, 20, 30])
+    weights = np.array([1, 2, 3])
+    expected_weighted_mean = np.sum(prediction * weights) / np.sum(weights)
 
-    # Use a dictionary to map fake images to transformed images
-    image_map = {id(img): trans_img for img, trans_img in zip(fake_images, transformed_images)}
-    mock_transforms_compose.side_effect = lambda x: image_map[id(x)]
+    calculated_mean = evaluator._calculate_weighted_mean(prediction, weights)
 
-    tensor_batch = MagicMock()
-    mock_stack.return_value = tensor_batch
-    mock_to.return_value = tensor_batch  # Simulate sending to device
-
-    # Call the method under test
-    result_tensor = pyiqa_evaluator._convert_images_to_tensor_batch(fake_images)
-
-    # Verify transforms and tensor operations
-    assert mock_transforms_compose.call_count == len(fake_images), "Transforms not applied correctly to all images."
-    mock_stack.assert_called_once_with(transformed_images)
-    mock_to.assert_called_once_with(pyiqa_evaluator.torch_device)
-
-    # Assert returned tensor is correct
-    assert result_tensor is tensor_batch, "Returned tensor batch is not correct."
+    assert np.isclose(calculated_mean, expected_weighted_mean)
 
 
-@patch("torch.stack")
-@patch.object(torch.Tensor, "to", return_value=MagicMock())
-def test_convert_images_to_tensor_batch(mock_to, mock_stack, pyiqa_evaluator, caplog):
-    mock_transform = MagicMock()
-    pyiqa_evaluator.transforms_compose = mock_transform
-    images = [MagicMock(spec=np.ndarray) for _ in range(4)]
-    expected_result = MagicMock(spec=torch.Tensor)
-    mock_stack.return_value = expected_result
-    mock_transform.return_value.to = mock_to
-
+@pytest.mark.parametrize("score_len, images_len", ((1, 1), (1, 2)))
+def test_check_scores(score_len, images_len, evaluator, caplog):
+    scores = [MagicMock(spec=np.ndarray) for _ in range(score_len)]
+    images = [MagicMock(spec=float) for _ in range(images_len)]
     with caplog.at_level(logging.DEBUG):
-        result = pyiqa_evaluator._convert_images_to_tensor_batch(images)
+        evaluator._check_scores(images, scores)
 
-    assert mock_transform.call_count == len(images)
-    assert all(call.args[0] in images for call in mock_transform.call_args_list)
-    assert mock_to.call_count == len(images)
-    mock_to.assert_called_with(pyiqa_evaluator.torch_device)
-    assert isinstance(result, torch.Tensor), "Result should be a torch.Tensor"
-    assert "Images batch converted to tensor." in caplog.text
+    assert f"Scores: {scores}" in caplog.text
+    if score_len == images_len:
+        assert f"Scores and images lists length: {score_len}" in caplog.text
+    else:
+        assert "Scores and images lists lengths don't match!" in caplog.text
+        assert f"Images list length: {images_len}" in caplog.text
+        assert f"Scores list length: {score_len}" in caplog.text
