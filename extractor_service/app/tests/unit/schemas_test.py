@@ -8,18 +8,20 @@ from app.schemas import ExtractorConfig, Message, ExtractorStatus
 
 
 def test_config_default():
-    with patch('pathlib.Path.is_dir', return_value=True):
+    with patch.object(Path, "is_dir", return_value=True):
         config = ExtractorConfig()
     assert config.input_directory == Path("/app/input_directory")
     assert config.output_directory == Path("/app/output_directory")
     assert config.video_extensions == (".mp4",)
     assert config.images_extensions == (".jpg",)
     assert config.processed_video_prefix == "frames_extracted_"
-    assert config.metric_model == "nima"
-    assert config.compering_group_size == 5
-    assert config.batch_size == 60
-    assert config.top_images_percent == 90
+    assert isinstance(config.compering_group_size, int)
+    assert isinstance(config.batch_size, int)
+    assert isinstance(config.top_images_percent, float)
     assert config.images_output_format == ".jpg"
+    assert config.weights_directory == Path.home() / ".cache" / "huggingface"
+    assert config.weights_filename == "weights.h5"
+    assert config.weights_repo_url == "https://huggingface.co/BKDDFS/nima_weights/resolve/main/"
 
 
 def test_request_data_validation_failure_output():

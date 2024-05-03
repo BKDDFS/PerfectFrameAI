@@ -36,14 +36,14 @@ def extractor():
     return TestExtractor(CONFIG)
 
 
-@patch("app.extractors.PyIQA")
+@patch("app.extractors.InceptionResNetNIMA")
 def test_get_image_evaluator(mock_evaluator, extractor):
     expected_evaluator = MagicMock()
     mock_evaluator.return_value = expected_evaluator
 
     result = extractor._get_image_evaluator()
 
-    mock_evaluator.assert_called_once_with(CONFIG.metric_model)
+    mock_evaluator.assert_called_once_with(CONFIG)
     assert result == expected_evaluator, \
         "The method did not return the correct ImageEvaluator instance."
     assert extractor._image_evaluator == expected_evaluator, \

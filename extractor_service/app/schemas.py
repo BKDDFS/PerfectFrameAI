@@ -44,7 +44,7 @@ class ExtractorConfig(BaseModel):
     images_output_format: str = ".jpg"
     weights_directory: Path | str = Path.home() / ".cache" / "huggingface"
     weights_filename: str = "weights.h5"
-    weights_repo_url: str = f"https://huggingface.co/BKDDFS/nima_weights/resolve/main/"
+    weights_repo_url: str = "https://huggingface.co/BKDDFS/nima_weights/resolve/main/"
 
 
 class Message(BaseModel):

@@ -17,7 +17,7 @@ import numpy as np
 from .schemas import ExtractorConfig
 from .video_processors import OpenCVVideo
 from .image_processors import OpenCVImage
-from .image_evaluators import NeuralImageAssessment
+from .image_evaluators import InceptionResNetNIMA
 
 logger = logging.getLogger(__name__)
 
@@ -42,7 +42,7 @@ class Extractor(ABC):
     def process(self) -> None:
         """Abstract main method for extraction process implementation."""
 
-    def _get_image_evaluator(self) -> NeuralImageAssessment:
+    def _get_image_evaluator(self) -> InceptionResNetNIMA:
         """
         Initializes one of image evaluators (currently NIMA) and
             adds it to extractor instance parameters.
@@ -50,7 +50,7 @@ class Extractor(ABC):
         Returns:
             PyIQA: Image evaluator class instance for evaluating images.
         """
-        self._image_evaluator = NeuralImageAssessment(self._config)
+        self._image_evaluator = InceptionResNetNIMA(self._config)
         return self._image_evaluator
 
     def _list_input_directory_files(self, extensions: tuple[str],
@@ -249,7 +249,7 @@ class BestFramesExtractor(Extractor):
             best_index = np.argmax(group)
             global_index = index * comparing_group_size + best_index
             best_images.append(images[global_index])
-        logger.info("Best frames selected.")
+        logger.info("Best frames selected(%s).", len(best_images))
         return best_images
 
 
@@ -288,6 +288,6 @@ class TopImagesExtractor(Extractor):
             list[np.ndarray]: Top images from given images batch.
         """
         threshold = np.percentile(scores, top_percent)
-        top_images = [img for img, score in zip(images, scores) if score > threshold]
-        logger.info("Top images selected.")
+        top_images = [img for img, score in zip(images, scores) if score >= threshold]
+        logger.info("Top images selected(%s).", len(top_images))
         return top_images
