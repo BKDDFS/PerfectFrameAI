@@ -29,7 +29,9 @@ class ExtractorConfig(BaseModel):
         compering_group_size (int): Maximum number of images in a group to compare for finding the best one.
         top_images_percent (float): Percentage threshold to determine the top images based on scores.
         images_output_format (str): Format for saving output images, e.g., '.jpg', '.png'.
-        weights_directory (Path | str):
+        weights_directory (Path | str): Directory path where model weights are stored.
+        weights_filename (str): The filename of the model weights file to be loaded.
+        weights_repo_url (str): URL to the repository where model weights can be downloaded.
     """
     input_directory: DirectoryPath = Path("/app/input_directory")
     output_directory: DirectoryPath = Path("/app/output_directory")
