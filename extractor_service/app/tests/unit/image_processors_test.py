@@ -57,7 +57,7 @@ def test_save_image(mock_imwrite, mock_uuid, caplog):
 
 @patch.object(cv2, "resize")
 @patch.object(cv2, "cvtColor")
-@patch('numpy.array')
+@patch.object(np, "array")
 def test_normalize_images(mock_array, mock_cvt, mock_resize, caplog):
     images_num = 3
     target_size = (112, 112)
