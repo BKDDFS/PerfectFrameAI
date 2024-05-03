@@ -29,18 +29,20 @@ class ExtractorConfig(BaseModel):
         compering_group_size (int): Maximum number of images in a group to compare for finding the best one.
         top_images_percent (float): Percentage threshold to determine the top images based on scores.
         images_output_format (str): Format for saving output images, e.g., '.jpg', '.png'.
-        metric_model (str): Name of the AI metric model that will be used for evaluating images.
+        weights_directory (Path | str):
     """
     input_directory: DirectoryPath = Path("/app/input_directory")
     output_directory: DirectoryPath = Path("/app/output_directory")
     video_extensions: tuple[str] = (".mp4",)
     images_extensions: tuple[str] = (".jpg",)
     processed_video_prefix: str = "frames_extracted_"
-    batch_size: int = 60
+    batch_size: int = 100
     compering_group_size: int = 5
     top_images_percent: float = 90.0
     images_output_format: str = ".jpg"
-    metric_model: str = "nima"
+    weights_directory: Path | str = Path.home() / ".cache" / "huggingface"
+    weights_filename: str = "weights.h5"
+    weights_repo_url: str = f"https://huggingface.co/BKDDFS/nima_weights/resolve/main/"
 
 
 class Message(BaseModel):
