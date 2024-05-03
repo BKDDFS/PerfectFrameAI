@@ -55,12 +55,68 @@ class ImageEvaluator(ABC):
         images_list_length = len(images)
         scores_list_length = len(scores)
         logger.debug("Scores: %s", scores)
-        if images_list_length != scores_list_length:
+        if images_list_length == scores_list_length:
+            logger.debug("Scores and images lists length: %s", images_list_length)
+        else:
             logger.warning("Scores and images lists lengths don't match!")
             logger.debug("Images list length: %s", images_list_length)
             logger.debug("Scores list length: %s", scores_list_length)
-        else:
-            logger.debug("Scores and images lists length: %s", images_list_length)
+
+
+class InceptionResNetNIMA(ImageEvaluator):
+    """
+    NeuralImageAssessment model based image evaluator.
+    It uses NIMA for evaluating aesthetics of images.
+    NIMA google research:
+    https://research.google/blog/introducing-nima-neural-image-assessment/
+    """
+    def __init__(self, config: ExtractorConfig) -> None:
+        """
+        Initialize the Neural Image Assessment with the provided configuration.
+
+        Args:
+            config (ExtractorConfig): Configuration object for the image evaluator.
+        """
+        self._model = _ResNetModel.get_model(config)
+
+    def evaluate_images(self, images: list[np.ndarray]) -> list[float]:
+        """
+        Evaluate a batch of images using the NIMA model, and return the results.
+
+        Args:
+            images (list[np.ndarray]): Batch of numpy array images to be evaluated.
+
+        Returns:
+            list[float]: List of scores corresponding to the input images.
+        """
+        logger.info("Evaluating images...")
+        img_array = OpenCVImage.normalize_images(images)
+        tensor = tf.convert_to_tensor(img_array)
+        predictions = self._model.predict(tensor, batch_size=len(images), verbose=0)
+        weights = _ResNetModel.prediction_weights
+        scores = [self._calculate_weighted_mean(prediction, weights) for prediction in predictions]
+        self._check_scores(images, scores)
+        logger.info("Images batch evaluated.")
+        return scores
+
+    @staticmethod
+    def _calculate_weighted_mean(prediction: np.array, weights: np.array = None) -> float:
+        """
+        Calculate the weighted mean of the prediction to get final image score.
+        For example model InceptionResNetV2 returns 10 prediction scores for each image.
+        We want to calculate weighted mean from that classification scores to calculate
+        image final score. First classification score is less important and last is most.
+
+        Args:
+            prediction (np.array): Array of classification scores.
+
+        Returns:
+            float: Weighted mean of the prediction.
+        """
+        if weights is None:
+            weights = np.ones_like(prediction)  # Default weights, equally distribute importance
+        weighted_mean = np.sum(prediction * weights) / np.sum(weights)
+        return weighted_mean
 
 
 class _NIMAModel(ABC):
@@ -86,43 +142,43 @@ class _NIMAModel(ABC):
         """
         if cls._model is None:
             cls._config = config
-            model_weights_path = cls._get_weights()
+            model_weights_path = cls._get_model_weights()
             cls._model = cls._create_model(model_weights_path)
         return cls._model
 
     @classmethod
     @abstractmethod
-    def _create_model(cls, weights_path: Path) -> Model:
+    def _create_model(cls, model_weights_path: Path) -> Model:
         """
         Create the NIMA model with the provided weights.
 
         Args:
-            weights_path (Path): Path to the model weights.
+            model_weights_path (Path): Path to the model weights.
 
         Returns:
             Model: NIMA model instance.
         """
 
     @classmethod
-    def _get_weights(cls) -> Path:
+    def _get_model_weights(cls) -> Path:
         """
         Get the path to the model weights, downloading them if necessary.
 
         Returns:
             Path: Path to the model weights.
         """
-        weights_directory = cls._config.weights_directory
-        logger.info("Searching for model weights in weights directory: %s", weights_directory)
-        weights_path = Path(weights_directory) / cls._config.weights_filename
-        if not weights_path.is_file():
-            logger.debug("Can't find model weights in weights directory: %s", weights_directory)
-            cls._download_weights(weights_path)
+        model_weights_directory = cls._config.weights_directory
+        logger.info("Searching for model weights in weights directory: %s", model_weights_directory)
+        model_weights_path = Path(model_weights_directory) / cls._config.weights_filename
+        if not model_weights_path.is_file():
+            logger.debug("Can't find model weights in weights directory: %s", model_weights_directory)
+            cls._download_model_weights(model_weights_path)
         else:
-            logger.debug(f"Model weights loaded from: {weights_path}")
-        return weights_path
+            logger.debug(f"Model weights loaded from: {model_weights_path}")
+        return model_weights_path
 
     @classmethod
-    def _download_weights(cls, weights_path: Path) -> None:
+    def _download_model_weights(cls, weights_path: Path) -> None:
         """
         Download the model weights from the specified URL.
 
@@ -145,18 +201,20 @@ class _NIMAModel(ABC):
             raise cls.DownloadingModelWeightsError(message_error)
 
 
-class _InceptionResNetNIMA(_NIMAModel):
+class _ResNetModel(_NIMAModel):
     """
     Implements the specific InceptionResNetV2-based NIMA model.
     This is helper class for NeuralImageAssessment class.
     """
+    prediction_weights = np.arange(1, 11, 1)
+
     @classmethod
-    def _create_model(cls, weights_path: Path) -> Model:
+    def _create_model(cls, model_weights_path: Path) -> Model:
         """
         Create the InceptionResNetV2-based NIMA model with the provided weights.
 
         Args:
-            weights_path (Path): Path to the model weights.
+            model_weights_path (Path): Path to the model weights.
 
         Returns:
             Model: NIMA model instance.
@@ -168,55 +226,6 @@ class _InceptionResNetNIMA(_NIMAModel):
         processed_output = Dropout(0.75)(base_model.output)
         final_output = Dense(10, activation="softmax")(processed_output)
         model = Model(inputs=base_model.input, outputs=final_output)
-        model.load_weights(weights_path)
+        model.load_weights(model_weights_path)
         logger.debug("Model loaded successfully.")
         return model
-
-
-class NeuralImageAssessment(ImageEvaluator):
-    """
-    NIMA model based image evaluator. It uses NIMA for evaluating aesthetics of images.
-    NIMA paper:
-    https://research.google/blog/introducing-nima-neural-image-assessment/
-    """
-    def __init__(self, config: ExtractorConfig) -> None:
-        """
-        Initialize the Neural Image Assessment with the provided configuration.
-
-        Args:
-            config (ExtractorConfig): Configuration object for the image evaluator.
-        """
-        self._model = _InceptionResNetNIMA.get_model(config)
-
-    def evaluate_images(self, images: list[np.ndarray]) -> list[float]:
-        """
-        Evaluate a batch of images using the NIMA model, and return the results.
-
-        Args:
-            images (list[np.ndarray]): Batch of numpy array images to be evaluated.
-
-        Returns:
-            list[float]: List of scores corresponding to the input images.
-        """
-
-        img_array = OpenCVImage.normalize_images(images)
-        tensor = tf.convert_to_tensor(img_array)
-        predictions = self._model.predict(tensor, batch_size=len(images), verbose=0)
-        scores = [self._calculate_weighted_mean(prediction) for prediction in predictions]
-        logger.info("Images batch evaluated.")
-        return scores
-
-    @staticmethod
-    def _calculate_weighted_mean(scores: np.array) -> float:
-        """
-        Calculate the weighted mean of the scores.
-
-        Args:
-            scores (np.array): Array of scores.
-
-        Returns:
-            float: Weighted mean of the scores.
-        """
-        weights = np.arange(1, 11, 1)
-        weighted_mean = np.sum(scores * weights) / np.sum(weights)
-        return weighted_mean
