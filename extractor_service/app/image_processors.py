@@ -97,10 +97,22 @@ class OpenCVImage(ImageProcessor):
         return filename
 
     @staticmethod
-    def normalize_image(image: np.ndarray, target_size=(224, 224)) -> np.ndarray:
-        """Resize an already loaded image and convert it to a normalized numpy array using OpenCV."""
-        img_resized = cv2.resize(image, target_size, interpolation=cv2.INTER_LANCZOS4)
-        img_rgb = cv2.cvtColor(img_resized, cv2.COLOR_BGR2RGB)
-        img_normalized = img_rgb.astype(np.float32) / 255.0
-        img_batch = np.expand_dims(img_normalized, axis=0)
-        return img_batch
+    def normalize_images(images: list[np.ndarray], target_size=(224, 224)) -> np.array:
+        """
+        Resize a batch of images and convert them to a normalized numpy array.
+
+        Args:
+            images (list[np.ndarray]): List of numpy ndarray images to be normalized.
+            target_size (tuple | None): Target size to which the images will be resized.
+                Default is (224, 224).
+
+        Returns:
+            np.ndarray: Normalized numpy array containing the resized images.
+        """
+        batch_images = []
+        for img in images:
+            img_resized = cv2.resize(img, target_size, interpolation=cv2.INTER_LANCZOS4)
+            img_rgb = cv2.cvtColor(img_resized, cv2.COLOR_BGR2RGB)
+            batch_images.append(img_rgb)
+        img_array = np.array(batch_images, dtype=np.float32) / 255.0
+        return img_array

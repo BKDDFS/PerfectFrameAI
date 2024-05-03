@@ -1,8 +1,7 @@
 """
 This module provides abstract class for creating image evaluators and image evaluators.
 Image evaluators:
-    - PyIQA: Removed in v2.0.
-    - NIMA:
+    - NeuralImageAssessment: NIMA model based on the InceptionResNetV2 architecture.
 """
 import logging
 from abc import ABC, abstractmethod
@@ -10,6 +9,7 @@ from pathlib import Path
 
 import requests
 import numpy as np
+import tensorflow as tf
 from tensorflow.keras.models import Model
 from tensorflow.keras.layers import Dense, Dropout
 from tensorflow.keras.applications.inception_resnet_v2 import InceptionResNetV2
@@ -21,13 +21,14 @@ logger = logging.getLogger(__name__)
 
 
 class ImageEvaluator(ABC):
-    """Abstraction class for creating image evaluators."""
+    """Abstract class for creating image evaluators."""
     @abstractmethod
     def __init__(self, config: ExtractorConfig) -> None:
         """
+        Initialize the image evaluator with the provided configuration.
 
         Args:
-            config:
+            config (ExtractorConfig): Configuration from user.
         """
 
     @abstractmethod
@@ -42,15 +43,47 @@ class ImageEvaluator(ABC):
             list[float]: List of images' scores.
         """
 
+    @staticmethod
+    def _check_scores(images: list[np.ndarray], scores: list[float]) -> None:
+        """
+        Check if the lengths of the images and scores lists match.
 
-class NIMAModel:
+        Args:
+            images (list[np.ndarray]): List of images.
+            scores (list[float]): List of scores.
+        """
+        images_list_length = len(images)
+        scores_list_length = len(scores)
+        logger.debug("Scores: %s", scores)
+        if images_list_length != scores_list_length:
+            logger.warning("Scores and images lists lengths don't match!")
+            logger.debug("Images list length: %s", images_list_length)
+            logger.debug("Scores list length: %s", scores_list_length)
+        else:
+            logger.debug("Scores and images lists length: %s", images_list_length)
+
+
+class _NIMAModel(ABC):
+    """Abstract base class for the NIMA models. Uses a singleton pattern
+    to manage a unique instance of the models.
+    This is helper class for NeuralImageAssessment class.
+    """
     class DownloadingModelWeightsError(Exception):
-        """"""
+        """Error raised when there's an issue with downloading model weights."""
     _config = None
     _model = None
 
     @classmethod
     def get_model(cls, config: ExtractorConfig) -> Model:
+        """
+        Get the NIMA model instance, downloading the weights if necessary.
+
+        Args:
+            config (ExtractorConfig): Configuration object for the model.
+
+        Returns:
+            Model: NIMA model instance.
+        """
         if cls._model is None:
             cls._config = config
             model_weights_path = cls._get_weights()
@@ -61,16 +94,23 @@ class NIMAModel:
     @abstractmethod
     def _create_model(cls, weights_path: Path) -> Model:
         """
+        Create the NIMA model with the provided weights.
 
         Args:
-            weights_path:
+            weights_path (Path): Path to the model weights.
 
         Returns:
-
+            Model: NIMA model instance.
         """
 
     @classmethod
     def _get_weights(cls) -> Path:
+        """
+        Get the path to the model weights, downloading them if necessary.
+
+        Returns:
+            Path: Path to the model weights.
+        """
         weights_directory = cls._config.weights_directory
         logger.info("Searching for model weights in weights directory: %s", weights_directory)
         weights_path = Path(weights_directory) / cls._config.weights_filename
@@ -83,6 +123,15 @@ class NIMAModel:
 
     @classmethod
     def _download_weights(cls, weights_path: Path) -> None:
+        """
+        Download the model weights from the specified URL.
+
+        Args:
+            weights_path (Path): Path to save the downloaded weights.
+
+        Raises:
+            cls.DownloadingModelWeightsError: If there's an issue downloading the weights.
+        """
         url = f"{cls._config.weights_repo_url}{cls._config.weights_filename}"
         logger.debug("Downloading model weights from ulr: %s", url)
         response = requests.get(url, allow_redirects=True)
@@ -96,9 +145,22 @@ class NIMAModel:
             raise cls.DownloadingModelWeightsError(message_error)
 
 
-class InceptionResNetNIMA(NIMAModel):
+class _InceptionResNetNIMA(_NIMAModel):
+    """
+    Implements the specific InceptionResNetV2-based NIMA model.
+    This is helper class for NeuralImageAssessment class.
+    """
     @classmethod
     def _create_model(cls, weights_path: Path) -> Model:
+        """
+        Create the InceptionResNetV2-based NIMA model with the provided weights.
+
+        Args:
+            weights_path (Path): Path to the model weights.
+
+        Returns:
+            Model: NIMA model instance.
+        """
         base_model = InceptionResNetV2(
             input_shape=(224, 224, 3), include_top=False,
             pooling="avg", weights=None
@@ -107,40 +169,54 @@ class InceptionResNetNIMA(NIMAModel):
         final_output = Dense(10, activation="softmax")(processed_output)
         model = Model(inputs=base_model.input, outputs=final_output)
         model.load_weights(weights_path)
+        logger.debug("Model loaded successfully.")
         return model
 
 
 class NeuralImageAssessment(ImageEvaluator):
+    """
+    NIMA model based image evaluator. It uses NIMA for evaluating aesthetics of images.
+    NIMA paper:
+    https://research.google/blog/introducing-nima-neural-image-assessment/
+    """
     def __init__(self, config: ExtractorConfig) -> None:
-        self._model = InceptionResNetNIMA.get_model(config)
-        logger.debug("Model loaded successfully.")
+        """
+        Initialize the Neural Image Assessment with the provided configuration.
+
+        Args:
+            config (ExtractorConfig): Configuration object for the image evaluator.
+        """
+        self._model = _InceptionResNetNIMA.get_model(config)
 
     def evaluate_images(self, images: list[np.ndarray]) -> list[float]:
-        """Evaluate a list of numpy array images using the model, and return the results."""
-        scores = []
-        for image in images:  # Register spilling where processing in batches. For loop +30% performance.
-            image = OpenCVImage.normalize_image(image)
-            prediction = self._model.predict(image, batch_size=1, verbose=0)[0]
-            score = self._calculate_weighted_mean(prediction)
-            scores.append(score)
+        """
+        Evaluate a batch of images using the NIMA model, and return the results.
+
+        Args:
+            images (list[np.ndarray]): Batch of numpy array images to be evaluated.
+
+        Returns:
+            list[float]: List of scores corresponding to the input images.
+        """
+
+        img_array = OpenCVImage.normalize_images(images)
+        tensor = tf.convert_to_tensor(img_array)
+        predictions = self._model.predict(tensor, batch_size=len(images), verbose=0)
+        scores = [self._calculate_weighted_mean(prediction) for prediction in predictions]
         logger.info("Images batch evaluated.")
-        self._check_scores(images, scores)
         return scores
 
     @staticmethod
-    def _calculate_weighted_mean(scores: list[np.array]) -> float:
-        weights = np.arange(1, 11, 1)
-        weighted_mean = np.sum(scores * weights)
-        return weighted_mean
+    def _calculate_weighted_mean(scores: np.array) -> float:
+        """
+        Calculate the weighted mean of the scores.
 
-    @staticmethod
-    def _check_scores(images: list[np.ndarray], scores: list[float]) -> None:
-        images_list_length = len(images)
-        scores_list_length = len(scores)
-        logger.debug("Scores: %s", scores)
-        if images_list_length != scores_list_length:
-            logger.warning("Scores and images lists lengths don't match!")
-            logger.debug("Images list length: %s", images_list_length)
-            logger.debug("Scores list length: %s", scores_list_length)
-        else:
-            logger.debug("Scores and images lists length: %s", images_list_length)
+        Args:
+            scores (np.array): Array of scores.
+
+        Returns:
+            float: Weighted mean of the scores.
+        """
+        weights = np.arange(1, 11, 1)
+        weighted_mean = np.sum(scores * weights) / np.sum(weights)
+        return weighted_mean
