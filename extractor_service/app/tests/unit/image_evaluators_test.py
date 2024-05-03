@@ -3,7 +3,6 @@ from unittest.mock import patch, MagicMock, call
 
 import numpy as np
 import pytest
-import tensorflow as tf
 
 from app.image_evaluators import InceptionResNetNIMA, _ResNetModel
 from app.image_processors import OpenCVImage
@@ -29,7 +28,7 @@ def test_evaluator_initialization(mock_get_model):
 
 
 @patch.object(OpenCVImage, "normalize_images")
-@patch.object(tf, "convert_to_tensor")
+@patch("app.image_evaluators.convert_to_tensor")
 @patch.object(InceptionResNetNIMA, "_calculate_weighted_mean")
 @patch.object(InceptionResNetNIMA, "_check_scores")
 def test_evaluate_images(mock_check, mock_calculate, mock_convert_to_tensor, mock_normalize_images, evaluator, caplog):
@@ -50,7 +49,7 @@ def test_evaluate_images(mock_check, mock_calculate, mock_convert_to_tensor, moc
     mock_convert_to_tensor.assert_called_once_with(img_array)
     evaluator._model.predict.assert_called_once_with(tensor, batch_size=len(fake_images), verbose=0)
     mock_calculate.assert_has_calls([
-        call(prediction, _ResNetModel.prediction_weights) for prediction in predictions],
+        call(prediction, _ResNetModel._prediction_weights) for prediction in predictions],
         any_order=True
     )
     mock_check.assert_called_once()

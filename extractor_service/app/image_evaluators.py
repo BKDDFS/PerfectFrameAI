@@ -9,7 +9,7 @@ from pathlib import Path
 
 import requests
 import numpy as np
-import tensorflow as tf
+from tensorflow import convert_to_tensor
 from tensorflow.keras.models import Model
 from tensorflow.keras.layers import Dense, Dropout
 from tensorflow.keras.applications.inception_resnet_v2 import InceptionResNetV2
@@ -91,9 +91,9 @@ class InceptionResNetNIMA(ImageEvaluator):
         """
         logger.info("Evaluating images...")
         img_array = OpenCVImage.normalize_images(images)
-        tensor = tf.convert_to_tensor(img_array)
+        tensor = convert_to_tensor(img_array)
         predictions = self._model.predict(tensor, batch_size=len(images), verbose=0)
-        weights = _ResNetModel.prediction_weights
+        weights = _ResNetModel.get_prediction_weights()
         scores = [self._calculate_weighted_mean(prediction, weights) for prediction in predictions]
         self._check_scores(images, scores)
         logger.info("Images batch evaluated.")
@@ -128,6 +128,12 @@ class _NIMAModel(ABC):
         """Error raised when there's an issue with downloading model weights."""
     _config = None
     _model = None
+
+    @classmethod
+    def reset(cls):
+        """Resets class for using new model and config."""
+        cls._model = None
+        cls._config = None
 
     @classmethod
     def get_model(cls, config: ExtractorConfig) -> Model:
@@ -196,9 +202,9 @@ class _NIMAModel(ABC):
             weights_path.write_bytes(response.content)
             logger.debug(f"Model weights downloaded and saved to %s", weights_path)
         else:
-            message_error = f"Failed to download the weights: HTTP status code {response.status_code}"
-            logger.error(message_error)
-            raise cls.DownloadingModelWeightsError(message_error)
+            error_message = f"Failed to download the weights: HTTP status code {response.status_code}"
+            logger.error(error_message)
+            raise cls.DownloadingModelWeightsError(error_message)
 
 
 class _ResNetModel(_NIMAModel):
@@ -206,7 +212,18 @@ class _ResNetModel(_NIMAModel):
     Implements the specific InceptionResNetV2-based NIMA model.
     This is helper class for NeuralImageAssessment class.
     """
-    prediction_weights = np.arange(1, 11, 1)
+    _prediction_weights = np.arange(1, 11)
+    _input_shape = (224, 224, 3)
+    _dropout_rate = 0.75
+    _num_classes = 10
+
+    @classmethod
+    def get_prediction_weights(cls):
+        """
+        Getter for prediction weights.
+        Weights are for calculating weighted mean from model predictions.
+        """
+        return cls._prediction_weights
 
     @classmethod
     def _create_model(cls, model_weights_path: Path) -> Model:
@@ -220,11 +237,11 @@ class _ResNetModel(_NIMAModel):
             Model: NIMA model instance.
         """
         base_model = InceptionResNetV2(
-            input_shape=(224, 224, 3), include_top=False,
+            input_shape=cls._input_shape, include_top=False,
             pooling="avg", weights=None
         )
-        processed_output = Dropout(0.75)(base_model.output)
-        final_output = Dense(10, activation="softmax")(processed_output)
+        processed_output = Dropout(cls._dropout_rate)(base_model.output)
+        final_output = Dense(cls._num_classes, activation="softmax")(processed_output)
         model = Model(inputs=base_model.input, outputs=final_output)
         model.load_weights(model_weights_path)
         logger.debug("Model loaded successfully.")
