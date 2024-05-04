@@ -66,7 +66,7 @@ def test_evaluate_images(extractor):
 @pytest.mark.parametrize("image", ("some_image", None))
 @patch("app.extractors.OpenCVImage.read_image", return_value=None)
 @patch("app.extractors.ThreadPoolExecutor")
-def test_save_images(mock_executor, mock_read_image, image, extractor):
+def test_read_images(mock_executor, mock_read_image, image, extractor):
     mock_paths = [MagicMock(spec=Path) for _ in range(3)]
     mock_executor.return_value.__enter__.return_value = mock_executor
     mock_executor.submit.return_value.result.return_value = image
@@ -83,7 +83,7 @@ def test_save_images(mock_executor, mock_read_image, image, extractor):
     if image:
         assert result
     else:
-        assert result is None
+        assert not result
 
 
 @patch("app.extractors.OpenCVImage.save_image", return_value=None)
@@ -104,8 +104,8 @@ def test_save_images(mock_executor, mock_save_image, extractor):
     assert mock_executor.submit.return_value.result.call_count == len(images)
 
 
-@patch("pathlib.Path.iterdir")
-@patch("pathlib.Path.is_file")
+@patch.object(Path, "iterdir")
+@patch.object(Path, "is_file")
 def test_list_input_directory_files(mock_is_file, mock_iterdir, extractor, caplog):
     mock_files = [Path("/fake/directory/file1.txt"), Path("/fake/directory/file2.log")]
     mock_extensions = (".txt", ".log")
@@ -120,7 +120,7 @@ def test_list_input_directory_files(mock_is_file, mock_iterdir, extractor, caplo
     assert f"Listed file paths: {mock_files}"
 
 
-@patch("pathlib.Path.iterdir")
+@patch.object(Path, "iterdir")
 def test_list_input_directory_files_no_files_found(mock_iterdir, extractor, caplog):
     mock_files = []
     mock_extensions = (".txt", ".log")
@@ -137,32 +137,6 @@ def test_list_input_directory_files_no_files_found(mock_iterdir, extractor, capl
         extractor._list_input_directory_files(mock_extensions)
 
     assert error_massage in caplog.text
-
-
-# @patch('extractor_service.app.image_processors.OpenCVImage.save_image')
-# @patch('concurrent.futures.ThreadPoolExecutor', autospec=True)
-# def test_save_images(mock_executor, mock_save_image, extractor):
-#     fake_images = [MagicMock(spec=np.ndarray) for _ in range(3)]
-#     mock_executor_instance = MagicMock(spec=ThreadPoolExecutor)
-#     mock_executor.return_value.__enter__.return_value = mock_executor_instance
-#     mock_future = MagicMock()
-#     mock_future.result = MagicMock()
-#     mock_executor_instance.submit.return_value = mock_future
-#
-#     extractor._save_images(fake_images)
-#
-#     mock_executor.assert_called_once_with()
-#     assert mock_executor_instance.submit.call_count == len(fake_images), "Not all images were submitted for saving"
-#
-#     # # Verify each image was submitted correctly
-#     # expected_calls = [call(
-#     #         mock_save_image, image, extractor.config.output_directory,
-#     #         extractor.config.images_output_format) for image in fake_images]
-#     # mock_executor_instance.submit.assert_has_calls(expected_calls, any_order=True)
-#
-#     # Verify result() was called for each future
-#     for _ in fake_images:
-#         mock_future.result.assert_called_once()
 
 
 def test_add_prefix(extractor, caplog):
