@@ -18,7 +18,8 @@ class ExtractorManager:
     This class orchestrates extractors, ensuring that only one extractor is active at once,
     maintaining system stability.
     """
-    __active_extractor = None
+    _active_extractor = None
+    _config = None
 
     @classmethod
     def get_active_extractor(cls) -> str:
@@ -28,24 +29,17 @@ class ExtractorManager:
         Returns:
             str: Active extractor name.
         """
-        return cls.__active_extractor
+        return cls._active_extractor
 
-    def __init__(self, config: ExtractorConfig) -> None:
-        """
-        Initializes the manager with the given extractor configuration.
-
-        Args:
-            config (ExtractorConfig): A Pydantic model with configuration
-                parameters for the extractor.
-        """
-        self.config = config
-
-    def start_extractor(self, background_tasks: BackgroundTasks,
+    @classmethod
+    def start_extractor(cls, background_tasks: BackgroundTasks, config: ExtractorConfig,
                         extractor_name: str) -> str:
         """
         Initializes the extractor class and runs the extraction process in the background.
 
         Args:
+            config (ExtractorConfig): A Pydantic model with configuration
+            parameters for the extractor.
             background_tasks: A FastAPI tool for running tasks in background,
                 which allows non-blocking operation of long-running tasks.
             extractor_name (str): The name of the extractor that will be used.
@@ -53,35 +47,40 @@ class ExtractorManager:
         Returns:
             str: Endpoint feedback message with started extractor name.
         """
-        self._check_is_already_extracting()
+        cls._config = config
+        cls._check_is_already_extracting()
         extractor_class = ExtractorFactory.get_extractor(extractor_name)
-        background_tasks.add_task(self.__run_extractor, extractor_class)
+        background_tasks.add_task(cls.__run_extractor, extractor_class, extractor_name)
         message = f"'{extractor_name}' started."
         return message
 
-    def __run_extractor(self, extractor: Type[Extractor]) -> None:
+    @classmethod
+    def __run_extractor(cls, extractor: Type[Extractor], extractor_name: str) -> None:
         """
         Run extraction process and clean after it's done.
 
         Args:
             extractor (Extractor): Extractor that will be used for extraction.
+            extractor_name (str): The name of the extractor that will be used.
         """
         try:
-            self.__active_extractor = extractor.__name__
-            extractor(self.config).process()
+            cls._active_extractor = extractor_name
+            extractor(cls._config).process()
         finally:
-            self.__active_extractor = None
+            cls._active_extractor = None
+            cls._config = None
 
-    def _check_is_already_extracting(self) -> None:
+    @classmethod
+    def _check_is_already_extracting(cls) -> None:
         """
         Checks if some extractor is already active and raises an HTTPException if so.
 
         Raises:
             HTTPException: If extractor is already active to prevent concurrent extractions.
         """
-        if self.__active_extractor:
+        if cls._active_extractor:
             error_message = (
-                f"Extractor '{self.__active_extractor}' is already running. "
+                f"Extractor '{cls._active_extractor}' is already running. "
                 f"You can run only one extractor at the same time. "
                 f"Wait until the extractor is done before run next process."
             )

@@ -38,7 +38,7 @@ def get_extractors_status() -> ExtractorStatus:
 
 @app.post("/extractors/{extractor_name}")
 def run_extractor(background_tasks: BackgroundTasks, extractor_name: str,
-                  config: ExtractorConfig = Depends()) -> Message:
+                  config: ExtractorConfig) -> Message:
     """
     Runs provided extractor.
 
@@ -47,12 +47,12 @@ def run_extractor(background_tasks: BackgroundTasks, extractor_name: str,
             which allows non-blocking operation of long-running tasks.
         extractor_name (str): The name of the extractor that will be used.
         config (ExtractorConfig): A Pydantic model with configuration
-            parameters for the extractor
+            parameters for the extractor.
 
     Returns:
         Message: Contains the operation status.
     """
-    message = ExtractorManager(config).start_extractor(background_tasks, extractor_name)
+    message = ExtractorManager.start_extractor(background_tasks, config, extractor_name)
     return Message(message=message)
 
 

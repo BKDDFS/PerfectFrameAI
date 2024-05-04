@@ -6,6 +6,7 @@ from fastapi import HTTPException, BackgroundTasks
 
 from app.extractor_manager import ExtractorManager
 from app.schemas import ExtractorConfig
+from app.extractors import ExtractorFactory
 
 current_directory = Path.cwd()
 CONFIG = ExtractorConfig(
@@ -14,49 +15,45 @@ CONFIG = ExtractorConfig(
 )
 
 
-@pytest.fixture
-def manager():
-    manager = ExtractorManager(CONFIG)
-    return manager
+def test_get_active_extractor():
+    assert ExtractorManager.get_active_extractor() is None
 
 
-def test_get_active_extractor(manager):
-    assert manager.get_active_extractor() is None
-
-
-@patch("app.extractors.ExtractorFactory.get_extractor")
-@patch("app.extractor_manager.ExtractorManager._check_is_already_extracting")
-def test_start_extractor(mock_checking, mock_get_extractor, manager):
+@patch.object(ExtractorFactory, "get_extractor")
+@patch.object(ExtractorManager, "_check_is_already_extracting")
+def test_start_extractor(mock_checking, mock_get_extractor):
     extractor_name = "some_extractor"
     mock_extractor_class = MagicMock()
     mock_background_tasks = MagicMock(spec=BackgroundTasks)
     mock_get_extractor.return_value = mock_extractor_class
 
-    message = manager.start_extractor(mock_background_tasks, extractor_name)
+    message = ExtractorManager.start_extractor(mock_background_tasks, CONFIG, extractor_name)
 
     mock_checking.assert_called_once()
     mock_get_extractor.assert_called_once_with(extractor_name)
     mock_background_tasks.add_task.assert_called_once_with(
-        manager._ExtractorManager__run_extractor,
-        mock_extractor_class
+        ExtractorManager._ExtractorManager__run_extractor,
+        mock_extractor_class,
+        extractor_name
     )
     expected_message = f"'{extractor_name}' started."
     assert message == expected_message, "The return message does not match expected."
 
 
 @patch("app.extractors.BestFramesExtractor")
-def test_run_extractor(mock_extractor, manager):
+def test_run_extractor(mock_extractor):
+    extractor_name = "some_extractor"
     mock_extractor.return_value.process = MagicMock()
     mock_extractor.__name__ = MagicMock()
 
-    manager._ExtractorManager__run_extractor(mock_extractor)
+    ExtractorManager._ExtractorManager__run_extractor(mock_extractor, extractor_name)
 
     mock_extractor.assert_called_once()
 
 
-def test_check_is_already_evaluating_true(manager):
+def test_check_is_already_evaluating_true():
     test_extractor = "active_extractor"
-    manager._ExtractorManager__active_extractor = test_extractor
+    ExtractorManager._active_extractor = test_extractor
     expected_error_massage = (
         f"Extractor '{test_extractor}' is already running. "
         f"You can run only one extractor at the same time. "
@@ -64,6 +61,6 @@ def test_check_is_already_evaluating_true(manager):
     )
 
     with pytest.raises(HTTPException, match=expected_error_massage) as exc_info:
-        manager._check_is_already_extracting()
+        ExtractorManager._check_is_already_extracting()
 
     assert exc_info.value.status_code == 409
