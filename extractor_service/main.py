@@ -38,7 +38,7 @@ def get_extractors_status() -> ExtractorStatus:
 
 @app.post("/extractors/{extractor_name}")
 def run_extractor(background_tasks: BackgroundTasks, extractor_name: str,
-                  config: ExtractorConfig) -> Message:
+                  config: ExtractorConfig = ExtractorConfig()) -> Message:
     """
     Runs provided extractor.
 

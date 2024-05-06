@@ -1,10 +1,12 @@
 """
+I built a custom Docker manager because I wanted to simplify and accelerate the process of
+launching the service using a script as much as possible. Therefore,
+I didn’t want to use any external libraries in this part of the project.
+
 This module defines a DockerManager class to handle Docker operations like building images,
 managing container lifecycle, and monitoring container logs.
-
-Given that installing dependencies to automate dependency management can be redundant,
-a decision was made to develop a custom Docker manager.
 """
+import signal
 import subprocess
 import sys
 from pathlib import Path
@@ -13,11 +15,16 @@ import logging
 logger = logging.getLogger(__name__)
 
 
+class ServiceShutdownSignal(Exception):
+    """Exception raised when the service signals it is ready to be shut down."""
+
+
 class DockerManager:
     """
     Manages Docker containers and images, including operations like building, starting,
     stopping, and logging containers.
     """
+
     def __init__(self, container_name: str, input_dir: Path, output_dir: Path, port: int) -> None:
         """
         Initialize the DockerManager with specific parameters for container and image management.
@@ -143,15 +150,22 @@ class DockerManager:
 
     def follow_container_logs(self) -> None:
         """Starts following the logs of the running Docker container."""
-        logger.info(f"Following logs for {self.container_name}...")
-        process = self._run_log_process()
         try:
+            logger.info(f"Following logs for {self.container_name}...")
+            process = self._run_log_process()
             for line in iter(process.stdout.readline, ''):
                 sys.stdout.write(line)
+                if "Service ready for shutdown" in line:
+                    raise ServiceShutdownSignal("Service has signaled readiness for shutdown.")
         except KeyboardInterrupt:
             logger.info("Process stopped by user.")
+        except ServiceShutdownSignal:
+            logger.info("Service has signaled readiness for shutdown.")
         finally:
             self._stop_log_process(process)
+
+    def handle_sigusr1(self, _, __):
+        raise ServiceShutdownSignal("Service has signaled readiness for shutdown.")
 
     def _run_log_process(self) -> subprocess.Popen:
         """Initiates the process to follow Docker container logs.

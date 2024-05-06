@@ -158,9 +158,12 @@ class Extractor(ABC):
         return new_path
 
     @staticmethod
-    def _display_info_after_extraction() -> None:
-        """Display ending information for setup.py user after extraction process."""
-        logger.info("Press ctrl+c to exit.")
+    def _signal_readiness_for_shutdown() -> None:
+        """
+        Contains the logic for sending a signal externally that the service has completed
+        the process and can be safely shut down.
+        """
+        logger.info("Service ready for shutdown")
 
 
 class ExtractorFactory:
@@ -205,7 +208,7 @@ class BestFramesExtractor(Extractor):
             self._add_prefix(self._config.processed_video_prefix, video_path)
             logger.info("Frames extraction has finished for video: %s", video_path)
         logger.info("Extraction process finished. All frames extracted.")
-        self._display_info_after_extraction()
+        self._signal_readiness_for_shutdown()
 
     def _extract_best_frames(self, video_path: Path) -> list[np.ndarray]:
         """
@@ -271,7 +274,7 @@ class TopImagesExtractor(Extractor):
             self._save_images(top_images)
         logger.info("Extraction process finished. All top images extracted from directory: %s.",
                     self._config.input_directory)
-        self._display_info_after_extraction()
+        self._signal_readiness_for_shutdown()
 
     @staticmethod
     def _get_top_percent_images(images: list[np.ndarray], scores: np.array,
