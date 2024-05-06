@@ -1,29 +1,20 @@
 import logging
-from pathlib import Path
 from unittest.mock import MagicMock, patch, call
 
 import numpy as np
 import pytest
 
 from app.extractors import TopImagesExtractor
-from app.schemas import ExtractorConfig
-
-current_directory = Path.cwd()
-CONFIG = ExtractorConfig(
-    input_directory=current_directory,
-    output_directory=current_directory,
-    images_extensions=(".jpg",)
-)
 
 
-@pytest.fixture
-def extractor():
-    extractor = TopImagesExtractor(CONFIG)
+@pytest.fixture()
+def extractor(config):
+    extractor = TopImagesExtractor(config)
     return extractor
 
 
 @patch("app.image_processors.OpenCVImage.read_image")
-def test_process_with_images(mock_read_image, extractor, caplog):
+def test_process_with_images(mock_read_image, extractor, caplog, config):
     # Setup
     test_images = [
         "/fake/directory/image1.jpg", "/fake/directory/image2.jpg", "/fake/directory/image3.jpg"]
@@ -54,7 +45,7 @@ def test_process_with_images(mock_read_image, extractor, caplog):
     # Check logging
     expected_massage = (
         f"Extraction process finished."
-        f" All top images extracted from directory: {CONFIG.input_directory}."
+        f" All top images extracted from directory: {config.input_directory}."
     )
     assert expected_massage in caplog.text
     extractor._display_info_after_extraction.assert_called_once()

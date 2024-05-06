@@ -8,7 +8,7 @@ import pytest
 from app.video_processors import OpenCVVideo
 
 
-@patch("cv2.VideoCapture")
+@patch.object(cv2, "VideoCapture")
 def test_get_video_capture_success(mock_cap):
     test_path = MagicMock(spec=Path)
     mock_video = MagicMock()
@@ -21,7 +21,7 @@ def test_get_video_capture_success(mock_cap):
     mock_video.release.assert_called_once()
 
 
-@patch("cv2.VideoCapture")
+@patch.object(cv2, "VideoCapture")
 def test_get_video_capture_failure(mock_cap):
     test_path = MagicMock(spec=Path)
     mock_video = MagicMock()
@@ -48,7 +48,7 @@ def mock_video():
     (2, 2),
     (3, 1),
 ])
-@patch.object(OpenCVVideo, '_video_capture', )
+@patch.object(OpenCVVideo, '_video_capture')
 @patch.object(OpenCVVideo, '_get_video_attribute')
 @patch.object(OpenCVVideo, '_read_next_frame')
 def test_get_next_video_frames(mock_read, mock_get_attribute, mock_video_cap,

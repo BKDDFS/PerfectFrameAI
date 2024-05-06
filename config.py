@@ -1,4 +1,4 @@
-"""Main configuration dataclass for extractor service manage tool."""
+"""Main configuration dataclass for extractor service manager tool."""
 from dataclasses import dataclass
 from pathlib import Path
 

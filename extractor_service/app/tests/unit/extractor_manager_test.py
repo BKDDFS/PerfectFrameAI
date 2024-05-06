@@ -1,18 +1,10 @@
-from pathlib import Path
 from unittest.mock import patch, MagicMock
 
 import pytest
 from fastapi import HTTPException, BackgroundTasks
 
 from app.extractor_manager import ExtractorManager
-from app.schemas import ExtractorConfig
 from app.extractors import ExtractorFactory
-
-current_directory = Path.cwd()
-CONFIG = ExtractorConfig(
-    input_directory=current_directory,
-    output_directory=current_directory,
-)
 
 
 def test_get_active_extractor():
@@ -21,13 +13,13 @@ def test_get_active_extractor():
 
 @patch.object(ExtractorFactory, "get_extractor")
 @patch.object(ExtractorManager, "_check_is_already_extracting")
-def test_start_extractor(mock_checking, mock_get_extractor):
+def test_start_extractor(mock_checking, mock_get_extractor, config):
     extractor_name = "some_extractor"
     mock_extractor_class = MagicMock()
     mock_background_tasks = MagicMock(spec=BackgroundTasks)
     mock_get_extractor.return_value = mock_extractor_class
 
-    message = ExtractorManager.start_extractor(mock_background_tasks, CONFIG, extractor_name)
+    message = ExtractorManager.start_extractor(mock_background_tasks, config, extractor_name)
 
     mock_checking.assert_called_once()
     mock_get_extractor.assert_called_once_with(extractor_name)
