@@ -6,25 +6,15 @@ import numpy as np
 import pytest
 
 from app.extractors import BestFramesExtractor
-from app.schemas import ExtractorConfig
-
-current_directory = Path.cwd()
-CONFIG = ExtractorConfig(
-    input_directory=current_directory,
-    output_directory=current_directory,
-    images_output_format=".jpg",
-    video_extensions=(".mp4",),
-    processed_video_prefix="done_"
-)
 
 
-@pytest.fixture
-def extractor():
-    extractor = BestFramesExtractor(CONFIG)
+@pytest.fixture(scope="function")
+def extractor(config):
+    extractor = BestFramesExtractor(config)
     return extractor
 
 
-def test_process(extractor, caplog):
+def test_process(extractor, caplog, config):
     test_videos = ["/fake/directory/video1.mp4", "/fake/directory/video2.mp4"]
     test_frames = ["frame1", "frame2"]
     extractor._list_input_directory_files = MagicMock(return_value=test_videos)
@@ -38,18 +28,18 @@ def test_process(extractor, caplog):
         extractor.process()
 
     extractor._list_input_directory_files.assert_called_once_with(
-        CONFIG.video_extensions, CONFIG.processed_video_prefix)
+        config.video_extensions, config.processed_video_prefix)
     extractor._get_image_evaluator.assert_called_once()
     assert extractor._extract_best_frames.call_count == len(test_videos)
     assert extractor._save_images.call_count == len(test_videos)
     assert extractor._add_prefix.call_count == len(test_videos)
     extractor._display_info_after_extraction.assert_called_once()
     for video in test_videos:
-        extractor._add_prefix.assert_any_call(CONFIG.processed_video_prefix, video)
+        extractor._add_prefix.assert_any_call(config.processed_video_prefix, video)
         extractor._extract_best_frames.assert_any_call(video)
         extractor._save_images.assert_any_call(test_frames)
         assert f"Frames extraction has finished for video: {video}" in caplog.text
-    assert f"Starting frames extraction process from '{CONFIG.input_directory}'." in caplog.text
+    assert f"Starting frames extraction process from '{config.input_directory}'." in caplog.text
 
 
 @patch("app.video_processors.OpenCVVideo.get_next_video_frames")

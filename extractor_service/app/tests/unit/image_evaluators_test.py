@@ -16,9 +16,8 @@ def evaluator():
 
 
 @patch.object(_ResNetModel, "get_model")
-def test_evaluator_initialization(mock_get_model):
+def test_evaluator_initialization(mock_get_model, config):
     test_model = "some_model"
-    config = MagicMock()
     mock_get_model.return_value = test_model
 
     instance = InceptionResNetNIMA(config)
