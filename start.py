@@ -23,9 +23,9 @@ def main() -> None:
         user_input.output_dir,
         user_input.port
     )
-    docker.build_image(Config.dockerfile_path)
+    docker.build_image(Config.dockerfile)
     docker.deploy_container(
-        Config.default_port,
+        Config.port,
         Config.volume_input_directory,
         Config.volume_output_directory
     )
@@ -46,11 +46,11 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("extractor_name",
                         choices=["best_frames_extractor", "top_images_extractor"],
                         help="Name of extractor to run.")
-    parser.add_argument("--input_dir", "-i", default=Config.default_input_directory,
+    parser.add_argument("--input_dir", "-i", default=Config.input_directory,
                         help="Full path to the extractors input directory.")
-    parser.add_argument("--output_dir", "-o", default=Config.default_output_directory,
+    parser.add_argument("--output_dir", "-o", default=Config.output_directory,
                         help="Full path to the extractors output directory.")
-    parser.add_argument("--port", "-p", type=int, default=Config.default_port,
+    parser.add_argument("--port", "-p", type=int, default=Config.port,
                         help="Port to expose the service on the host.")
     args = parser.parse_args()
     return args
