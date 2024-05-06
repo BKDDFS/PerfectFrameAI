@@ -144,16 +144,16 @@ class DockerManager:
     def follow_container_logs(self) -> None:
         """Starts following the logs of the running Docker container."""
         logger.info(f"Following logs for {self.container_name}...")
-        process = self.__run_log_process()
+        process = self._run_log_process()
         try:
             for line in iter(process.stdout.readline, ''):
                 sys.stdout.write(line)
         except KeyboardInterrupt:
             logger.info("Process stopped by user.")
         finally:
-            self.__stop_log_process(process)
+            self._stop_log_process(process)
 
-    def __run_log_process(self) -> subprocess.Popen:
+    def _run_log_process(self) -> subprocess.Popen:
         """Initiates the process to follow Docker container logs.
 
         Returns:
@@ -166,7 +166,7 @@ class DockerManager:
         )
         return process
 
-    def __stop_log_process(self, process: subprocess.Popen) -> None:
+    def _stop_log_process(self, process: subprocess.Popen) -> None:
         """Terminates the log following process and stops the container.
 
         Args:

@@ -1,4 +1,5 @@
 """This module provide tool for starting extractor service."""
+import argparse
 import json
 import logging
 import time
@@ -14,7 +15,7 @@ class ServiceInitializer:
     Handles command-line input and manages the setup and
     execution of Docker-based image processing tasks.
     """
-    def __init__(self, user_input) -> None:
+    def __init__(self, user_input: argparse.Namespace) -> None:
         """Initializes the service initializer by taking and validating user input."""
         self.input_directory = self._check_directory(user_input.input_dir)
         self.output_directory = self._check_directory(user_input.output_dir)
@@ -42,10 +43,11 @@ class ServiceInitializer:
             raise NotADirectoryError(error_massage)
         return directory
 
-    def run_extractor(self) -> None:
+    def run_extractor(self, extractor_url: str | None = None) -> None:
         """Send POST request to local port extractor service to start chosen extractor."""
-        url = f"http://localhost:{self.port}/extractors/{self.extractor_name}"
-        req = Request(url, method="POST")
+        if not extractor_url:
+            extractor_url = f"http://localhost:{self.port}/extractors/{self.extractor_name}"
+        req = Request(extractor_url, method="POST")
         start_time = time.time()
         while True:
             if self._try_to_run_extractor(req, start_time):
