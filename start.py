@@ -31,6 +31,7 @@ def main() -> None:
     )
     service.run_extractor()
     docker.follow_container_logs()
+    logger.info("Process completed.")
 
 
 def parse_args() -> argparse.Namespace:
