@@ -25,7 +25,8 @@ class DockerManager:
     stopping, and logging containers.
     """
 
-    def __init__(self, container_name: str, input_dir: Path, output_dir: Path, port: int) -> None:
+    def __init__(self, container_name: str, input_dir: Path,
+                 output_dir: Path, port: int, force_build: bool) -> None:
         """
         Initialize the DockerManager with specific parameters for container and image management.
 
@@ -40,6 +41,7 @@ class DockerManager:
         self.input_directory = input_dir
         self.output_directory = output_dir
         self.port = port
+        self.force_build = force_build
         self.__log_input()
 
     def __log_input(self) -> None:
@@ -49,6 +51,7 @@ class DockerManager:
         logger.debug("Input directory from user: %s", self.input_directory)
         logger.debug("Output directory from user: %s", self.output_directory)
         logger.debug("Port from user: %s", self.port)
+        logger.debug("Force build: %s", self.force_build)
 
     @property
     def docker_image(self) -> bool:
@@ -72,7 +75,7 @@ class DockerManager:
         Args:
             dockerfile_path: Path to the Dockerfile.
         """
-        if not self.docker_image:
+        if not self.docker_image or self.force_build:
             logging.info("Building Docker image...")
             command = ["docker", "build", "-t", self.image_name, dockerfile_path]
             subprocess.run(command)
@@ -110,12 +113,13 @@ class DockerManager:
             container_input_directory (str): Directory inside the container for input data.
             container_output_directory (str): Directory inside the container for output data.
         """
+        if self.force_build:
+            self._stop_container()
+            self._delete_container()
         status = self.container_status
         if status is None:
-            logging.info("Container does not exist. Running a new container...")
             self._run_container(container_port, container_input_directory, container_output_directory)
         elif status == "exited":
-            logging.info("Starting the existing container...")
             self._start_container()
         elif status == "running":
             logging.info(f"Container is already running.")
@@ -125,6 +129,7 @@ class DockerManager:
 
     def _start_container(self) -> None:
         """Start the container if it exists but stopped."""
+        logging.info("Starting the existing container...")
         command = ["docker", "start", self.container_name]
         subprocess.run(command, check=True)
 
@@ -138,6 +143,7 @@ class DockerManager:
             container_input_directory (str): Directory inside the container for input data.
             container_output_directory (str): Directory inside the container for output data.
         """
+        logging.info("Container does not exist. Running a new container...")
         command = [
             "docker", "run", "--name", self.container_name, "--gpus", "all",
             "--restart", "unless-stopped", "-d",
@@ -196,3 +202,10 @@ class DockerManager:
         command = ["docker", "stop", self.container_name]
         subprocess.run(command, check=True, capture_output=True)
         logger.info("Container stopped.")
+
+    def _delete_container(self) -> None:
+        """Deletes the Docker container."""
+        logger.info(f"Stopping container %s...", self.container_name)
+        command = ["docker", "rm", self.container_name]
+        subprocess.run(command, check=True, capture_output=True)
+        logger.info("Container deleted.")

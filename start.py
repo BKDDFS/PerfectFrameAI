@@ -21,7 +21,8 @@ def main() -> None:
         Config.service_name,
         user_input.input_dir,
         user_input.output_dir,
-        user_input.port
+        user_input.port,
+        user_input.build
     )
     docker.build_image(Config.dockerfile)
     docker.deploy_container(
@@ -31,7 +32,7 @@ def main() -> None:
     )
     service.run_extractor()
     docker.follow_container_logs()
-    logger.info("Process completed.")
+    logger.info("Process stopped.")
 
 
 def parse_args() -> argparse.Namespace:
@@ -53,6 +54,8 @@ def parse_args() -> argparse.Namespace:
                         help="Full path to the extractors output directory.")
     parser.add_argument("--port", "-p", type=int, default=Config.port,
                         help="Port to expose the service on the host.")
+    parser.add_argument("--build", "-b", action="store_true",
+                        help="Forces the Docker image to be rebuilt if set to true.")
     args = parser.parse_args()
     return args
 
