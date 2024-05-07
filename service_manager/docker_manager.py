@@ -143,7 +143,7 @@ class DockerManager:
             container_input_directory (str): Directory inside the container for input data.
             container_output_directory (str): Directory inside the container for output data.
         """
-        logging.info("Container does not exist. Running a new container...")
+        logging.info("Running a new container...")
         command = [
             "docker", "run", "--name", self.container_name, "--gpus", "all",
             "--restart", "unless-stopped", "-d",
@@ -157,7 +157,6 @@ class DockerManager:
     def follow_container_logs(self) -> None:
         """Starts following the logs of the running Docker container."""
         try:
-            logger.info(f"Following logs for {self.container_name}...")
             process = self._run_log_process()
             for line in iter(process.stdout.readline, ''):
                 sys.stdout.write(line)
@@ -168,7 +167,7 @@ class DockerManager:
         except ServiceShutdownSignal:
             logger.info("Service has signaled readiness for shutdown.")
         finally:
-            self._stop_log_process(process)
+            self.__stop_log_process(process)
 
     def handle_sigusr1(self, _, __):
         raise ServiceShutdownSignal("Service has signaled readiness for shutdown.")
@@ -179,6 +178,7 @@ class DockerManager:
         Returns:
             subprocess.Popen: The process object for the log following command.
         """
+        logger.info(f"Following logs for {self.container_name}...")
         command = ["docker", "logs", "-f", "--since", "1s", self.container_name]
         process = subprocess.Popen(
             command, stdout=subprocess.PIPE,
@@ -186,12 +186,13 @@ class DockerManager:
         )
         return process
 
-    def _stop_log_process(self, process: subprocess.Popen) -> None:
+    def __stop_log_process(self, process: subprocess.Popen) -> None:
         """Terminates the log following process and stops the container.
 
         Args:
             process (subprocess.Popen): The process object for the log following command.
         """
+        logger.info("Following container logs stopped.")
         process.terminate()
         process.wait()
         self._stop_container()
@@ -205,7 +206,7 @@ class DockerManager:
 
     def _delete_container(self) -> None:
         """Deletes the Docker container."""
-        logger.info(f"Stopping container %s...", self.container_name)
+        logger.info(f"Deleting container %s...", self.container_name)
         command = ["docker", "rm", self.container_name]
         subprocess.run(command, check=True, capture_output=True)
         logger.info("Container deleted.")
