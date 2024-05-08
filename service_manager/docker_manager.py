@@ -6,10 +6,8 @@ I didn’t want to use any external libraries in this part of the project.
 This module defines a DockerManager class to handle Docker operations like building images,
 managing container lifecycle, and monitoring container logs.
 """
-import signal
 import subprocess
 import sys
-from pathlib import Path
 import logging
 
 logger = logging.getLogger(__name__)
@@ -25,36 +23,40 @@ class DockerManager:
     stopping, and logging containers.
     """
 
-    def __init__(self, container_name: str, input_dir: Path,
-                 output_dir: Path, port: int, force_build: bool) -> None:
+    def __init__(self, container_name: str, input_dir: str,
+                 output_dir: str, port: int, force_build: bool) -> None:
         """
         Initialize the DockerManager with specific parameters for container and image management.
 
         Args:
             container_name (str): Name of the Docker container.
-            input_dir (Path): Path to the directory for input data volumes.
-            output_dir (Path): Path to the directory for output data volumes.
+            input_dir (str): Path to the directory for input data volumes.
+            output_dir (str): Path to the directory for output data volumes.
             port (int): Port number to expose from the container.
         """
-        self.container_name = container_name
-        self.image_name = f"{self.container_name}_image"
-        self.input_directory = input_dir
-        self.output_directory = output_dir
-        self.port = port
-        self.force_build = force_build
+        self._container_name = container_name
+        self._image_name = f"{self._container_name}_image"
+        self._input_directory = input_dir
+        self._output_directory = output_dir
+        self._port = port
+        self._force_build = force_build
         self.__log_input()
+
+    @property
+    def image_name(self):
+        return self._image_name
 
     def __log_input(self) -> None:
         """Log user input if debugging."""
-        logger.debug("container_name: %s", self.container_name)
-        logger.debug("image_name: %s", self.image_name)
-        logger.debug("Input directory from user: %s", self.input_directory)
-        logger.debug("Output directory from user: %s", self.output_directory)
-        logger.debug("Port from user: %s", self.port)
-        logger.debug("Force build: %s", self.force_build)
+        logger.debug("container_name: %s", self._container_name)
+        logger.debug("image_name: %s", self._image_name)
+        logger.debug("Input directory from user: %s", self._input_directory)
+        logger.debug("Output directory from user: %s", self._output_directory)
+        logger.debug("Port from user: %s", self._port)
+        logger.debug("Force build: %s", self._force_build)
 
     @property
-    def docker_image(self) -> bool:
+    def docker_image_existence(self) -> bool:
         return self._check_image_exists()
 
     def _check_image_exists(self) -> bool:
@@ -63,21 +65,21 @@ class DockerManager:
         Returns:
             bool: True if the image exists, False otherwise.
         """
-        command = ["docker", "images", "-q", self.image_name]
+        command = ["docker", "images", "-q", self._image_name]
         process_output = subprocess.run(command, capture_output=True, text=True).stdout.strip()
         is_exists = process_output != ""
         return is_exists
 
-    def build_image(self, dockerfile_path) -> None:
+    def build_image(self, dockerfile_path: str) -> None:
         """
         Builds a Docker image from a Dockerfile located in a subdirectory.
 
         Args:
-            dockerfile_path: Path to the Dockerfile.
+            dockerfile_path (str): Path to the Dockerfile.
         """
-        if not self.docker_image or self.force_build:
+        if not self.docker_image_existence or self._force_build:
             logging.info("Building Docker image...")
-            command = ["docker", "build", "-t", self.image_name, dockerfile_path]
+            command = ["docker", "build", "-t", self._image_name, dockerfile_path]
             subprocess.run(command)
         else:
             logger.info("Image is already created. Using existing one.")
@@ -99,7 +101,7 @@ class DockerManager:
         Returns:
             str: The status of the container.
         """
-        command = ["docker", "inspect", "--format='{{.State.Status}}'", self.container_name]
+        command = ["docker", "inspect", "--format='{{.State.Status}}'", self._container_name]
         result = subprocess.run(command, capture_output=True, text=True)
         if result.returncode == 0:
             return result.stdout.strip().replace("'", "")
@@ -113,7 +115,7 @@ class DockerManager:
             container_input_directory (str): Directory inside the container for input data.
             container_output_directory (str): Directory inside the container for output data.
         """
-        if self.force_build:
+        if self._force_build:
             self._stop_container()
             self._delete_container()
         status = self.container_status
@@ -130,7 +132,7 @@ class DockerManager:
     def _start_container(self) -> None:
         """Start the container if it exists but stopped."""
         logging.info("Starting the existing container...")
-        command = ["docker", "start", self.container_name]
+        command = ["docker", "start", self._container_name]
         subprocess.run(command, check=True)
 
     def _run_container(self, container_port: int, container_input_directory: str,
@@ -145,12 +147,12 @@ class DockerManager:
         """
         logging.info("Running a new container...")
         command = [
-            "docker", "run", "--name", self.container_name, "--gpus", "all",
+            "docker", "run", "--name", self._container_name, "--gpus", "all",
             "--restart", "unless-stopped", "-d",
-            "-p", f"{self.port}:{container_port}",
-            "-v", f"{self.input_directory}:{container_input_directory}",
-            "-v", f"{self.output_directory}:{container_output_directory}",
-            self.image_name
+            "-p", f"{self._port}:{container_port}",
+            "-v", f"{self._input_directory}:{container_input_directory}",
+            "-v", f"{self._output_directory}:{container_output_directory}",
+            self._image_name
         ]
         subprocess.run(command, check=True)
 
@@ -169,17 +171,14 @@ class DockerManager:
         finally:
             self.__stop_log_process(process)
 
-    def handle_sigusr1(self, _, __):
-        raise ServiceShutdownSignal("Service has signaled readiness for shutdown.")
-
     def _run_log_process(self) -> subprocess.Popen:
         """Initiates the process to follow Docker container logs.
 
         Returns:
             subprocess.Popen: The process object for the log following command.
         """
-        logger.info(f"Following logs for {self.container_name}...")
-        command = ["docker", "logs", "-f", "--since", "1s", self.container_name]
+        logger.info(f"Following logs for {self._container_name}...")
+        command = ["docker", "logs", "-f", "--since", "1s", self._container_name]
         process = subprocess.Popen(
             command, stdout=subprocess.PIPE,
             stderr=subprocess.STDOUT, text=True, encoding="utf-8"
@@ -199,14 +198,14 @@ class DockerManager:
 
     def _stop_container(self) -> None:
         """Stops the running Docker container."""
-        logger.info(f"Stopping container %s...", self.container_name)
-        command = ["docker", "stop", self.container_name]
+        logger.info(f"Stopping container %s...", self._container_name)
+        command = ["docker", "stop", self._container_name]
         subprocess.run(command, check=True, capture_output=True)
         logger.info("Container stopped.")
 
     def _delete_container(self) -> None:
         """Deletes the Docker container."""
-        logger.info(f"Deleting container %s...", self.container_name)
-        command = ["docker", "rm", self.container_name]
+        logger.info(f"Deleting container %s...", self._container_name)
+        command = ["docker", "rm", self._container_name]
         subprocess.run(command, check=True, capture_output=True)
         logger.info("Container deleted.")
