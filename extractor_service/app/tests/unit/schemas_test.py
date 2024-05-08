@@ -10,8 +10,8 @@ from app.schemas import ExtractorConfig, Message, ExtractorStatus
 def test_config_default():
     with patch.object(Path, "is_dir", return_value=True):
         config = ExtractorConfig()
-    assert config.input_directory == Path("/app/input_directory")
-    assert config.output_directory == Path("/app/output_directory")
+    assert config._input_directory == Path("/app/input_directory")
+    assert config._output_directory == Path("/app/output_directory")
     assert config.video_extensions == (".mp4",)
     assert config.images_extensions == (".jpg",)
     assert config.processed_video_prefix == "frames_extracted_"
@@ -33,7 +33,7 @@ def test_request_data_validation_failure_output():
 def test_str_directory():
     mock_directory = str(Path.cwd())
     config = ExtractorConfig(input_directory=mock_directory)
-    assert isinstance(config.input_directory, Path)
+    assert isinstance(config._input_directory, Path)
 
 
 def test_extractor_status():

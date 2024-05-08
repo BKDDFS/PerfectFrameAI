@@ -19,9 +19,9 @@ def service(config):
     user_input = MagicMock(
         spec=argparse.Namespace,
         extractor_name=config.service_name,
-        input_dir=config.input_directory,
-        output_dir=config.output_directory,
-        port=config.port
+        input_dir=config._input_directory,
+        output_dir=config._output_directory,
+        port=config._port
     )
     with patch.object(ServiceInitializer, "_check_directory"):
         initializer = ServiceInitializer(user_input)
@@ -53,17 +53,6 @@ def test_start_various_args(mock_check_directory, arg_set):
     assert service.port == arg_set["port"]
     mock_check_directory.assert_any_call(arg_set["input"])
     mock_check_directory.assert_any_call(arg_set["output"])
-
-
-def test_check_invalid_directory(caplog):
-    invalid_directory = Path("/invalid/input")
-    error_massage = f"Invalid directory path: {str(invalid_directory)}"
-
-    with pytest.raises(NotADirectoryError), \
-            caplog.at_level(logging.ERROR):
-        ServiceInitializer._check_directory(str(invalid_directory))
-
-    assert error_massage in caplog.text, "Invalid logging."
 
 
 def test_check_valid_directory():

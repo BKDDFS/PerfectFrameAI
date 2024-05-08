@@ -12,24 +12,24 @@ def test_docker_manager_init(caplog, config):
     expected_logs = (
         f"container_name: {config.service_name}",
         f"image_name: {image_name}",
-        f"Input directory from user: {config.input_directory}",
-        f"Output directory from user: {config.output_directory}",
-        f"Port from user: {config.port}",
+        f"Input directory from user: {config._input_directory}",
+        f"Output directory from user: {config._output_directory}",
+        f"Port from user: {config._port}",
         f"Force build: False"
     )
 
     with caplog.at_level(logging.DEBUG):
         docker = DockerManager(
-            config.service_name, config.input_directory,
-            config.output_directory, config.port, False
+            config.service_name, config._input_directory,
+            config._output_directory, config._port, False
         )
 
-    assert docker.container_name == config.service_name
-    assert docker.image_name == image_name
-    assert docker.input_directory == config.input_directory
-    assert docker.output_directory == config.output_directory
-    assert docker.port == config.port
-    assert docker.force_build == False
+    assert docker._container_name == config.service_name
+    assert docker._image_name == image_name
+    assert docker._input_directory == config._input_directory
+    assert docker._output_directory == config._output_directory
+    assert docker._port == config._port
+    assert docker._force_build is False
     for message in expected_logs:
         assert message in caplog.text, \
             f"Expected phrase not found in logs: {message}"
@@ -38,8 +38,8 @@ def test_docker_manager_init(caplog, config):
 @pytest.fixture(scope="function")
 def docker(config):
     docker = DockerManager(
-        config.service_name, config.input_directory,
-        config.output_directory, config.port, False
+        config.service_name, config._input_directory,
+        config._output_directory, config._port, False
     )
     return docker
 
@@ -52,17 +52,17 @@ def mock_subprocess_run():
 
 @pytest.mark.parametrize("mock_image, is_exists", (("some_image", True), ("", False)))
 def test_check_image_exists(mock_image, is_exists, docker, mock_run):
-    expected_command = ["docker", "images", "-q", docker.image_name]
+    expected_command = ["docker", "images", "-q", docker._image_name]
 
     mock_run.return_value = MagicMock(stdout=mock_image)
-    assert docker.docker_image is is_exists
+    assert docker.docker_image_existence is is_exists
     mock_run.assert_called_with(expected_command, capture_output=True, text=True)
 
 
 @patch.object(DockerManager, "_check_image_exists")
 def test_build_image(mock_check_image_exists, docker, mock_run, caplog, config):
     mock_check_image_exists.return_value = False
-    expected_command = ["docker", "build", "-t", docker.image_name, config.dockerfile]
+    expected_command = ["docker", "build", "-t", docker._image_name, config.dockerfile]
 
     docker.build_image(config.dockerfile)
 
@@ -85,7 +85,7 @@ def test_build_image_when_image_exists_and_not_force_build(
 def test_build_image_when_image_exists_and_force_build(
         mock_check_image_exists, docker, mock_run, caplog, config):
     mock_check_image_exists.return_value = True
-    docker.force_build = True
+    docker._force_build = True
 
     with caplog.at_level(logging.INFO):
         docker.build_image(config.dockerfile)
@@ -101,7 +101,7 @@ def test_container_status(code, output, status, docker, mock_run):
     command_output.returncode = code
     command_output.stdout = output
     mock_subprocess_run.return_value = command_output
-    expected_command = ["docker", "inspect", "--format='{{.State.Status}}'", docker.container_name]
+    expected_command = ["docker", "inspect", "--format='{{.State.Status}}'", docker._container_name]
 
     status = docker.container_status
 
@@ -124,11 +124,11 @@ def test_deploy_container(
     container_output_directory = "/container_output_directory/"
     mock_status.return_value = status
     deploy_container_args = (
-        config.port,
+        config._port,
         container_input_directory,
         container_output_directory
     )
-    docker.force_build = build
+    docker._force_build = build
 
     with caplog.at_level(logging.INFO):
         docker.deploy_container(*deploy_container_args)
@@ -157,7 +157,7 @@ def test_deploy_container(
 
 def test_start_container_success(docker, mock_run, caplog):
     mock_subprocess_run.return_value = MagicMock()
-    expected_command = ["docker", "start", docker.container_name]
+    expected_command = ["docker", "start", docker._container_name]
     with caplog.at_level(logging.INFO):
         docker._start_container()
 
@@ -167,15 +167,15 @@ def test_start_container_success(docker, mock_run, caplog):
 
 def test_run_container(docker, mock_run, config, caplog):
     expected_command = [
-        "docker", "run", "--name", docker.container_name, "--gpus", "all",
+        "docker", "run", "--name", docker._container_name, "--gpus", "all",
         "--restart", "unless-stopped", "-d",
-        "-p", f"{docker.port}:{config.port}",
-        "-v", f"{docker.input_directory}:{config.input_directory}",
-        "-v", f"{docker.output_directory}:{config.input_directory}",
-        docker.image_name
+        "-p", f"{docker._port}:{config._port}",
+        "-v", f"{docker._input_directory}:{config._input_directory}",
+        "-v", f"{docker._output_directory}:{config._input_directory}",
+        docker._image_name
     ]
     with caplog.at_level(logging.INFO):
-        docker._run_container(config.port, config.input_directory, config.input_directory)
+        docker._run_container(config._port, config._input_directory, config._input_directory)
 
     mock_run.assert_called_once_with(expected_command, check=True)
     assert "Running a new container..." in caplog.text
@@ -183,7 +183,7 @@ def test_run_container(docker, mock_run, config, caplog):
 
 @patch.object(subprocess, "Popen", autospec=True)
 def test_run_log_process(mock_popen, docker, caplog):
-    command = ["docker", "logs", "-f", "--since", "1s", docker.container_name]
+    command = ["docker", "logs", "-f", "--since", "1s", docker._container_name]
 
     with caplog.at_level(logging.INFO):
         result = docker._run_log_process()
@@ -193,28 +193,28 @@ def test_run_log_process(mock_popen, docker, caplog):
         stderr=subprocess.STDOUT, text=True, encoding="utf-8"
     )
     assert result
-    assert f"Following logs for {docker.container_name}" in caplog.text
+    assert f"Following logs for {docker._container_name}" in caplog.text
 
 
 def test_stop_container_success(docker, mock_run, caplog):
-    expected_command = ["docker", "stop", docker.container_name]
+    expected_command = ["docker", "stop", docker._container_name]
 
     with caplog.at_level(logging.INFO):
         docker._stop_container()
 
     mock_run.assert_called_once_with(expected_command, check=True, capture_output=True)
-    assert f"Stopping container {docker.container_name}..." in caplog.text
+    assert f"Stopping container {docker._container_name}..." in caplog.text
     assert "Container stopped." in caplog.text
 
 
 def test_delete_container_success(docker, mock_run, caplog):
-    expected_command = ["docker", "rm", docker.container_name]
+    expected_command = ["docker", "rm", docker._container_name]
 
     with caplog.at_level(logging.INFO):
         docker._delete_container()
 
     mock_run.assert_called_once_with(expected_command, check=True, capture_output=True)
-    assert f"Deleting container {docker.container_name}..." in caplog.text
+    assert f"Deleting container {docker._container_name}..." in caplog.text
     assert "Container deleted." in caplog.text
 
 

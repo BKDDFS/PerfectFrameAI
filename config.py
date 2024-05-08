@@ -2,7 +2,7 @@
 from dataclasses import dataclass
 from pathlib import Path
 
-CURRENT_DIRECTORY = Path.cwd()
+BASE_DIRECTORY = Path(__file__).resolve().parent
 
 
 @dataclass
@@ -22,9 +22,9 @@ class Config:
         output_directory (str): Directory where extraction process output will be saved.
     """
     service_name: str = "extractor_service"
-    dockerfile: str = str(CURRENT_DIRECTORY / "extractor_service")
+    dockerfile: str = str(BASE_DIRECTORY / "extractor_service")
     port: int = 8100
     volume_input_directory: str = "/app/input_directory"
     volume_output_directory: str = "/app/output_directory"
-    input_directory: str = str(CURRENT_DIRECTORY / "input_directory")
-    output_directory: str = str(CURRENT_DIRECTORY / "output_directory")
+    input_directory: str = str(BASE_DIRECTORY / "input_directory")
+    output_directory: str = str(BASE_DIRECTORY / "output_directory")
