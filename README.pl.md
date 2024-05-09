@@ -28,9 +28,9 @@ Najszybszy sposób to skorzystanie z setup.py, które zrobi wszystko za nas. \
 Jeśli korzystasz z Windows możesz po prostu skorzystać z pliku .bat.
 Natomiast jeśli korzystasz z innego systemu lub chcesz uruchomić setup.py z terminala, to zrobisz to w następujący sposób: 
 **Przykład:** \  
-`python setup.py best_frames_extractor` \  
+`python start.py best_frames_extractor` \  
 albo \  
-`python setup.py top_images_extractor` \  
+`python start.py top_images_extractor` \  
 #### Domyślne ustawinia: \
 - **extractor:** best_frames_extractor \  
 - **input_directory:** ./input_directory \  
