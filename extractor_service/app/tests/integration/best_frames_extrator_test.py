@@ -1,3 +1,4 @@
+import pytest
 from app.extractors import BestFramesExtractor
 from app.schemas import ExtractorConfig
 

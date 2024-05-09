@@ -1,3 +1,6 @@
+import pytest
+
+
 # @pytest.mark.skip(reason="Test time-consuming and dependent on hardware performance")
 def test_best_frames_extractor_api(client, setup_best_frames_extractor_env):
     input_directory, output_directory, expected_video_path = setup_best_frames_extractor_env

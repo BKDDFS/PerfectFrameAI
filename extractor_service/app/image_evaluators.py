@@ -126,6 +126,7 @@ class _NIMAModel(ABC):
     """
     class DownloadingModelWeightsError(Exception):
         """Error raised when there's an issue with downloading model weights."""
+
     _config = None
     _model = None
 

@@ -1,3 +1,6 @@
+import pytest
+
+
 # @pytest.mark.skip(reason="Test time-consuming and dependent on hardware performance")
 def test_top_images_extractor_api(client, setup_top_images_extractor_env):
     input_directory, output_directory = setup_top_images_extractor_env
