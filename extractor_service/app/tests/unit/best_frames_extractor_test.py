@@ -22,7 +22,7 @@ def test_process(extractor, caplog, config):
     extractor._extract_best_frames = MagicMock(return_value=test_frames)
     extractor._save_images = MagicMock()
     extractor._add_prefix = MagicMock()
-    extractor._display_info_after_extraction = MagicMock()
+    extractor._signal_readiness_for_shutdown = MagicMock()
 
     with caplog.at_level(logging.INFO):
         extractor.process()
@@ -33,7 +33,7 @@ def test_process(extractor, caplog, config):
     assert extractor._extract_best_frames.call_count == len(test_videos)
     assert extractor._save_images.call_count == len(test_videos)
     assert extractor._add_prefix.call_count == len(test_videos)
-    extractor._display_info_after_extraction.assert_called_once()
+    extractor._signal_readiness_for_shutdown.assert_called_once()
     for video in test_videos:
         extractor._add_prefix.assert_any_call(config.processed_video_prefix, video)
         extractor._extract_best_frames.assert_any_call(video)

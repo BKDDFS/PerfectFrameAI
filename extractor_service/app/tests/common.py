@@ -1,10 +1,16 @@
 """Common fixtures for all conftest files."""
+import sys
+from pathlib import Path
+
 import pytest
 
-from extractor_service.app.schemas import ExtractorConfig
-from service_manager.tests.common import (
+from app.schemas import ExtractorConfig
+
+common_path = Path(__file__).parent.parent.parent.parent / "common"
+sys.path.insert(0, str(common_path))
+from common import (
     files_dir, best_frames_dir, top_images_dir,
-    setup_best_frames_extractor_env, setup_top_images_extractor_env
+    setup_top_images_extractor_env, setup_best_frames_extractor_env
 )
 
 

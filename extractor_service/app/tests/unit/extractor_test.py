@@ -11,13 +11,8 @@ from app.extractors import (Extractor,
                             TopImagesExtractor)
 
 
-class TestExtractor(Extractor):
-    def process(self) -> None:
-        pass
-
-
 def test_extractor_initialization(config):
-    extractor = TestExtractor(config)
+    extractor = BestFramesExtractor(config)
     assert extractor is not None
     assert extractor._config == config
     assert extractor._image_evaluator is None
@@ -25,7 +20,7 @@ def test_extractor_initialization(config):
 
 @pytest.fixture
 def extractor(config):
-    return TestExtractor(config)
+    return BestFramesExtractor(config)
 
 
 @patch("app.extractors.InceptionResNetNIMA")
@@ -146,11 +141,10 @@ def test_add_prefix(extractor, caplog):
     assert result == test_new_path
 
 
-def test_display_info_after_extraction(extractor, caplog):
-    expected_massage = "Press ctrl+c to exit."
+def test_signal_readiness_for_shutdown(extractor, caplog):
     with caplog.at_level(logging.INFO):
-        extractor._display_info_after_extraction()
-        assert expected_massage in caplog.text
+        extractor._signal_readiness_for_shutdown()
+    assert "Service ready for shutdown" in caplog.text
 
 
 def test_get_extractor_known_extractors():

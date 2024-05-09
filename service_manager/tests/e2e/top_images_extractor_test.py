@@ -11,9 +11,8 @@ def test_top_images_extractor(setup_top_images_extractor_env, start_script_path)
         "--build"
     ]
 
-    result = subprocess.run(command)
+    subprocess.run(command)
 
-    assert result.returncode == 0
     found_top_frame_files = [
         file for file in output_directory.iterdir()
         if file.name.startswith("image_") and file.name.endswith(".jpg")

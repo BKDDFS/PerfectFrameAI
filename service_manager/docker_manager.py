@@ -115,11 +115,15 @@ class DockerManager:
             container_input_directory (str): Directory inside the container for input data.
             container_output_directory (str): Directory inside the container for output data.
         """
-        if self._force_build:
-            self._stop_container()
-            self._delete_container()
         status = self.container_status
         if status is None:
+            logging.info("No existing container found. Running a new container.")
+            self._run_container(container_port, container_input_directory, container_output_directory)
+        elif self._force_build:
+            logging.info("Force rebuild initiated.")
+            if status in ["running", "paused"]:
+                self._stop_container()
+            self._delete_container()
             self._run_container(container_port, container_input_directory, container_output_directory)
         elif status == "exited":
             self._start_container()

@@ -19,9 +19,9 @@ def service(config):
     user_input = MagicMock(
         spec=argparse.Namespace,
         extractor_name=config.service_name,
-        input_dir=config._input_directory,
-        output_dir=config._output_directory,
-        port=config._port
+        input_dir=config.input_directory,
+        output_dir=config.output_directory,
+        port=config.port
     )
     with patch.object(ServiceInitializer, "_check_directory"):
         initializer = ServiceInitializer(user_input)

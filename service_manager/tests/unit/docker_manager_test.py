@@ -12,23 +12,23 @@ def test_docker_manager_init(caplog, config):
     expected_logs = (
         f"container_name: {config.service_name}",
         f"image_name: {image_name}",
-        f"Input directory from user: {config._input_directory}",
-        f"Output directory from user: {config._output_directory}",
-        f"Port from user: {config._port}",
+        f"Input directory from user: {config.input_directory}",
+        f"Output directory from user: {config.output_directory}",
+        f"Port from user: {config.port}",
         f"Force build: False"
     )
 
     with caplog.at_level(logging.DEBUG):
         docker = DockerManager(
-            config.service_name, config._input_directory,
-            config._output_directory, config._port, False
+            config.service_name, config.input_directory,
+            config.output_directory, config.port, False
         )
 
     assert docker._container_name == config.service_name
     assert docker._image_name == image_name
-    assert docker._input_directory == config._input_directory
-    assert docker._output_directory == config._output_directory
-    assert docker._port == config._port
+    assert docker._input_directory == config.input_directory
+    assert docker._output_directory == config.output_directory
+    assert docker._port == config.port
     assert docker._force_build is False
     for message in expected_logs:
         assert message in caplog.text, \
@@ -38,8 +38,8 @@ def test_docker_manager_init(caplog, config):
 @pytest.fixture(scope="function")
 def docker(config):
     docker = DockerManager(
-        config.service_name, config._input_directory,
-        config._output_directory, config._port, False
+        config.service_name, config.input_directory,
+        config.output_directory, config.port, False
     )
     return docker
 
@@ -124,7 +124,7 @@ def test_deploy_container(
     container_output_directory = "/container_output_directory/"
     mock_status.return_value = status
     deploy_container_args = (
-        config._port,
+        config.port,
         container_input_directory,
         container_output_directory
     )
@@ -133,14 +133,19 @@ def test_deploy_container(
     with caplog.at_level(logging.INFO):
         docker.deploy_container(*deploy_container_args)
 
-    if build:
-        mock_stop.assert_called_once()
-        mock_delete.assert_called_once()
-    else:
+    if status is None:
+        assert "No existing container found. Running a new container." in caplog.text
+        mock_start.assert_not_called()
         mock_stop.assert_not_called()
         mock_delete.assert_not_called()
-    if status is None:
-        mock_start.assert_not_called()
+        mock_run.assert_called_once_with(*deploy_container_args)
+    elif build:
+        assert "Force rebuild initiated." in caplog.text
+        if status in ["running", "paused"]:
+            mock_stop.assert_called_once()
+        else:
+            mock_stop.assert_not_called()
+        mock_delete.assert_called_once()
         mock_run.assert_called_once_with(*deploy_container_args)
     elif status == "exited":
         mock_start.assert_called_once()
@@ -169,13 +174,13 @@ def test_run_container(docker, mock_run, config, caplog):
     expected_command = [
         "docker", "run", "--name", docker._container_name, "--gpus", "all",
         "--restart", "unless-stopped", "-d",
-        "-p", f"{docker._port}:{config._port}",
-        "-v", f"{docker._input_directory}:{config._input_directory}",
-        "-v", f"{docker._output_directory}:{config._input_directory}",
+        "-p", f"{docker._port}:{config.port}",
+        "-v", f"{docker._input_directory}:{config.input_directory}",
+        "-v", f"{docker._output_directory}:{config.input_directory}",
         docker._image_name
     ]
     with caplog.at_level(logging.INFO):
-        docker._run_container(config._port, config._input_directory, config._input_directory)
+        docker._run_container(config.port, config.input_directory, config.input_directory)
 
     mock_run.assert_called_once_with(expected_command, check=True)
     assert "Running a new container..." in caplog.text
