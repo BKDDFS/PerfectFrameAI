@@ -27,7 +27,7 @@ def test_process_with_images(mock_read_image, extractor, caplog, config):
     extractor._evaluate_images = MagicMock(return_value=test_ratings)
     extractor._get_top_percent_images = MagicMock(return_value=best_image)
     extractor._save_images = MagicMock()
-    extractor._display_info_after_extraction = MagicMock()
+    extractor._signal_readiness_for_shutdown = MagicMock()
 
     # Call
     with caplog.at_level(logging.INFO):
@@ -48,7 +48,7 @@ def test_process_with_images(mock_read_image, extractor, caplog, config):
         f" All top images extracted from directory: {config.input_directory}."
     )
     assert expected_massage in caplog.text
-    extractor._display_info_after_extraction.assert_called_once()
+    extractor._signal_readiness_for_shutdown.assert_called_once()
 
 
 def test_get_top_percent_images(extractor, caplog):
