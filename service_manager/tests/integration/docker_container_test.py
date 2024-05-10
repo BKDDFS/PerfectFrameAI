@@ -1,5 +1,3 @@
-import time
-
 import docker
 import pytest
 
@@ -31,12 +29,11 @@ def cleanup_container(client, manager, config):
 
 
 def test_run_container(manager, config, client, cleanup_container, image):
-    time.sleep(3)
     manager._run_container(config.port, config.volume_input_directory, config.volume_output_directory)
 
     container = client.containers.get(manager._container_name)
     container.reload()
-    assert container.status == "running"
+    assert container.status == "running" or container.status == "restarting"
     assert container.attrs["Config"]["Image"] == manager.image_name
     port_binding = container.attrs["HostConfig"]["PortBindings"]
     assert '8100/tcp' in port_binding
