@@ -1,3 +1,4 @@
+
 ![PerfectFreameAI](static/banner.png)
 
 <div id="navigation">
@@ -17,14 +18,12 @@
 </div>
 <div id="description">
     W świecie przesyconym treściami wideo, każda sekunda ma potencjał, by stać się niezapomnianym ujęciem.
-    <code>PerfectFrameAI</code> to narzędzie, które za pomocą sztucznej inteligencji analizuje Twoje materiały wideo,
-    by wydobyć i zachować te najbardziej porywające momenty w fromie obrazów.
-    <hr>
+    <code>PerfectFrameAI</code> to narzędzie wykorzystujące sztuczną inteligencję do analizowania materiałów wideo
+    i automatycznego zapisywania najładniejszych klatek.
 </div>
 <a href="">Video demo</a>
 <div id="about">
     <h2>💡O projekcie:</h2>
-    <hr>
     <p>
         <code>PerfectFrameAI</code> to narzędzie stworzone na podstawie jednego z mikro serwisów mojego głównego projektu. 
         Określam tamtą wersję jako <code>v1.0</code>.
@@ -35,7 +34,6 @@
 </div>
 <div id="key-features">
     <h2>🔑 Kluczowe funkcje:</h2>
-    <hr>
     <details>
         <summary>
             <strong>Best Frames Extraction</strong>
@@ -78,9 +76,7 @@
     </details>
 </div>
 <div id="usage">
-    <blockquote style="border-left: none; border-radius: 8px;">
     <h2>⚡ Jak używać:</h2>
-    <hr>
     <details id="method1">
         <summary>
             <strong style="font-size: 20px;"> 🚀 Sposób 1 - CLI </strong>
@@ -163,12 +159,9 @@
             Możesz ewentualnie edytować docker-compose.yaml, jeśli nie chcesz korzystać z ustawień domyślnych.
         </ol>
     </details>
-    </blockquote>
 </div>
 <div id="requirements">
     <h2 >🖥️ Wymagania systemowe:</h2>
-    <hr>
-    <blockquote style="border-left: none; border-radius: 8px;">
     <details>
         <summary>Docker</summary>
         Docker Desktop: <a href="https://www.docker.com/products/docker-desktop/">https://www.docker.com/products/docker-desktop/</a>
@@ -181,18 +174,12 @@
     Nvidia GPU (zalecane)
     <br>
     10 GB wolnego miejsca na dysku
-</blockquote>
+
 </div>
 <div id="licence">
     <h2>📜 Licencja</h2>
-    <hr>
     <p>
         PerfectFrameAI is licensed under the GNU General Public License v3.0.
         See the <a href="/LICENSE">LICENSE</a> file for more information.
     </p>
 </div>
-<style>
-    td {
-        min-width: 110px;
-    }
-</style>
