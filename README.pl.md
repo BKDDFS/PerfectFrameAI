@@ -30,7 +30,7 @@
     </p>
     <p><strong style="font-size: 20px;">v1.0 vs v2.0 </strong></p>
 
-![dd](static/table.png)
+![dd](static/1vs2.png)
 </div>
 <div id="key-features">
     <h2>🔑 Kluczowe funkcje:</h2>
