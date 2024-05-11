@@ -7,3 +7,7 @@ htmlcov/
 .env
 input_directory/*
 output_directory/*
+test_video.mp4
+nima.h5
+best_frames/*
+top_images/*
