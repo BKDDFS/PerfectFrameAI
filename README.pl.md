@@ -1,4 +1,3 @@
-
 ![PerfectFreameAI](static/banner.png)
 
 <div id="navigation">
@@ -6,7 +5,6 @@
       <a href="#about">O projekcie</a> &nbsp;&bull;&nbsp;
       <a href="#key-features">Kluczowe funkcje</a> &nbsp;&bull;&nbsp;
       <a href="#usage">Jak używać</a> &nbsp;&bull;&nbsp;
-      <a href="#requirements">Wymagania systemowe</a> &nbsp;&bull;&nbsp;
       <a href="#licence">Licencja</a>
     </p>
 </div>
@@ -21,7 +19,10 @@
     <code>PerfectFrameAI</code> to narzędzie wykorzystujące sztuczną inteligencję do analizowania materiałów wideo
     i automatycznego zapisywania najładniejszych klatek.
 </div>
-<a href="">Video demo</a>
+<div id="demo">
+    <img src="static/demo.gif">
+    Full video: <a href="https://youtu.be/FX1modlxeWA">https://youtu.be/FX1modlxeWA</a>
+</div>
 <div id="about">
     <h2>💡O projekcie:</h2>
     <p>
@@ -30,7 +31,7 @@
     </p>
     <p><strong style="font-size: 20px;">v1.0 vs v2.0 </strong></p>
 
-![dd](static/1vs2.png)
+<img src="static/1vs2.png">
 </div>
 <div id="key-features">
     <h2>🔑 Kluczowe funkcje:</h2>
@@ -39,7 +40,7 @@
             <strong>Best Frames Extraction</strong>
             <blockquote>Wybieranie najlepszych klatek z plików video.</blockquote>
         </summary>
-        <code>python start.py best_frames_extractor</code>
+        <img src="static/start_frames.png" width="350">
         <ol>
             <p>Input: Folder z plikami video <code>.mp4</code>.</p>
             <li>Bierze pierwsze video ze wskazanej lokalizacji.</li>
@@ -61,7 +62,7 @@
             <strong>Top Images Extraction</strong>
             <blockquote>Wybieranie najlepszych obrazów z folderu z obrazami.</blockquote>
         </summary>
-        <code>python start.py top_images_extractor</code>
+        <img src="static/start_images.png" width="350">
         <ol>
             <p>Input: Folder z obrazami <code>.jpg</code>.</p>
             <li>Wczytuje obrazy. Obrazy są przetwarzane batchach(seriach).</li>
@@ -73,6 +74,31 @@
             <li>Zapisuje obrazy o  w wybranej lokalizacji. </li>
             <p>Output: Obrazy zapisane jako <code>.jpg</code>.</p>
         </ol>
+    </details>
+</div>
+<div id="installation">
+    <h2>📜 Instalacja</h2>
+    <blockquote>
+        <h3 >Wymagania systemowe:</h3>
+        <ul>
+            <li>Docker</li>
+            <li>Python ^3.10 (tylko sposób 1)</li>
+            <li>Nvidia GPU (zalecane)</li>
+            <li>10 GB wolnego miejsca na dysku</li>
+        </ul> 
+    </blockquote>
+    <details>
+        <summary>Zainstaluj Dokcer:</summary>
+        Docker Desktop: <a href="https://www.docker.com/products/docker-desktop/">https://www.docker.com/products/docker-desktop/</a>
+    </details>
+    <details>
+        <summary>Zainstaluj Python v3.10+:</summary>
+        MS Store: <a href="https://apps.microsoft.com/detail/9ncvdn91xzqp?hl=en-US&gl=US">https://apps.microsoft.com/detail/9ncvdn91xzqp?hl=en-US&gl=US</a><br>
+        Python.org: <a href="https://www.python.org/downloads/">https://www.python.org/downloads/</a>
+    </details>
+    <details>
+        <summary>Sklonuj to repoztorium albo pobierz jak zip.</summary>
+        <img src="static/install.png" width="300">
     </details>
 </div>
 <div id="usage">
@@ -130,8 +156,8 @@
                 </tr>
             </tbody>
         </table>
-        <p><strong>Przykład dla Best Frames Extraction:</strong></p>
-        <code>python setup.py best_frames_extractor -p &lt;your_port_here&gt; -i &lt;your_input_dir_here&gt; -o &lt;your_output_dir_here&gt; --build</code><br>
+        <p><strong>Przykład dla Best Frames Extraction:</strong></p>        
+        <code>python start.py best_frames_extractor -p &lt;your_port_here&gt; -i &lt;your_input_dir_here&gt; -o &lt;your_output_dir_here&gt; --build</code><br>
         <p>Inne domyślne parametry możesz edytować w config.py.</p>
         <blockquote>
             <p><strong style="color: lightblue;">Ułatwienie dla użytkowników Windows:</strong><br>
@@ -142,7 +168,7 @@
     </details>
     <details id="method2">
         <summary>
-            <strong style="font-size: 20px;">🐳 Sposób 2 - docker-compose:</strong>
+            <strong style="font-size: 20px;">🐳 Sposób 2 - docker-compose.yaml:</strong>
             <blockquote><p><i>Nie wymaga Pythona. Uruchom używając Docker Compose.</i></p></blockquote>
         </summary>
         <p>Docker Compose Docs: <a href="https://docs.docker.com/compose/">https://docs.docker.com/compose/</a></p>
@@ -159,22 +185,6 @@
             Możesz ewentualnie edytować docker-compose.yaml, jeśli nie chcesz korzystać z ustawień domyślnych.
         </ol>
     </details>
-</div>
-<div id="requirements">
-    <h2 >🖥️ Wymagania systemowe:</h2>
-    <details>
-        <summary>Docker</summary>
-        Docker Desktop: <a href="https://www.docker.com/products/docker-desktop/">https://www.docker.com/products/docker-desktop/</a>
-    </details>
-    <details>
-        <summary>Python ^3.10 (tylko sposób 1)</summary>
-        MS Store: <a href="https://apps.microsoft.com/detail/9ncvdn91xzqp?hl=en-US&gl=US">https://apps.microsoft.com/detail/9ncvdn91xzqp?hl=en-US&gl=US</a><br>
-        Python.org: <a href="https://www.python.org/downloads/">https://www.python.org/downloads/</a>
-    </details>
-    Nvidia GPU (zalecane)
-    <br>
-    10 GB wolnego miejsca na dysku
-
 </div>
 <div id="licence">
     <h2>📜 Licencja</h2>
