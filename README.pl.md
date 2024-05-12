@@ -196,20 +196,26 @@
 </div>
 <div id="about">
     <h2>💡O projekcie:</h2>
-    <p>
-        <code>PerfectFrameAI</code> to narzędzie stworzone na podstawie jednego z mikro serwisów mojego głównego projektu. 
-        Określam tamtą wersję jako <code>v1.0</code>.
-    </p>
-    <p><strong style="font-size: 20px;">v1.0 vs v2.0 </strong></p>
-    <img src="static/1vs2.png">
-    <div id="tests">
-    <h3># TODO</h3>
-</div>
-    <div id="performance">
-    <h3># TODO</h3>
+    <div id="contents">
+        <h3>Table of Contents:</h3>
+        <a href="#1vs2">v1.0 vs v2.0</a><br>
+        <a href="#key-features">Funkcje</a><br>
+        <a href="#installation">Instalacja</a><br>
+        <a href="#usage">Jak używać</a><br>
+        <a href="#contributions">Contributions</a><br>
+        <a href="#feedback">Feedback</a><br>
+        <a href="#licence">Licencja</a><br>
+    </div>
+    <div id="1vs2">
+        <h3>v1.0 vs v2.0</h3>
+        <p>
+            <code>PerfectFrameAI</code> to narzędzie stworzone na podstawie jednego z mikro serwisów mojego głównego projektu. 
+            Określam tamtą wersję jako <code>v1.0</code>.
+        </p>
+        <img src="static/1vs2.png">
     </div>
     <div id="tech-stack">
-    <h2>🛠️ Tech Stack</h2>
+    <h3>🛠️ Tech Stack</h3>
     <ul>
         <li>Python - główny język w którym jest napisany projekt.
             Zewnętrzna część <code>PerfectFrameAI</code> używa tylko standardowych biblotek Pythona dla ułatwienia instalacji i kofiguracji narzędzia.</li>
@@ -227,6 +233,12 @@
     </ul>
     </div>
     <div id="uml">
+    <h3># TODO</h3>
+    </div>
+    <div id="tests">
+    <h3># TODO</h3>
+</div>
+    <div id="performance">
     <h3># TODO</h3>
     </div>
     <div id="references">

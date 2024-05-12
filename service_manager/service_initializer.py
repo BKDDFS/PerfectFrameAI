@@ -4,6 +4,7 @@ import json
 import logging
 import time
 from pathlib import Path
+from typing import Union
 from urllib.request import urlopen, Request
 from http.client import RemoteDisconnected
 
@@ -43,7 +44,7 @@ class ServiceInitializer:
             raise NotADirectoryError(error_massage)
         return directory
 
-    def run_extractor(self, extractor_url: str | None = None) -> None:
+    def run_extractor(self, extractor_url: Union[str, None] = None) -> None:
         """Send POST request to local port extractor service to start chosen extractor."""
         if not extractor_url:
             extractor_url = f"http://localhost:{self.port}/extractors/{self.extractor_name}"
