@@ -2,16 +2,25 @@
 
 <div id="navigation">
     <p align="center">
-      <a href="#about">O projekcie</a> &nbsp;&bull;&nbsp;
-      <a href="#key-features">Kluczowe funkcje</a> &nbsp;&bull;&nbsp;
-      <a href="#usage">Jak używać</a> &nbsp;&bull;&nbsp;
-      <a href="#licence">Licencja</a>
+        <a href="#about">O projekcie</a> &nbsp;&bull;&nbsp;
+        <a href="#key-features">Kluczowe funkcje</a> &nbsp;&bull;&nbsp;
+        <a href="#installation">Instalacja</a> &nbsp;&bull;&nbsp;
+        <a href="#usage">Jak używać</a> &nbsp;&bull;&nbsp;
+        <a href="#licence">Licencja</a>
     </p>
 </div>
 <div id="languages">
     <p align="center">
         <a href="/README.md">English</a> &nbsp;&bull;&nbsp;
-        <a href="/README.pl.md">Polish</a>
+        <a href="/README.pl.md">Polski</a>
+    </p>
+</div>
+<div id="badges">
+    <p align="center">
+        <img alt="GitHub Downloads (all assets, all releases)" src="https://img.shields.io/github/downloads/BKDDFS/PerfectFrameAI/total?style=flat&color=blue">
+        <img alt="GitHub License" src="https://img.shields.io/github/license/BKDDFS/PerfectFrameAI">
+        <img alt="GitHub Release" src="https://img.shields.io/github/v/release/BKDDFS/PerfectFrameAI">
+        <img alt="GitHub Repo stars" src="https://img.shields.io/github/stars/BKDDFS/PerfectFrameAI">
     </p>
 </div>
 <div id="description">
@@ -88,7 +97,12 @@
         Python.org: <a href="https://www.python.org/downloads/">https://www.python.org/downloads/</a>
     </details>
     <details>
-        <summary>Sklonuj to repoztorium albo pobierz jak zip.</summary>
+        <summary>Pobierz <code>PerfectFrameAI</code></summary>
+        <blockquote>
+            Aby pobrać kod z repozytorium na GitHubie, kliknij przycisk <code>Code</code>,
+            a następnie wybierz <code>Download ZIP</code>
+            lub skopiuj adres URL i użyj polecenia <code>git clone</code> w terminalu.
+        </blockquote>
         <img src="static/install.png" width="300">
     </details>
 </div>
@@ -186,6 +200,19 @@
     <p><strong style="font-size: 20px;">v1.0 vs v2.0 </strong></p>
 
 <img src="static/1vs2.png">
+</div>
+<div id="tests">
+    <h3># TODO</h3>
+</div>
+<div id="performance">
+    <h3># TODO</h3>
+</div>
+<div id="tech">
+    <h3>Tech Stack</h3>
+    # TODO Opisać z jakich technologii skorzystałem i dlaczego
+</div>
+<div id="uml">
+    <h3># TODO</h3>
 </div>
 <div id="licence">
     <h2>📜 Licencja</h2>
