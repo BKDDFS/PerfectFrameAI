@@ -1,11 +1,20 @@
 ![PerfectFreameAI](static/banner.png)
 
+<div id="badges">
+    <p align="center">
+        <img alt="GitHub Downloads (all assets, all releases)" src="https://img.shields.io/github/downloads/BKDDFS/PerfectFrameAI/total?style=flat&color=blue">
+        <img alt="GitHub License" src="https://img.shields.io/github/license/BKDDFS/PerfectFrameAI">
+        <img alt="GitHub Release" src="https://img.shields.io/github/v/release/BKDDFS/PerfectFrameAI">
+        <img alt="GitHub Repo stars" src="https://img.shields.io/github/stars/BKDDFS/PerfectFrameAI">
+    </p>
+</div>
 <div id="navigation">
     <p align="center">
         <a href="#about">O projekcie</a> &nbsp;&bull;&nbsp;
-        <a href="#key-features">Kluczowe funkcje</a> &nbsp;&bull;&nbsp;
+        <a href="#key-features">Kluczowe Funkcje</a> &nbsp;&bull;&nbsp;
         <a href="#installation">Instalacja</a> &nbsp;&bull;&nbsp;
         <a href="#usage">Jak używać</a> &nbsp;&bull;&nbsp;
+        <a href="#tech-stack">Tech Stack</a> &nbsp;&bull;&nbsp;
         <a href="#licence">Licencja</a>
     </p>
 </div>
@@ -13,14 +22,6 @@
     <p align="center">
         <a href="/README.md">English</a> &nbsp;&bull;&nbsp;
         <a href="/README.pl.md">Polski</a>
-    </p>
-</div>
-<div id="badges">
-    <p align="center">
-        <img alt="GitHub Downloads (all assets, all releases)" src="https://img.shields.io/github/downloads/BKDDFS/PerfectFrameAI/total?style=flat&color=blue">
-        <img alt="GitHub License" src="https://img.shields.io/github/license/BKDDFS/PerfectFrameAI">
-        <img alt="GitHub Release" src="https://img.shields.io/github/v/release/BKDDFS/PerfectFrameAI">
-        <img alt="GitHub Repo stars" src="https://img.shields.io/github/stars/BKDDFS/PerfectFrameAI">
     </p>
 </div>
 <div id="description">
@@ -207,11 +208,31 @@
 <div id="performance">
     <h3># TODO</h3>
 </div>
-<div id="tech">
-    <h3>Tech Stack</h3>
-    # TODO Opisać z jakich technologii skorzystałem i dlaczego
+<div id="tech-stack">
+    <h2>🛠️ Tech Stack</h2>
+    <ul>
+        <li>Python - główny język w którym jest napisany projekt.
+            Zewnętrzna część <code>PerfectFrameAI</code> używa tylko standardowych biblotek Pythona dla ułatwienia instalacji i kofiguracji narzędzia.</li>
+        <li>FastAPI - framework na którym została zbudowana główna część <code>PerfectFrameAI</code> (w v1.0 Flask).</li>
+        <li>OpenCV - do manipulacji obrazami.</li>
+        <li>numpy - do operacji na tablicach wielowymiarowych.</li>
+        <li>FFMPEG - jako rozszerzenie do OpenCV, do dekodowania klatek video.</li>
+        <li>CUDA - do umożliwienia wykonywania operacji na kartach graficznych.</li>
+        <li>Tensorflow - wykorzystywana bibloteka do uczenia maszynowego (w v1.0 PyTorch).</li>
+        <li>Docker - dla ułatwienia budowania skąplikowanego środowiska pracy dla <code>PerfectFrameAI</code>.</li>
+        <li>pytest - framework w którym napisane są testy.</li>
+        <li>docker-py - używany jedynie do testowania integracji Dockera z dołączonym managerem <code>PerfectFrameAI</code>.</li>
+        <li>Poetry - do zażądzania zależnościami projektu.</li>
+        <blockquote>Wszystkie używane zależności dostępne są w pyproject.toml.</blockquote>
+    </ul>
 </div>
 <div id="uml">
+    <h3># TODO</h3>
+</div>
+<div id="contribution">
+    <h3>Zwróć uwagę, że część projektu działająca w pythonie poza kontenerem Dockera, działa jedynie na wewnętrznych biblotekach pythona.</h3>
+</div>
+<div id="contributors">
     <h3># TODO</h3>
 </div>
 <div id="licence">
