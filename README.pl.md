@@ -1,5 +1,6 @@
-![PerfectFreameAI](static/banner.png)
-
+<div id="logo">
+    <img src="static/banner.png">
+</div>
 <div id="badges">
     <p align="center">
         <img alt="GitHub Downloads (all assets, all releases)" src="https://img.shields.io/github/downloads/BKDDFS/PerfectFrameAI/total?style=flat&color=blue">
@@ -11,10 +12,11 @@
 <div id="navigation">
     <p align="center">
         <a href="#about">O projekcie</a> &nbsp;&bull;&nbsp;
-        <a href="#key-features">Kluczowe Funkcje</a> &nbsp;&bull;&nbsp;
+        <a href="#key-features">Funkcje</a> &nbsp;&bull;&nbsp;
         <a href="#installation">Instalacja</a> &nbsp;&bull;&nbsp;
         <a href="#usage">Jak używać</a> &nbsp;&bull;&nbsp;
-        <a href="#tech-stack">Tech Stack</a> &nbsp;&bull;&nbsp;
+        <a href="#contributions">Contributions</a> &nbsp;&bull;&nbsp;
+        <a href="#feedback">Feedback</a> &nbsp;&bull;&nbsp;
         <a href="#licence">Licencja</a>
     </p>
 </div>
@@ -199,16 +201,14 @@
         Określam tamtą wersję jako <code>v1.0</code>.
     </p>
     <p><strong style="font-size: 20px;">v1.0 vs v2.0 </strong></p>
-
-<img src="static/1vs2.png">
-</div>
-<div id="tests">
+    <img src="static/1vs2.png">
+    <div id="tests">
     <h3># TODO</h3>
 </div>
-<div id="performance">
+    <div id="performance">
     <h3># TODO</h3>
-</div>
-<div id="tech-stack">
+    </div>
+    <div id="tech-stack">
     <h2>🛠️ Tech Stack</h2>
     <ul>
         <li>Python - główny język w którym jest napisany projekt.
@@ -223,17 +223,45 @@
         <li>pytest - framework w którym napisane są testy.</li>
         <li>docker-py - używany jedynie do testowania integracji Dockera z dołączonym managerem <code>PerfectFrameAI</code>.</li>
         <li>Poetry - do zażądzania zależnościami projektu.</li>
-        <blockquote>Wszystkie używane zależności dostępne są w pyproject.toml.</blockquote>
+        <blockquote>Wszystkie używane zależności dostępne są w <a href="pyproject.toml">pyproject.toml.</a></blockquote>
     </ul>
-</div>
-<div id="uml">
+    </div>
+    <div id="uml">
+    <h3># TODO</h3>
+    </div>
+    <div id="references">
     <h3># TODO</h3>
 </div>
-<div id="contribution">
-    <h3>Zwróć uwagę, że część projektu działająca w pythonie poza kontenerem Dockera, działa jedynie na wewnętrznych biblotekach pythona.</h3>
 </div>
-<div id="contributors">
-    <h3># TODO</h3>
+<div id="contributions">
+    <h2>👋 How to Contribute</h2>
+    <p>Your contributions are always welcome! Here's how you can contribute:</p>
+    <ul>
+        <li><strong>Reporting bugs:</strong> Please use the GitHub Issues to report any bugs.</li>
+        <li>
+            <strong>Submitting changes:</strong>
+            Fork the repo, create a new branch for your contributions, and send a pull request.
+            Make sure your code adheres to
+            the coding standards of the project and includes tests if applicable.
+        </li>
+        <li>
+            <strong>Join the discussion:</strong> 
+            Participate in discussions and contribute to decisions about
+            the future of the project.
+        </li>
+    </ul>
+    <blockquote>Please read our <a href="">Code of Conduct</a> to understand the expectations for behavior from all contributors.</blockquote>
+</div>
+<div id="feedback">
+    <h2>❤️ How to Give Feedback</h2>
+    <p>I am looking for feedback on the code quality and design of this project. If you have any suggestions on how to improve the code, please feel free to:</p>
+    <ul>
+        <li>Leave comments on specific lines of code via pull requests.</li>
+        <li>Open an issue to discuss larger changes or general suggestions.</li>
+        <li>Participate in discussions in the 'Discussions' section of this repository.</li>
+    </ul>
+    <p>Your insights are invaluable and greatly appreciated as they will help improve the project and my skills as a developer.</p>
+    <blockquote>For more direct communication, you can reach me at <a href="Bartekdawidflis@gmail.com">Bartekdawidflis@gmail.com</a>.</blockquote>
 </div>
 <div id="licence">
     <h2>📜 Licencja</h2>
