@@ -215,7 +215,7 @@
         <img src="static/1vs2.png">
     </div>
     <div id="tech-stack">
-    <h3>🛠️ Tech Stack</h3>
+    <h3>🛠️ Build with</h3>
     <ul>
         <li>Python - główny język w którym jest napisany projekt.
             Zewnętrzna część <code>PerfectFrameAI</code> używa tylko standardowych biblotek Pythona dla ułatwienia instalacji i kofiguracji narzędzia.</li>
@@ -245,6 +245,29 @@
     <h3># TODO</h3>
 </div>
 </div>
+<div id="roadmap">
+    <h2>🎯 Roadmap</h2>
+        <p>
+            Below is a list of features that we are planning to implement in the upcoming releases.
+            We welcome contributions and suggestions from the community.
+        </p>
+        <ul>
+            <li>
+                Implementacja Nvidia DALI.
+                <ul>
+                    <li>Umożliwi przeniesienia dekodowania klatek (obecnie najdłuższej części) na GPU.</li>
+                    <li>Dodatkowo umożliwi operowanie od razu na obiektach Tensor bez dodatkowych konwersji.</li>
+                </ul>
+                Podsumowując dodanie DALI powinno być kolejny poważnym krokiem naprzód,
+                jeśli chodzi o poprawę wydajności.
+            </li>
+            <li>Przetestowanie działania na starszych wersjach Pythona.</li>
+            <li>
+                Naprawienie spillingu danych podczas oceniania klatek. 
+                Obecnie ocenianie ma delikatne spowolnienie w postaci problemu ze spillingiem.
+            </li>
+        </ul>
+</div>
 <div id="contributions">
     <h2>👋 How to Contribute</h2>
     <p>Your contributions are always welcome! Here's how you can contribute:</p>
@@ -262,7 +285,10 @@
             the future of the project.
         </li>
     </ul>
-    <blockquote>Please read our <a href="">Code of Conduct</a> to understand the expectations for behavior from all contributors.</blockquote>
+    <blockquote>
+        Please read our <a href="">Contributing Guide</a> to understand
+        our expectations for behavior from all contributors.
+    </blockquote>
 </div>
 <div id="feedback">
     <h2>❤️ How to Give Feedback</h2>
