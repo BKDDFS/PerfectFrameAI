@@ -197,17 +197,102 @@
 <div id="about">
     <h2>💡O projekcie:</h2>
     <div id="contents">
-        <h3>Table of Contents:</h3>
+        <h3>Spis treści:</h3>
+        <a href="#how-it-works">Jak to działa</a><br>
+        &nbsp&nbsp&nbsp&nbsp<a href="#input">Input modelu</a><br>
+        &nbsp&nbsp&nbsp&nbsp<a href="#output">Wyniki oceniania obrazów</a><br>
+        &nbsp&nbsp&nbsp&nbsp<a href="#classes">Klasy estetyczne</a><br>
+        &nbsp&nbsp&nbsp&nbsp<a href="#calculating-mean">Obliczanie ostatecznej oceny obrazu</a><br>
+        &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp<a href="#calculating-mean-example">Przykład</a><br>
+        <a href="#implementation">Jak to jest zaimplementowane w skrócie</a><br>
+        &nbsp&nbsp&nbsp&nbsp<a href="#model-architecture">Architektura modelu</a><br>
+        &nbsp&nbsp&nbsp&nbsp<a href="#weights">Pre-trained Weights</a><br>
+        &nbsp&nbsp&nbsp&nbsp<a href="#normalization">Normalizacja obrazów</a><br>
+        &nbsp&nbsp&nbsp&nbsp<a href="#predictions">Przewidywanie przynależności do klas</a><br>
+        &nbsp&nbsp&nbsp&nbsp<a href="#mean-calculation">Obliczanie średniej ważonej</a><br>
         <a href="#1vs2">v1.0 vs v2.0</a><br>
-        <a href="#key-features">Funkcje</a><br>
-        <a href="#installation">Instalacja</a><br>
-        <a href="#usage">Jak używać</a><br>
-        <a href="#contributions">Contributions</a><br>
-        <a href="#feedback">Feedback</a><br>
-        <a href="#licence">Licencja</a><br>
+        <a href="#build-with">Użyte technologie</a><br>
+        <a href="#uml">UML</a><br>
+        <a href="#tests">Tests</a><br>
+    </div>
+    <div id="how-it-works">
+    <h2>Jak to działa</h2>
+    Narzędzie używa modelu zbudowanego zgodnie z zasadami dla modeli
+    Neural Image Assessment (NIMA) do określania estetyki obrazów.
+    <details id="input">
+       <summary style="font-size: 20px;"><strong>Input modelu</strong></summary>
+       <p>Model przyjmuje odpowiednio znormalizowane obrazy w batchu Tensor.</p>
+    </details>
+    <h3 id="output">Wyniki oceniania obrazów</h3>
+    <p>
+    Model NIMA, po przetworzeniu obrazów, zwraca wektory prawdopodobieństw, 
+    gdzie każda z wartość w wektorze odpowiada prawdopodobieństwu, 
+    że obraz przynależy do jednej z klas estetycznych.
+    </p>
+    <details id="classes">
+        <summary style="font-size: 20px;"><strong>Klasy estetyczne</strong></summary>
+        <p>
+            Jest 10 klas estetycznych. W modelu NIMA każda z 10 klas odpowiada
+            określonemu poziomowi estetyki, gdzie:
+        </p>
+        <ul>
+            <li>Klasa 1: Bardzo niska jakość estetyczna.</li>
+            <li>Klasa 2: Niska jakość estetyczna.</li>
+            <li>Klasa 3: Poniżej średniej jakości estetycznej.</li>
+             ...
+            <li>Klasa 10: Wyjątkowo wysoka jakość estetyczna.</li>
+        </ul>
+    </details>
+    <h3 id="calculating-mean">Obliczanie ostatecznej oceny obrazu</h3>
+    <p>
+        Ostateczna ocena obrazu jest obliczana za pomocą średniej
+        ważonej z wyników dla każdej z klas, gdzie wagi są 
+        wartościami klas od 1 do 10.
+    </p>
+    <h4 id="calculating-mean-example">Przykład:</h4>
+    <p>
+       Załóżmy, że model zwraca następujący wektor 
+       prawdopodobieństw dla jednego obrazu:
+    </p>
+    <pre>[0.1, 0.05, 0.05, 0.1, 0.2, 0.15, 0.1, 0.1, 0.1, 0.05]</pre>
+    Oznacza to, że obraz ma:
+    <ul>
+        <li>10% prawdopodobieństwa przynależności do klasy 1</li>
+        <li>5% prawdopodobieństwa przynależności do klasy 2</li>
+        <li>5% prawdopodobieństwa przynależności do klasy 3</li>
+        <li>i tak dalej...</li>
+    </ul>
+    <p>
+       Obliczając średnią ważoną z tych prawdopodobieństw,
+       gdzie wagi to wartości klas (1 do 10):
+    </p>
+    <img src="static/weighted_mean.png" width="700">
+    </div>
+    <div id="implementation">
+        <h2>Jak to jest zaimplementowane w skrócie</h2>
+        <details id="model-architecture">
+            <summary><strong>Architektura modelu</strong></summary>
+            <p>The NIMA model uses the InceptionResNetV2 architecture as its base. This architecture is known for its high performance in image classification tasks.</p>
+        </details>
+        <details id="weights">
+            <summary><strong>Pre-trained Weights</strong></summary>
+            <p>The model uses pre-trained weights that have been trained on a large dataset (AVA dataset) of images rated for their aesthetic quality. Narzędzie pobiera automatycznie wagi i przechowuje je w voluminie docker do dalszego użytkowania.</p>
+        </details>
+        <details id="normalization">
+            <summary><strong>Image Normalization</strong></summary>
+            <p>Before feeding images into the model, they are normalized to ensure they are in the correct format and value range.</p>
+        </details>
+        <details id="predictions">
+            <summary><strong>Przewidywanie przynależności do klas</strong></summary>
+            <p>The model processes the images and returns a vector of 10 probabilities, each representing the likelihood of the image belonging to one of the 10 aesthetic quality classes (from 1 for the lowest quality to 10 for the highest quality).</p>
+        </details>
+        <details id="mean-calculation">
+            <summary><strong>Obliczanie średniej ważonej</strong></summary>
+            <p>The final aesthetic score for an image is calculated as the weighted mean of these probabilities, with higher classes having greater weights.</p>
+        </details>
     </div>
     <div id="1vs2">
-        <h3>v1.0 vs v2.0</h3>
+        <h2>v1.0 vs v2.0</h2>
         <p>
             <code>PerfectFrameAI</code> to narzędzie stworzone na podstawie jednego z mikro serwisów mojego głównego projektu. 
             Określam tamtą wersję jako <code>v1.0</code>.
@@ -215,7 +300,7 @@
         <img src="static/1vs2.png">
     </div>
     <div id="build-with">
-    <h3>🛠️ Build with</h3>
+    <h2>🛠️ Build with</h2>
     <ul>
         <li>Python - główny język w którym jest napisany projekt.
             Zewnętrzna część <code>PerfectFrameAI</code> używa tylko standardowych biblotek Pythona dla ułatwienia instalacji i kofiguracji narzędzia.</li>
@@ -248,13 +333,7 @@
     <details>
         <summary></summary>
     </details>
-</div>
-    <div id="performance">
-    <h3># TODO</h3>
     </div>
-    <div id="references">
-    <h3># TODO</h3>
-</div>
 </div>
 <div id="roadmap">
     <h2>🎯 Roadmap</h2>
@@ -311,6 +390,13 @@
     <h2>⭐️ Support</h2>
     <p>Don't forget to leave a star ⭐️.</p>
 </div>
+<div id="references">
+    <h2>References</h2>
+    Oryginalna publikacja Google Brains przedstawiająca NIMA: 
+            <a href="https://research.google/blog/introducing-nima-neural-image-assessment/">https://research.google/blog/introducing-nima-neural-image-assessment/</a><br>
+    <a href="https://research.google/blog/introducing-nima-neural-image-assessment/">Google Brain Blog Post on NIMA</a>
+    Source of pre-trained weights: <a href="">https://github.com/titu1994/neural-image-assessment</a>
+    </div>
 <div id="licence">
     <h2>📜 Licencja</h2>
     <p>
