@@ -13,7 +13,7 @@ There are many ways to contribute, from writing tutorials or blog posts, improvi
 submitting bug reports and feature requests or writing code which can be incorporated into PerfectFrameAI itself.
 
 ## Code of Conduct
-This project and everyone participating in it is governed by this ![Code of Conduct](CODE_OF_CONDUCT).
+This project and everyone participating in it is governed by this [Code of Conduct](https://github.com/BKDDFS/PerfectFrameAI/blob/main/.github/CODE_OF_CONDUCT.md).
 By participating, you are expected to uphold this code. 
 
 ## I don't want to read this whole thing I just have a question
