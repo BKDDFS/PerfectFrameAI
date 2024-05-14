@@ -12,10 +12,10 @@
 <div id="navigation">
     <p align="center">
         <a href="#about">O projekcie</a> &nbsp;&bull;&nbsp;
-        <a href="#key-features">Funkcje</a> &nbsp;&bull;&nbsp;
+        <a href="#key-features">Kluczowe Funkcje</a> &nbsp;&bull;&nbsp;
         <a href="#installation">Instalacja</a> &nbsp;&bull;&nbsp;
         <a href="#usage">Jak używać</a> &nbsp;&bull;&nbsp;
-        <a href="#contributions">Contributions</a> &nbsp;&bull;&nbsp;
+        <a href="#contributions">Contribute</a> &nbsp;&bull;&nbsp;
         <a href="#feedback">Feedback</a> &nbsp;&bull;&nbsp;
         <a href="#licence">Licencja</a>
     </p>
@@ -34,7 +34,7 @@
 <div id="demo">
     <h2>🔎 Demo</h2>
     <img src="static/demo.gif" width="1000">
-    <p>Full video: <a href="https://youtu.be/FX1modlxeWA">https://youtu.be/FX1modlxeWA</a></p>
+    <p>Full demo: <a href="https://youtu.be/FX1modlxeWA">https://youtu.be/FX1modlxeWA</a></p>
 </div>
 <div id="key-features">
     <h2>🔑 Kluczowe funkcje:</h2>
@@ -148,7 +148,7 @@
                 <tr>
                     <td>--port</td>
                     <td>-p</td>
-                    <td>Zmiana portu na którym będzie działał service</td>
+                    <td>Zmiana portu na którym będzie działał <code>extractor_service</code></td>
                     <td>int</td>
                     <td>8100</td>
                 </tr>
@@ -164,8 +164,8 @@
                 </tr>
             </tbody>
         </table>
-        <p><strong>Przykład dla Best Frames Extraction:</strong></p>        
-        <code>python start.py best_frames_extractor -p &lt;your_port_here&gt; -i &lt;your_input_dir_here&gt; -o &lt;your_output_dir_here&gt; --build</code><br>
+        <p><strong>Przykład dla Best Frames Extraction:</strong></p> 
+        <img src="static/start_example.png">
         <p>Inne domyślne parametry możesz edytować w config.py.</p>
         <blockquote>
             <p><strong style="color: lightblue;">Ułatwienie dla użytkowników Windows:</strong><br>
@@ -187,7 +187,7 @@
                 <ul>
                     <li>Best Frames Extraction:<br><code>POST http://localhost:8100/extractors/best_frames_extractor</code></li>
                     <li>Top Frames Extraction:<br><code>POST http://localhost:8100/extractors/top_images_extractor</code></li>
-                    <li>Current working extractor:<br><code>GET http://localhost:8100/</code></li>
+                    <li>Obecnie pracujący extractor:<br><code>GET http://localhost:8100/</code></li>
                 </ul>
             </li>
             Możesz ewentualnie edytować docker-compose.yaml, jeśli nie chcesz korzystać z ustawień domyślnych.
@@ -218,7 +218,7 @@
         &nbsp&nbsp&nbsp&nbsp<a href="#e2e">e2e</a><br>
     </div>
     <div id="how-it-works">
-    <h2>Jak to działa</h2>
+    <h2>📐 Jak to działa</h2>
     Narzędzie używa modelu zbudowanego zgodnie z zasadami dla modeli
     Neural Image Assessment (NIMA) do określania estetyki obrazów.
     <details id="input">
@@ -271,30 +271,52 @@
     <img src="static/weighted_mean.png" width="700">
     </div>
     <div id="implementation">
-        <h2>Jak to jest zaimplementowane w skrócie</h2>
+        <h2>Implementacja w skrócie</h2>
         <details id="model-architecture">
             <summary><strong>Architektura modelu</strong></summary>
-            <p>The NIMA model uses the InceptionResNetV2 architecture as its base. This architecture is known for its high performance in image classification tasks.</p>
+            <p>
+                Model NIMA używa architektury InceptionResNetV2 jako swojej podstawy.
+                Ta architektura jest znana ze swojej wysokiej wydajności w zadaniach
+                klasyfikacji obrazów.
+            </p>
         </details>
         <details id="weights">
-            <summary><strong>Pre-trained Weights</strong></summary>
-            <p>The model uses pre-trained weights that have been trained on a large dataset (AVA dataset) of images rated for their aesthetic quality. Narzędzie pobiera automatycznie wagi i przechowuje je w voluminie docker do dalszego użytkowania.</p>
+            <summary><strong>Wagi modelu</strong></summary>
+            <p>
+                Model korzysta z wcześniej wytrenowanych wag,
+                wytrenowanych na dużym zbiorze danych (AVA dataset) obrazów
+                ocenionych pod kątem ich jakości estetycznej.
+                Narzędzie automatycznie pobiera wagi i przechowuje je
+                w voluminie Docker do dalszego użytkowania.
+            </p>
         </details>
         <details id="normalization">
-            <summary><strong>Image Normalization</strong></summary>
-            <p>Before feeding images into the model, they are normalized to ensure they are in the correct format and value range.</p>
+            <summary><strong>Normalizacja obrazów</strong></summary>
+            <p>
+                Przed wprowadzeniem obrazów do modelu, są one normalizowane,
+                aby upewnić się, że mają właściwy format i zakres wartości.
+            </p>
         </details>
         <details id="predictions">
             <summary><strong>Przewidywanie przynależności do klas</strong></summary>
-            <p>The model processes the images and returns a vector of 10 probabilities, each representing the likelihood of the image belonging to one of the 10 aesthetic quality classes (from 1 for the lowest quality to 10 for the highest quality).</p>
+            <p>
+                Model przetwarza obrazy i zwraca wektor 10 prawdopodobieństw,
+                z których każde reprezentuje prawdopodobieństwo przynależności
+                obrazu do jednej z 10 klas jakości estetycznej
+                (od 1 dla najniższej jakości do 10 dla najwyższej jakości).
+            </p>
         </details>
         <details id="mean-calculation">
             <summary><strong>Obliczanie średniej ważonej</strong></summary>
-            <p>The final aesthetic score for an image is calculated as the weighted mean of these probabilities, with higher classes having greater weights.</p>
+            <p>
+                Ostateczny wynik estetyczny dla obrazu jest obliczany
+                jako średnia ważona tych prawdopodobieństw,
+                przy czym wyższe klasy mają większe wagi.
+            </p>
         </details>
     </div>
     <div id="1vs2">
-        <h2>v1.0 vs v2.0</h2>
+        <h2>✅ v1.0 vs v2.0</h2>
         <p>
             <code>PerfectFrameAI</code> to narzędzie stworzone na podstawie jednego z mikro serwisów mojego głównego projektu. 
             Określam tamtą wersję jako <code>v1.0</code>.
@@ -302,7 +324,7 @@
         <img src="static/1vs2.png">
     </div>
     <div id="build-with">
-    <h2>🛠️ Build with</h2>
+    <h2>🛠️ Użyte technologie</h2>
     <ul>
         <li>Python - główny język w którym jest napisany projekt.
             Zewnętrzna część <code>PerfectFrameAI</code> używa tylko standardowych biblotek Pythona dla ułatwienia instalacji i kofiguracji narzędzia.</li>
@@ -316,15 +338,15 @@
         <li>pytest - framework w którym napisane są testy.</li>
         <li>docker-py - używany jedynie do testowania integracji Dockera z dołączonym managerem <code>PerfectFrameAI</code>.</li>
         <li>Poetry - do zażądzania zależnościami projektu.</li>
-        <blockquote>Wszystkie używane zależności dostępne są w <a href="pyproject.toml">pyproject.toml.</a></blockquote>
+        <blockquote>Wszystkie używane zależności dostępne są w <a href="https://github.com/BKDDFS/PerfectFrameAI/blob/main/pyproject.toml">pyproject.toml.</a></blockquote>
     </ul>
     </div>
     <div id="uml">
-    <h3>UML</h3>
+    <h2>UML</h2>
     <p>#TODO</p>
     </div>
     <div id="tests">
-        <h3>Tests</h3>
+        <h2>🧪 Tests</h2>
         <img src="static/tests_passed.png">
         <p>
             Testy możesz uruchomić instalując zależności z <code>pyproject.toml</code>
@@ -365,19 +387,19 @@
     </div>
 </div>
 <div id="roadmap">
-    <h2>🎯 Roadmap</h2>
+    <h2>🎯 Roadmapa</h2>
         <p>
-            Below is a list of features that we are planning to implement in the upcoming releases.
-            We welcome contributions and suggestions from the community.
+            Poniżej znajduje się lista funkcji, które planujemy zaimplementować w nadchodzących wersjach.
+            Zapraszamy do współpracy i sugestii społeczność.
         </p>
         <ul>
             <li>
                 Implementacja Nvidia DALI.
                 <ul>
-                    <li>Umożliwi przeniesienia dekodowania klatek (obecnie najdłuższej części) na GPU.</li>
+                    <li>Umożliwi przeniesienie dekodowania klatek (obecnie najdłuższej części) na GPU.</li>
                     <li>Dodatkowo umożliwi operowanie od razu na obiektach Tensor bez dodatkowych konwersji.</li>
                 </ul>
-                Podsumowując dodanie DALI powinno być kolejny poważnym krokiem naprzód,
+                Podsumowując, dodanie DALI powinno być kolejnym poważnym krokiem naprzód,
                 jeśli chodzi o poprawę wydajności.
             </li>
             <li>Przetestowanie działania na starszych wersjach Pythona.</li>
@@ -388,48 +410,54 @@
         </ul>
 </div>
 <div id="contributions">
-    <h2>👋 How to Contribute</h2>
+    <h2>👋 Jak zostać Contributorem</h2>
     <p>
-        We welcome contributions from the community!
-        If you're interested in contributing to this project,
-        please take a moment to read our <a href=".github/CONTRIBUTING.md">Contribution Guide</a>. It includes all the information you need to get started, such as:
+        Jeśli jesteś zainteresowany wkładem w ten projekt,
+        proszę poświęć chwilę na przeczytanie naszego 
+        <a href="https://github.com/BKDDFS/PerfectFrameAI/blob/main/.github/CONTRIBUTING.md">Przewodnika dla contributorów</a>.
+        Zawiera on wszystkie informacje potrzebne do rozpoczęcia, takie jak:
     </p>
     <ul>
-        <li>How to report bugs and submit feature requests</li>
-        <li>Our coding standards and guidelines</li>
-        <li>Instructions for setting up your development environment</li>
-        <li>The process for submitting pull requests</li>
+        <li>Jak zgłaszać błędy i składać prośby o nowe funkcje</li>
+        <li>Nasze standardy i wytyczne dotyczące kodowania</li>
+        <li>Instrukcje dotyczące konfiguracji środowiska developerskiego</li>
+        <li>Proces składania pull requestów</li>
     </ul>
     <p>
-        Your contributions help make this project better, and we appreciate your efforts. Thank you for your support!
+        Twój wkład pomaga uczynić ten projekt lepszym, doceniamy twoje wysiłki. Dziękujemy za wsparcie!
     </p>
 </div>
 <div id="feedback">
-    <h2>❤️ How to Give Feedback</h2>
-    <p>I am looking for feedback on the code quality and design of this project. If you have any suggestions on how to improve the code, please feel free to:</p>
+    <h2>❤️ Feedback</h2>
+    <p>
+        Będę bardzo wdzięczny za feedback na temat jakości mojego kodu i tego projektu. 
+        Jeśli masz jakieś sugestie, proszę:
+    </p>
     <ul>
-        <li>Leave comments on specific lines of code via pull requests.</li>
-        <li>Open an issue to discuss larger changes or general suggestions.</li>
-        <li>Participate in discussions in the 'Discussions' section of this repository.</li>
+        <li>Zostaw komentarze na konkretnych liniach kodu za pomocą pull requestów.</li>
+        <li>
+            Stwórz <a href="https://github.com/BKDDFS/PerfectFrameAI/issues">Issue</a>,
+            aby omówić większe zmiany lub ogólne sugestie.
+        </li>
+        <li>Weź udział w dyskusjach w sekcji „Dyskusje” tego repozytorium.</li>
     </ul>
-    <p>Your insights are invaluable and greatly appreciated as they will help improve the project and my skills as a developer.</p>
-    <blockquote>For more direct communication, you can reach me at <a href="Bartekdawidflis@gmail.com">Bartekdawidflis@gmail.com</a>.</blockquote>
+    <blockquote>W celu bezpośredniej komunikacji, możesz skontaktować się ze mną pod adresem <a href="mailto:Bartekdawidflis@gmail.com">Bartekdawidflis@gmail.com</a>.</blockquote>
 </div>
 <div id="support">
-    <h2>⭐️ Support</h2>
-    <p>Don't forget to leave a star ⭐️.</p>
+    <h2>⭐️ Wsparcie</h2>
+    <p>Nie zapomnij zostawić gwiazdki ⭐️.</p>
 </div>
 <div id="references">
-    <h2>References</h2>
-    Oryginalna publikacja Google Brains przedstawiająca NIMA: 
-            <a href="https://research.google/blog/introducing-nima-neural-image-assessment/">https://research.google/blog/introducing-nima-neural-image-assessment/</a><br>
-    <a href="https://research.google/blog/introducing-nima-neural-image-assessment/">Google Brain Blog Post on NIMA</a>
-    Source of pre-trained weights: <a href="">https://github.com/titu1994/neural-image-assessment</a>
-    </div>
+    <h2>🗃️ Biografia</h2>
+    Oryginalna publikacja Google Brains przedstawiająca NIMA:<br>
+    <a href="https://research.google/blog/introducing-nima-neural-image-assessment/">https://research.google/blog/introducing-nima-neural-image-assessment/</a><br>
+    Wagi wstępnie wytrenowane:<br>
+    <a href="https://github.com/titu1994/neural-image-assessment">https://github.com/titu1994/neural-image-assessment</a>
+</div>
 <div id="licence">
     <h2>📜 Licencja</h2>
     <p>
-        PerfectFrameAI is licensed under the GNU General Public License v3.0.
-        See the <a href="/LICENSE">LICENSE</a> file for more information.
+        PerfectFrameAI jest licencjonowany na podstawie licencji GNU General Public License v3.0.
+        Więcej informacji znajdziesz w pliku <a href="https://github.com/BKDDFS/PerfectFrameAI/blob/main/LICENSE">LICENSE</a>.
     </p>
 </div>
