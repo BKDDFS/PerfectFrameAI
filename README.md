@@ -314,7 +314,7 @@
                 <td class="check">✅</td>
             </tr>
             <tr>
-                <td>Fast and Friendly Setup</td>
+                <td>Fast and Easy Setup</td>
                 <td class="cross">❌</td>
                 <td class="check">✅</td>
             </tr>
