@@ -1,5 +1,5 @@
 <div id="logo">
-    <img src="static/banner.png">
+    <img src="../static/banner.png">
 </div>
 <div id="badges">
     <p align="center">
@@ -33,7 +33,7 @@
 </div>
 <div id="demo">
     <h2>🔎 Demo</h2>
-    <img src="static/demo.gif" width="1000">
+    <img src="../static/demo.gif" width="1000">
     <p>Full demo: <a href="https://youtu.be/FX1modlxeWA">https://youtu.be/FX1modlxeWA</a></p>
 </div>
 <div id="key-features">
@@ -43,7 +43,7 @@
             <strong>Best Frames Extraction 🎞️➜🖼️</strong>
             <blockquote>Wybieranie najlepszych klatek z plików video.</blockquote>
         </summary>
-        <img src="static/start_frames.png" width="350">
+        <img src="../static/start_frames.png" width="350">
         <ol>
             <p>Input: Folder z plikami video <code>.mp4</code>.</p>
             <li>Bierze pierwsze video ze wskazanej lokalizacji.</li>
@@ -65,7 +65,7 @@
             <strong>Top Images Extraction 🖼️➜🖼️</strong>
             <blockquote>Wybieranie najlepszych obrazów z folderu z obrazami.</blockquote>
         </summary>
-        <img src="static/start_images.png" width="350">
+        <img src="../static/start_images.png" width="350">
         <ol>
             <p>Input: Folder z obrazami <code>.jpg</code>.</p>
             <li>Wczytuje obrazy. Obrazy są przetwarzane batchach(seriach).</li>
@@ -106,7 +106,7 @@
             a następnie wybierz <code>Download ZIP</code>
             lub skopiuj adres URL i użyj polecenia <code>git clone</code> w terminalu.
         </blockquote>
-        <img src="static/install.png" width="300">
+        <img src="../static/install.png" width="300">
     </details>
 </div>
 <div id="usage">
@@ -165,7 +165,7 @@
             </tbody>
         </table>
         <p><strong>Przykład dla Best Frames Extraction:</strong></p> 
-        <img src="static/start_example.png">
+        <img src="../static/start_example.png">
         <p>Inne domyślne parametry możesz edytować w config.py.</p>
         <blockquote>
             <p><strong style="color: lightblue;">Ułatwienie dla użytkowników Windows:</strong><br>
@@ -268,7 +268,7 @@
        Obliczając średnią ważoną z tych prawdopodobieństw,
        gdzie wagi to wartości klas (1 do 10):
     </p>
-    <img src="static/weighted_mean.png" width="700">
+    <img src="../static/weighted_mean.png" width="700">
     </div>
     <div id="implementation">
         <h2>Implementacja w skrócie</h2>
@@ -321,7 +321,52 @@
             <code>PerfectFrameAI</code> to narzędzie stworzone na podstawie jednego z mikro serwisów mojego głównego projektu. 
             Określam tamtą wersję jako <code>v1.0</code>.
         </p>
-        <img src="static/1vs2.png">
+        <table>
+            <tr>
+                <th>Feature</th>
+                <th>v1.0</th>
+                <th>v2.0</th>
+            </tr>
+            <tr>
+                <td>CLI</td>
+                <td class="cross">❌</td>
+                <td class="check">✅</td>
+            </tr>
+            <tr>
+                <td>Automatic Installation</td>
+                <td class="cross">❌</td>
+                <td class="check">✅</td>
+            </tr>
+            <tr>
+                <td>Fast and Friendly Setup</td>
+                <td class="cross">❌</td>
+                <td class="check">✅</td>
+            </tr>
+            <tr>
+                <td>Performance</td>
+                <td>+0%</td>
+                <td>+70%</td>
+            </tr>
+            <tr>
+                <td>Size*</td>
+                <td class="cross">12.6 GB</td>
+                <td class="check">8.4 GB</td>
+            </tr>
+            <tr>
+                <td>Open Source</td>
+                <td class="cross">❌</td>
+                <td class="check">✅</td>
+            </tr>
+        </table>
+        <p>*v1.0 all dependencies and model vs v2.0 docker image size + model size</p>
+        <h3>Performance tests comparision</h3>
+        <ul>
+            <h4>Platform:</h4>
+            <li>RTX3070ti (8GB)</li>
+            <li>i5-13600k</li>
+            <li>32GB RAM</li>
+        </ul>
+        <img src="../static/performance.png" height="200">
     </div>
     <div id="build-with">
     <h2>🛠️ Użyte technologie</h2>
@@ -347,7 +392,7 @@
     </div>
     <div id="tests">
         <h2>🧪 Tests</h2>
-        <img src="static/tests_passed.png">
+        <img src="../static/tests_passed.png">
         <p>
             Testy możesz uruchomić instalując zależności z <code>pyproject.toml</code>
             i wpisując w terminal w lokalizacj projektu - <code>pytest</code>.

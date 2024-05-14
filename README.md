@@ -298,7 +298,52 @@
             <code>PerfectFrameAI</code> is a tool created based on one of the microservices of my main project.
             I refer to that version as <code>v1.0</code>.
         </p>
-        <img src="static/1vs2.png">
+        <table>
+            <tr>
+                <th>Feature</th>
+                <th>v1.0</th>
+                <th>v2.0</th>
+            </tr>
+            <tr>
+                <td>CLI</td>
+                <td class="cross">❌</td>
+                <td class="check">✅</td>
+            </tr>
+            <tr>
+                <td>Automatic Installation</td>
+                <td class="cross">❌</td>
+                <td class="check">✅</td>
+            </tr>
+            <tr>
+                <td>Fast and Friendly Setup</td>
+                <td class="cross">❌</td>
+                <td class="check">✅</td>
+            </tr>
+            <tr>
+                <td>Performance</td>
+                <td>+0%</td>
+                <td>+70%</td>
+            </tr>
+            <tr>
+                <td>Size*</td>
+                <td class="cross">12.6 GB</td>
+                <td class="check">8.4 GB</td>
+            </tr>
+            <tr>
+                <td>Open Source</td>
+                <td class="cross">❌</td>
+                <td class="check">✅</td>
+            </tr>
+        </table>
+        <p>*v1.0 all dependencies and model vs v2.0 docker image size + model size</p>
+        <h3>Performance tests comparision</h3>
+        <ul>
+            <h4>Platform:</h4>
+            <li>RTX3070ti (8GB)</li>
+            <li>i5-13600k</li>
+            <li>32GB RAM</li>
+        </ul>
+        <img src="static/performance.png" height="200">
     </div>
     <div id="build-with">
     <h2>🛠️ Built with</h2>
