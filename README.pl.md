@@ -214,7 +214,7 @@
         </p>
         <img src="static/1vs2.png">
     </div>
-    <div id="tech-stack">
+    <div id="build-with">
     <h3>🛠️ Build with</h3>
     <ul>
         <li>Python - główny język w którym jest napisany projekt.
@@ -236,7 +236,18 @@
     <h3># TODO</h3>
     </div>
     <div id="tests">
-    <h3># TODO</h3>
+    <h3>Tests</h3>
+    Testy możesz uruchomić instalując zależności z pyproject.toml i wpisując w testminal w lokalizacj projektu:
+    pytest
+    Testy są podzielone na testy extractor_service i testy dla service_manager.
+    W pliku common.py znajdują się pliki wpółdzielone przez testy i potrzebne do ich działania.
+    <p>
+    Każdy moduł ma swoje testy jednostkowe.
+    Testują one każdą z metod i funkcji dostępnych w modułach.
+    </p>
+    <details>
+        <summary></summary>
+    </details>
 </div>
     <div id="performance">
     <h3># TODO</h3>
@@ -270,25 +281,20 @@
 </div>
 <div id="contributions">
     <h2>👋 How to Contribute</h2>
-    <p>Your contributions are always welcome! Here's how you can contribute:</p>
+    <p>
+        We welcome contributions from the community!
+        If you're interested in contributing to this project,
+        please take a moment to read our <a href=".github/CONTRIBUTING.md">Contribution Guide</a>. It includes all the information you need to get started, such as:
+    </p>
     <ul>
-        <li><strong>Reporting bugs:</strong> Please use the GitHub Issues to report any bugs.</li>
-        <li>
-            <strong>Submitting changes:</strong>
-            Fork the repo, create a new branch for your contributions, and send a pull request.
-            Make sure your code adheres to
-            the coding standards of the project and includes tests if applicable.
-        </li>
-        <li>
-            <strong>Join the discussion:</strong> 
-            Participate in discussions and contribute to decisions about
-            the future of the project.
-        </li>
+        <li>How to report bugs and submit feature requests</li>
+        <li>Our coding standards and guidelines</li>
+        <li>Instructions for setting up your development environment</li>
+        <li>The process for submitting pull requests</li>
     </ul>
-    <blockquote>
-        Please read our <a href="">Contributing Guide</a> to understand
-        our expectations for behavior from all contributors.
-    </blockquote>
+    <p>
+        Your contributions help make this project better, and we appreciate your efforts. Thank you for your support!
+    </p>
 </div>
 <div id="feedback">
     <h2>❤️ How to Give Feedback</h2>
@@ -300,6 +306,10 @@
     </ul>
     <p>Your insights are invaluable and greatly appreciated as they will help improve the project and my skills as a developer.</p>
     <blockquote>For more direct communication, you can reach me at <a href="Bartekdawidflis@gmail.com">Bartekdawidflis@gmail.com</a>.</blockquote>
+</div>
+<div id="support">
+    <h2>⭐️ Support</h2>
+    <p>Don't forget to leave a star ⭐️.</p>
 </div>
 <div id="licence">
     <h2>📜 Licencja</h2>
