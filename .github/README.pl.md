@@ -181,7 +181,7 @@
         </summary>
         <p>Docker Compose Docs: <a href="https://docs.docker.com/compose/">https://docs.docker.com/compose/</a></p>
         <ol>
-            <li>Uruchom service: <br><code>docker-compose up --build -d</code></li>
+            <li>Uruchom serwis: <br><code>docker-compose up --build -d</code></li>
             <li>Wyślij zapytanie pod wybrany endpoint.
             <p><strong>Przykładowe zapytania:</strong></p>
                 <ul>
@@ -205,16 +205,16 @@
         &nbsp&nbsp&nbsp&nbsp<a href="#calculating-mean">Obliczanie ostatecznej oceny obrazu</a><br>
         <a href="#implementation">Jak to jest zaimplementowane w skrócie</a><br>
         &nbsp&nbsp&nbsp&nbsp<a href="#model-architecture">Architektura modelu</a><br>
-        &nbsp&nbsp&nbsp&nbsp<a href="#weights">Pre-trained Weights</a><br>
+        &nbsp&nbsp&nbsp&nbsp<a href="#weights">Wagi modelu</a><br>
         &nbsp&nbsp&nbsp&nbsp<a href="#normalization">Normalizacja obrazów</a><br>
         &nbsp&nbsp&nbsp&nbsp<a href="#predictions">Przewidywanie przynależności do klas</a><br>
         &nbsp&nbsp&nbsp&nbsp<a href="#mean-calculation">Obliczanie średniej ważonej</a><br>
         <a href="#1vs2">v1.0 vs v2.0</a><br>
         <a href="#build-with">Użyte technologie</a><br>
         <a href="#uml">UML</a><br>
-        <a href="#tests">Tests</a><br>
-        &nbsp&nbsp&nbsp&nbsp<a href="#unit">unit</a><br>
-        &nbsp&nbsp&nbsp&nbsp<a href="#integration">integration</a><br>
+        <a href="#tests">Testy</a><br>
+        &nbsp&nbsp&nbsp&nbsp<a href="#unit">jednostkowe</a><br>
+        &nbsp&nbsp&nbsp&nbsp<a href="#integration">integracyjne</a><br>
         &nbsp&nbsp&nbsp&nbsp<a href="#e2e">e2e</a><br>
     </div>
     <div id="how-it-works">
@@ -391,7 +391,7 @@
     <p>#TODO</p>
     </div>
     <div id="tests">
-        <h2>🧪 Tests</h2>
+        <h2>🧪 Testy</h2>
         <img src="../static/tests_passed.png">
         <p>
             Testy możesz uruchomić instalując zależności z <code>pyproject.toml</code>
@@ -403,7 +403,7 @@
             W pliku common.py znajdują się pliki wpółdzielone przez testy i potrzebne do ich działania.
         </blockquote>
         <details id="unit">
-            <summary>unit</summary>
+            <summary>jednostkowe</summary>
             <p>
             Każdy moduł ma swoje testy jednostkowe.
             Testują one każdą z metod i funkcji dostępnych w modułach.
@@ -411,7 +411,7 @@
             </p>
         </details>
         <details id="integration">
-            <summary>integration</summary>
+            <summary>integracyjne</summary>
             <ul>
                 <li>Testowanie integracji docker_manager z Dockerem.</li>
                 <li>Testowanie integracji z parserem.</li>

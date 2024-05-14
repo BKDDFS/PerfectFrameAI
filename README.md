@@ -49,7 +49,7 @@
             <li>Takes the first video from the specified location.</li>
             <li>
                 Splits the video into frames.
-                Frames are taken every 1 second of the video.
+                Frames are taken at 1-second intervals.
                 Frames are processed in batches.
             </li>
             <li>Evaluates all frames in the batch using an AI model and assigns them a numerical score.</li>
@@ -85,7 +85,7 @@
         <h3>System Requirements:</h3>
         <ul>
             <li>Docker</li>
-            <li>Python ^3.10 (method 1 only)</li>
+            <li>Python 3.10 or higher (method 1 only)</li>
             <li>Nvidia GPU (recommended)</li>
             <li>10 GB free disk space</li>
         </ul> 
@@ -166,7 +166,7 @@
         </table>
         <p><strong>Example for Best Frames Extraction:</strong></p> 
         <img src="static/start_example.png">
-        <p>You can edit other default parameters in config.py.</p>
+        <p>YYou can edit other default parameters in <code>config.py</code>.</p>
         <blockquote>
             <p><strong style="color: lightblue;">Ease of use for Windows users:</strong><br>
             If you are using Windows, you can use the included <code>quick_demo.bat</code> file,
@@ -252,8 +252,7 @@
     </p>
     <h4>Example:</h4>
     <p>
-       Let's assume the model returns the following probability vector
-       for one image:
+       Suppose the model returns the following probability vector for one image:
     </p>
     <pre>[0.1, 0.05, 0.05, 0.1, 0.2, 0.15, 0.1, 0.1, 0.1, 0.05]</pre>
     This means that the image has:
@@ -438,10 +437,10 @@
         please take a moment to read our <a href="https://github.com/BKDDFS/PerfectFrameAI/blob/main/.github/CONTRIBUTING.md">Contribution Guide</a>. It includes all the information you need to get started, such as:
     </p>
     <ul>
-        <li>How to report bugs and submit feature requests</li>
-        <li>Our coding standards and guidelines</li>
-        <li>Instructions for setting up your development environment</li>
-        <li>The process for submitting pull requests</li>
+        <li>How to report bugs and submit feature requests.</li>
+        <li>Our coding standards and guidelines.</li>
+        <li>Instructions for setting up your development environment.</li>
+        <li>The process for submitting pull requests.</li>
     </ul>
     <p>
         Your contributions help make this project better, and we appreciate your efforts. Thank you for your support!
@@ -455,7 +454,7 @@
         <li>Open an <a href="https://github.com/BKDDFS/PerfectFrameAI/issues">Issue</a> to discuss larger changes or general suggestions.</li>
         <li>Participate in discussions in the 'Discussions' section of this repository.</li>
     </ul>
-    <p>Your insights are invaluable and greatly appreciated as they will help improve the project and my skills as a developer.</p>
+    <p>Your insights are invaluable and greatly appreciated, as they will help improve both the project and my skills as a developer.</p>
     <blockquote>For more direct communication, you can reach me at <a href="Bartekdawidflis@gmail.com">Bartekdawidflis@gmail.com</a>.</blockquote>
 </div>
 <div id="support">
