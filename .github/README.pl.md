@@ -358,10 +358,10 @@
                 <td class="check">✅</td>
             </tr>
         </table>
-        <p>*v1.0 all dependencies and model vs v2.0 docker image size + model size</p>
+        <p>*v1.0 wszystkie zależności i model vs v2.0 docker image + model</p>
         <h3>Performance tests comparision</h3>
         <ul>
-            <h4>Platform:</h4>
+            <h4>Platforma:</h4>
             <li>RTX3070ti (8GB)</li>
             <li>i5-13600k</li>
             <li>32GB RAM</li>
