@@ -9,5 +9,5 @@ input_directory/*
 output_directory/*
 test_video.mp4
 nima.h5
-best_frames/*
-top_images/*
+common/test_files/best_frames/*
+common/test_files/top_images/*
