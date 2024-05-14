@@ -203,7 +203,6 @@
         &nbsp&nbsp&nbsp&nbsp<a href="#output">Wyniki oceniania obrazów</a><br>
         &nbsp&nbsp&nbsp&nbsp<a href="#classes">Klasy estetyczne</a><br>
         &nbsp&nbsp&nbsp&nbsp<a href="#calculating-mean">Obliczanie ostatecznej oceny obrazu</a><br>
-        &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp<a href="#calculating-mean-example">Przykład</a><br>
         <a href="#implementation">Jak to jest zaimplementowane w skrócie</a><br>
         &nbsp&nbsp&nbsp&nbsp<a href="#model-architecture">Architektura modelu</a><br>
         &nbsp&nbsp&nbsp&nbsp<a href="#weights">Pre-trained Weights</a><br>
@@ -214,6 +213,9 @@
         <a href="#build-with">Użyte technologie</a><br>
         <a href="#uml">UML</a><br>
         <a href="#tests">Tests</a><br>
+        &nbsp&nbsp&nbsp&nbsp<a href="#unit">unit</a><br>
+        &nbsp&nbsp&nbsp&nbsp<a href="#integration">integration</a><br>
+        &nbsp&nbsp&nbsp&nbsp<a href="#e2e">e2e</a><br>
     </div>
     <div id="how-it-works">
     <h2>Jak to działa</h2>
@@ -249,7 +251,7 @@
         ważonej z wyników dla każdej z klas, gdzie wagi są 
         wartościami klas od 1 do 10.
     </p>
-    <h4 id="calculating-mean-example">Przykład:</h4>
+    <h4>Przykład:</h4>
     <p>
        Załóżmy, że model zwraca następujący wektor 
        prawdopodobieństw dla jednego obrazu:
@@ -318,21 +320,48 @@
     </ul>
     </div>
     <div id="uml">
-    <h3># TODO</h3>
+    <h3>UML</h3>
+    <p>#TODO</p>
     </div>
     <div id="tests">
-    <h3>Tests</h3>
-    Testy możesz uruchomić instalując zależności z pyproject.toml i wpisując w testminal w lokalizacj projektu:
-    pytest
-    Testy są podzielone na testy extractor_service i testy dla service_manager.
-    W pliku common.py znajdują się pliki wpółdzielone przez testy i potrzebne do ich działania.
-    <p>
-    Każdy moduł ma swoje testy jednostkowe.
-    Testują one każdą z metod i funkcji dostępnych w modułach.
-    </p>
-    <details>
-        <summary></summary>
-    </details>
+        <h3>Tests</h3>
+        <img src="static/tests_passed.png">
+        <p>
+            Testy możesz uruchomić instalując zależności z <code>pyproject.toml</code>
+            i wpisując w terminal w lokalizacj projektu - <code>pytest</code>.
+        </p>
+        <blockquote>
+            Proszę zwrócić uwagę, że w projekcie są dwa foldery <code>tests/</code>.
+            <code>extractor_service</code> i <code>service_initializer</code> mają testy osobno.
+            W pliku common.py znajdują się pliki wpółdzielone przez testy i potrzebne do ich działania.
+        </blockquote>
+        <details id="unit">
+            <summary>unit</summary>
+            <p>
+            Każdy moduł ma swoje testy jednostkowe.
+            Testują one każdą z metod i funkcji dostępnych w modułach.
+            Test coverage wynosi 100% (testy w całości pokrywają logikę biznesową).
+            </p>
+        </details>
+        <details id="integration">
+            <summary>integration</summary>
+            <ul>
+                <li>Testowanie integracji docker_manager z Dockerem.</li>
+                <li>Testowanie integracji z parserem.</li>
+                <li>Testowanie integracji logiki biznesowej z modelem NIMA.</li>
+                <li>Testowanie integracji z FastAPI.</li>
+                <li>Testowanie integracji z OpenCV.</li>
+                <li>Testowanie integracji z FFMPEG.</li>
+                <li>Testowanie integracji modułów między sobą na różne sposoby...</li>
+            </ul>
+        </details>
+        <details id="e2e">
+            <summary>e2e</summary>
+            <ul>
+                <li>Testowanie działania extractor_service jako całość.</li>
+                <li>Testowanie działania extractor_service+service_initializer jako całość.</li>
+            </ul>
+        </details>
     </div>
 </div>
 <div id="roadmap">
