@@ -333,22 +333,22 @@
                 <td class="check">✅</td>
             </tr>
             <tr>
-                <td>Automatic Installation</td>
+                <td>Zautomatyzowana instalacja</td>
                 <td class="cross">❌</td>
                 <td class="check">✅</td>
             </tr>
             <tr>
-                <td>Fast and Friendly Setup</td>
+                <td>Szybki i Prosty Setup</td>
                 <td class="cross">❌</td>
                 <td class="check">✅</td>
             </tr>
             <tr>
-                <td>Performance</td>
+                <td>Wydajność</td>
                 <td>+0%</td>
                 <td>+70%</td>
             </tr>
             <tr>
-                <td>Size*</td>
+                <td>Rozmiar*</td>
                 <td class="cross">12.6 GB</td>
                 <td class="check">8.4 GB</td>
             </tr>
@@ -359,7 +359,7 @@
             </tr>
         </table>
         <p>*v1.0 wszystkie zależności i model vs v2.0 docker image + model</p>
-        <h3>Performance tests comparision</h3>
+        <h3>Porównanie wydajności:</h3>
         <ul>
             <h4>Platforma:</h4>
             <li>RTX3070ti (8GB)</li>
@@ -496,7 +496,7 @@
     <h2>🗃️ Biografia</h2>
     Oryginalna publikacja Google Brains przedstawiająca NIMA:<br>
     <a href="https://research.google/blog/introducing-nima-neural-image-assessment/">https://research.google/blog/introducing-nima-neural-image-assessment/</a><br>
-    Wagi wstępnie wytrenowane:<br>
+    Wagi do modelu:<br>
     <a href="https://github.com/titu1994/neural-image-assessment">https://github.com/titu1994/neural-image-assessment</a>
 </div>
 <div id="licence">
