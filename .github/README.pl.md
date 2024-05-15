@@ -212,7 +212,6 @@
         &nbsp&nbsp&nbsp&nbsp<a href="#mean-calculation">Obliczanie średniej ważonej</a><br>
         <a href="#1vs2">v1.0 vs v2.0</a><br>
         <a href="#build-with">Użyte technologie</a><br>
-        <a href="#uml">UML</a><br>
         <a href="#tests">Testy</a><br>
         &nbsp&nbsp&nbsp&nbsp<a href="#unit">jednostkowe</a><br>
         &nbsp&nbsp&nbsp&nbsp<a href="#integration">integracyjne</a><br>
@@ -390,10 +389,6 @@
         <li>Poetry - do zażądzania zależnościami projektu.</li>
         <blockquote>Wszystkie używane zależności dostępne są w <a href="https://github.com/BKDDFS/PerfectFrameAI/blob/main/pyproject.toml">pyproject.toml.</a></blockquote>
     </ul>
-    </div>
-    <div id="uml">
-    <h2>UML</h2>
-    <p>#TODO</p>
     </div>
     <div id="tests">
         <h2>🧪 Testy</h2>
