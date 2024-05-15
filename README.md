@@ -102,11 +102,11 @@
     </details>
     <details>
         <summary>Download <code>PerfectFrameAI</code></summary>
-        <blockquote>
+        <p>
             To download the code from the GitHub repository, click the <code>Code</code> button,
             then select <code>Download ZIP</code>
             or copy the URL and use the <code>git clone</code> command in the terminal.
-        </blockquote>
+        </p>
         <img src="static/install.png" width="300">
     </details>
 </div>
@@ -117,9 +117,17 @@
             <strong style="font-size: 20px;"> 🚀 Method 1 - CLI </strong>
             <blockquote><p><i>Requires Python. Simple and convenient.</i></p></blockquote>
         </summary>
+         <blockquote>
+            <p>
+                <strong>Hint for Windows users:</strong><br>
+                As a Windows user you can use <code>quick_demo.bat</code> file.
+                It will run <code>best_frames_extractor</code> with the default values. Just double click on it.
+                You can modify default values in config.py to adjust the application to your needs.
+            </p>
+        </blockquote>
         <p>Run <code>start.py</code> from the terminal.</p>
-        <p><strong>Example for Best Frames Extraction:</strong></p>
-        <code>python start.py best_frames_extractor</code>
+        <p><strong>Example (Best Frames Extraction, default values):</strong></p>
+        <img src="static/start_frames.png" width="350"><br>
         <table id="flags">
             <caption><strong>Available Flags</strong></caption>
             <thead>
@@ -165,15 +173,9 @@
                 </tr>
             </tbody>
         </table>
-        <p><strong>Example for Best Frames Extraction:</strong></p> 
+        <p><strong>Example (Best Frames Extraction):</strong></p> 
         <img src="static/start_example.png">
-        <p>YYou can edit other default parameters in <code>config.py</code>.</p>
-        <blockquote>
-            <p><strong style="color: lightblue;">Ease of use for Windows users:</strong><br>
-            If you are using Windows, you can use the included <code>quick_demo.bat</code> file,
-            which will run best_frames_extractor with the [default values] saved in config.py.
-            You can modify config.py to adjust the application to your needs.</p>
-        </blockquote>
+        <p>You can edit other default parameters in <code>config.py</code>.</p>
     </details>
     <details id="method2">
         <summary>
