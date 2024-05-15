@@ -35,6 +35,7 @@
     <h2>🔎 Demo</h2>
     <img src="../static/demo.gif" width="1000">
     <p>Full demo: <a href="https://youtu.be/FX1modlxeWA">https://youtu.be/FX1modlxeWA</a></p>
+    <img src="../static/presentation.png" width="1000">
 </div>
 <div id="key-features">
     <h2>🔑 Kluczowe funkcje:</h2>
@@ -211,7 +212,6 @@
         &nbsp&nbsp&nbsp&nbsp<a href="#mean-calculation">Obliczanie średniej ważonej</a><br>
         <a href="#1vs2">v1.0 vs v2.0</a><br>
         <a href="#build-with">Użyte technologie</a><br>
-        <a href="#uml">UML</a><br>
         <a href="#tests">Testy</a><br>
         &nbsp&nbsp&nbsp&nbsp<a href="#unit">jednostkowe</a><br>
         &nbsp&nbsp&nbsp&nbsp<a href="#integration">integracyjne</a><br>
@@ -219,8 +219,11 @@
     </div>
     <div id="how-it-works">
     <h2>📐 Jak to działa</h2>
-    Narzędzie używa modelu zbudowanego zgodnie z zasadami dla modeli
-    Neural Image Assessment (NIMA) do określania estetyki obrazów.
+    <p>
+        Narzędzie używa modelu zbudowanego zgodnie z zasadami dla modeli
+        Neural Image Assessment (NIMA) do określania estetyki obrazów.
+    </p>
+    <img src="../static/evaluation.png" width="700" style="border-radius: 10px;">
     <details id="input">
        <summary style="font-size: 20px;"><strong>Input modelu</strong></summary>
        <p>Model przyjmuje odpowiednio znormalizowane obrazy w batchu Tensor.</p>
@@ -271,7 +274,8 @@
     <img src="../static/weighted_mean.png" width="700">
     </div>
     <div id="implementation">
-        <h2>Implementacja w skrócie</h2>
+        <h2>📖 Implementacja w skrócie</h2>
+        <img src="../static/implementation.png" width="700" style="border-radius: 10px;">
         <details id="model-architecture">
             <summary><strong>Architektura modelu</strong></summary>
             <p>
@@ -385,10 +389,6 @@
         <li>Poetry - do zażądzania zależnościami projektu.</li>
         <blockquote>Wszystkie używane zależności dostępne są w <a href="https://github.com/BKDDFS/PerfectFrameAI/blob/main/pyproject.toml">pyproject.toml.</a></blockquote>
     </ul>
-    </div>
-    <div id="uml">
-    <h2>UML</h2>
-    <p>#TODO</p>
     </div>
     <div id="tests">
         <h2>🧪 Testy</h2>

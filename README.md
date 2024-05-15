@@ -29,12 +29,13 @@
 <div id="description">
     In a world saturated with video content, every second has the potential to become an unforgettable shot.
     <code>PerfectFrameAI</code> is a tool that uses artificial intelligence to analyze video materials
-    and automatically save the best frames. 
+    and automatically save the best frames.
 </div>
 <div id="demo">
     <h2>🔎 Demo</h2>
     <img src="static/demo.gif" width="1000">
     <p>Full demo: <a href="https://youtu.be/FX1modlxeWA">https://youtu.be/FX1modlxeWA</a></p>
+    <img src="static/presentation.png" width="700">
 </div>
 <div id="key-features">
     <h2>🔑 Key Features:</h2>
@@ -211,7 +212,6 @@
         &nbsp&nbsp&nbsp&nbsp<a href="#mean-calculation">Weighted Mean Calculation</a><br>
         <a href="#1vs2">v1.0 vs v2.0</a><br>
         <a href="#build-with">Build with</a><br>
-        <a href="#uml">UML</a><br>
         <a href="#tests">Tests</a><br>
         &nbsp&nbsp&nbsp&nbsp<a href="#unit">unit</a><br>
         &nbsp&nbsp&nbsp&nbsp<a href="#integration">integration</a><br>
@@ -219,7 +219,12 @@
     </div>
     <div id="how-it-works">
     <h2>📐 How it Works</h2>
-    The tool uses a model built according to the principles of Neural Image Assessment (NIMA) models to determine the aesthetics of images.
+    <p>
+    The tool uses a model built according to the principles
+    of Neural Image Assessment (NIMA) models to determine the
+    aesthetics of images.
+    </p>
+    <img src="static/evaluation.png" width="700" style="border-radius: 10px;">
     <details id="input">
        <summary style="font-size: 20px;"><strong>Model Input</strong></summary>
        <p>The model accepts properly normalized images in a Tensor batch.</p>
@@ -270,6 +275,7 @@
     </div>
     <div id="implementation">
         <h2>📖 Implementation in Brief</h2>
+        <img src="static/implementation.png" width="700" style="border-radius: 10px;">
         <details id="model-architecture">
             <summary><strong>Model Architecture</strong></summary>
             <p>The NIMA model uses the InceptionResNetV2 architecture as its base. This architecture is known for its high performance in image classification tasks.</p>
@@ -297,7 +303,7 @@
             <code>PerfectFrameAI</code> is a tool created based on one of the microservices of my main project.
             I refer to that version as <code>v1.0</code>.
         </p>
-        <table>
+        <table >
             <tr>
                 <th>Feature</th>
                 <th>v1.0</th>
@@ -362,13 +368,9 @@
         <blockquote>All dependencies are available in the <a href="https://github.com/BKDDFS/PerfectFrameAI/blob/main/pyproject.toml">pyproject.toml</a>.</blockquote>
     </ul>
     </div>
-    <div id="uml">
-    <h2>UML</h2>
-    <p>#TODO</p>
-    </div>
     <div id="tests">
         <h2>🧪 Tests</h2>
-        <img src="static/tests_passed.png">
+        <img src="static/tests_passed.png" width="1000" style="border-radius: 10px;">
         <p>
             You can run the tests by installing the dependencies from <code>pyproject.toml</code>
             and typing in the terminal in the project location - <code>pytest</code>.
