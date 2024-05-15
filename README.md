@@ -212,7 +212,6 @@
         &nbsp&nbsp&nbsp&nbsp<a href="#mean-calculation">Weighted Mean Calculation</a><br>
         <a href="#1vs2">v1.0 vs v2.0</a><br>
         <a href="#build-with">Build with</a><br>
-        <a href="#uml">UML</a><br>
         <a href="#tests">Tests</a><br>
         &nbsp&nbsp&nbsp&nbsp<a href="#unit">unit</a><br>
         &nbsp&nbsp&nbsp&nbsp<a href="#integration">integration</a><br>
@@ -369,13 +368,9 @@
         <blockquote>All dependencies are available in the <a href="https://github.com/BKDDFS/PerfectFrameAI/blob/main/pyproject.toml">pyproject.toml</a>.</blockquote>
     </ul>
     </div>
-    <div id="uml">
-    <h2>UML</h2>
-    <p>#TODO</p>
-    </div>
     <div id="tests">
         <h2>🧪 Tests</h2>
-        <img src="static/tests_passed.png" width="1000" style="border-radius: 10px;>
+        <img src="static/tests_passed.png" width="1000" style="border-radius: 10px;">
         <p>
             You can run the tests by installing the dependencies from <code>pyproject.toml</code>
             and typing in the terminal in the project location - <code>pytest</code>.
