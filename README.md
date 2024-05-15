@@ -35,7 +35,7 @@
     <h2>🔎 Demo</h2>
     <img src="static/demo.gif" width="1000">
     <p>Full demo: <a href="https://youtu.be/FX1modlxeWA">https://youtu.be/FX1modlxeWA</a></p>
-    <img src="static/frames.png" width="700">
+    <img src="static/presentation.png" width="700">
 </div>
 <div id="key-features">
     <h2>🔑 Key Features:</h2>
@@ -225,7 +225,7 @@
     of Neural Image Assessment (NIMA) models to determine the
     aesthetics of images.
     </p>
-    <img src="static/evaluation.png" width="700">
+    <img src="static/evaluation.png" width="700" style="border-radius: 10px;">
     <details id="input">
        <summary style="font-size: 20px;"><strong>Model Input</strong></summary>
        <p>The model accepts properly normalized images in a Tensor batch.</p>
@@ -276,7 +276,7 @@
     </div>
     <div id="implementation">
         <h2>📖 Implementation in Brief</h2>
-        <img src="static/implementation.png" width="700">
+        <img src="static/implementation.png" width="700" style="border-radius: 10px;">
         <details id="model-architecture">
             <summary><strong>Model Architecture</strong></summary>
             <p>The NIMA model uses the InceptionResNetV2 architecture as its base. This architecture is known for its high performance in image classification tasks.</p>
@@ -304,7 +304,7 @@
             <code>PerfectFrameAI</code> is a tool created based on one of the microservices of my main project.
             I refer to that version as <code>v1.0</code>.
         </p>
-        <table>
+        <table >
             <tr>
                 <th>Feature</th>
                 <th>v1.0</th>
@@ -375,7 +375,7 @@
     </div>
     <div id="tests">
         <h2>🧪 Tests</h2>
-        <img src="static/tests_passed.png">
+        <img src="static/tests_passed.png" width="1000" style="border-radius: 10px;>
         <p>
             You can run the tests by installing the dependencies from <code>pyproject.toml</code>
             and typing in the terminal in the project location - <code>pytest</code>.
