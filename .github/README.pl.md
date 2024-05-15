@@ -35,7 +35,7 @@
     <h2>🔎 Demo</h2>
     <img src="../static/demo.gif" width="1000">
     <p>Full demo: <a href="https://youtu.be/FX1modlxeWA">https://youtu.be/FX1modlxeWA</a></p>
-    <img src="../static/frames.png" width="700">
+    <img src="../static/presentation.png" width="1000">
 </div>
 <div id="key-features">
     <h2>🔑 Kluczowe funkcje:</h2>
@@ -224,7 +224,7 @@
         Narzędzie używa modelu zbudowanego zgodnie z zasadami dla modeli
         Neural Image Assessment (NIMA) do określania estetyki obrazów.
     </p>
-    <img src="../static/evaluation.png" width="700">
+    <img src="../static/evaluation.png" width="700" style="border-radius: 10px;">
     <details id="input">
        <summary style="font-size: 20px;"><strong>Input modelu</strong></summary>
        <p>Model przyjmuje odpowiednio znormalizowane obrazy w batchu Tensor.</p>
@@ -276,7 +276,7 @@
     </div>
     <div id="implementation">
         <h2>📖 Implementacja w skrócie</h2>
-        <img src="../static/implementation.png" width="700">
+        <img src="../static/implementation.png" width="700" style="border-radius: 10px;">
         <details id="model-architecture">
             <summary><strong>Architektura modelu</strong></summary>
             <p>
