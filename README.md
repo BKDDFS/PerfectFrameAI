@@ -29,12 +29,13 @@
 <div id="description">
     In a world saturated with video content, every second has the potential to become an unforgettable shot.
     <code>PerfectFrameAI</code> is a tool that uses artificial intelligence to analyze video materials
-    and automatically save the best frames. 
+    and automatically save the best frames.
 </div>
 <div id="demo">
     <h2>🔎 Demo</h2>
     <img src="static/demo.gif" width="1000">
     <p>Full demo: <a href="https://youtu.be/FX1modlxeWA">https://youtu.be/FX1modlxeWA</a></p>
+    <img src="static/frames.png" width="700">
 </div>
 <div id="key-features">
     <h2>🔑 Key Features:</h2>
@@ -219,7 +220,12 @@
     </div>
     <div id="how-it-works">
     <h2>📐 How it Works</h2>
-    The tool uses a model built according to the principles of Neural Image Assessment (NIMA) models to determine the aesthetics of images.
+    <p>
+    The tool uses a model built according to the principles
+    of Neural Image Assessment (NIMA) models to determine the
+    aesthetics of images.
+    </p>
+    <img src="static/evaluation.png" width="700">
     <details id="input">
        <summary style="font-size: 20px;"><strong>Model Input</strong></summary>
        <p>The model accepts properly normalized images in a Tensor batch.</p>
@@ -270,6 +276,7 @@
     </div>
     <div id="implementation">
         <h2>📖 Implementation in Brief</h2>
+        <img src="static/implementation.png" width="700">
         <details id="model-architecture">
             <summary><strong>Model Architecture</strong></summary>
             <p>The NIMA model uses the InceptionResNetV2 architecture as its base. This architecture is known for its high performance in image classification tasks.</p>
