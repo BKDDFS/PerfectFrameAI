@@ -47,10 +47,10 @@ def test_start_various_args(mock_check_directory, arg_set):
 
     service = ServiceInitializer(user_input)
 
-    assert service.extractor_name == arg_set["extractor_name"]
-    assert service.input_directory == arg_set["input"]
-    assert service.output_directory == arg_set["output"]
-    assert service.port == arg_set["port"]
+    assert service._extractor_name == arg_set["extractor_name"]
+    assert service._input_directory == arg_set["input"]
+    assert service._output_directory == arg_set["output"]
+    assert service._port == arg_set["port"]
     mock_check_directory.assert_any_call(arg_set["input"])
     mock_check_directory.assert_any_call(arg_set["output"])
 
@@ -67,7 +67,7 @@ def test_check_valid_directory():
 
 @patch.object(time, "time")
 def test_run_extractor(mock_time, service):
-    test_url = f"http://localhost:{service.port}/extractors/{service.extractor_name}"
+    test_url = f"http://localhost:{service._port}/extractors/{service._extractor_name}"
     test_method = "POST"
     start_time = 100
     mock_time.side_effect = [start_time, start_time + 1, start_time + 2, start_time + 3]

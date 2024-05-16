@@ -36,10 +36,10 @@ class ServiceInitializer:
     """
     def __init__(self, user_input: argparse.Namespace) -> None:
         """Initializes the service initializer by taking and validating user input."""
-        self.input_directory = self._check_directory(user_input.input_dir)
-        self.output_directory = self._check_directory(user_input.output_dir)
-        self.extractor_name = user_input.extractor_name
-        self.port = user_input.port
+        self._input_directory = self._check_directory(user_input.input_dir)
+        self._output_directory = self._check_directory(user_input.output_dir)
+        self._extractor_name = user_input.extractor_name
+        self._port = user_input.port
 
     @staticmethod
     def _check_directory(directory: str) -> Path:
@@ -65,7 +65,7 @@ class ServiceInitializer:
     def run_extractor(self, extractor_url: Union[str, None] = None) -> None:
         """Send POST request to local port extractor service to start chosen extractor."""
         if not extractor_url:
-            extractor_url = f"http://localhost:{self.port}/extractors/{self.extractor_name}"
+            extractor_url = f"http://localhost:{self._port}/extractors/{self._extractor_name}"
         req = Request(extractor_url, method="POST")
         start_time = time.time()
         while True:
