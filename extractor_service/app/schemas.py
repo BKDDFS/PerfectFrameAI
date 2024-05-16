@@ -29,6 +29,7 @@ class ExtractorConfig(BaseModel):
         compering_group_size (int): Maximum number of images in a group to compare for finding the best one.
         top_images_percent (float): Percentage threshold to determine the top images based on scores.
         images_output_format (str): Format for saving output images, e.g., '.jpg', '.png'.
+        target_image_size (tuple[int, int]): Images will be normalized to this size.
         weights_directory (Path | str): Directory path where model weights are stored.
         weights_filename (str): The filename of the model weights file to be loaded.
         weights_repo_url (str): URL to the repository where model weights can be downloaded.
@@ -42,6 +43,7 @@ class ExtractorConfig(BaseModel):
     compering_group_size: int = 5
     top_images_percent: float = 90.0
     images_output_format: str = ".jpg"
+    target_image_size: tuple[int, int] = (224, 224)
     weights_directory: Path | str = Path.home() / ".cache" / "huggingface"
     weights_filename: str = "weights.h5"
     weights_repo_url: str = "https://huggingface.co/BKDDFS/nima_weights/resolve/main/"

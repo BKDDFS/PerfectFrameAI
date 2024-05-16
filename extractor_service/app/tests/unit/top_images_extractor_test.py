@@ -5,6 +5,7 @@ import numpy as np
 import pytest
 
 from app.extractors import TopImagesExtractor
+from app.image_processors import OpenCVImage
 
 
 @pytest.fixture()
@@ -13,8 +14,9 @@ def extractor(config):
     return extractor
 
 
-@patch("app.image_processors.OpenCVImage.read_image")
-def test_process_with_images(mock_read_image, extractor, caplog, config):
+@patch.object(OpenCVImage, "read_image")
+@patch.object(TopImagesExtractor, "_normalize_images")
+def test_process_with_images(mock_normalize, mock_read_image, extractor, caplog, config):
     # Setup
     test_images = [
         "/fake/directory/image1.jpg", "/fake/directory/image2.jpg", "/fake/directory/image3.jpg"]
@@ -37,7 +39,8 @@ def test_process_with_images(mock_read_image, extractor, caplog, config):
     extractor._list_input_directory_files.assert_called_once_with(
         extractor._config.images_extensions)
     mock_read_image.assert_has_calls([call(path) for path in test_images])
-    extractor._evaluate_images.assert_called_once_with([mock_read_image.return_value]*3)
+    mock_normalize.assert_called_once_with([mock_read_image.return_value]*3, extractor._config.target_image_size)
+    extractor._evaluate_images.assert_called_once_with(mock_normalize.return_value)
     extractor._get_top_percent_images.assert_called_once_with(
         [mock_read_image.return_value]*3, test_ratings, extractor._config.top_images_percent)
     extractor._save_images.assert_called_once_with(best_image)
