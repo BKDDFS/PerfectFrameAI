@@ -18,7 +18,7 @@ logger = logging.getLogger(__name__)
 class VideoProcessor(ABC):
     """Abstract class for creating video processors used for managing video operations."""
     @abstractmethod
-    def get_next_video_frames(self, video_path: Path, batch_size: int) -> Generator[list[np.ndarray], None, None]:
+    def get_next_frames(self, video_path: Path, batch_size: int) -> Generator[list[np.ndarray], None, None]:
         """
         Abstract generator method to generate batches of frames from a video file.
 
@@ -68,7 +68,7 @@ class OpenCVVideo(VideoProcessor):
             video_cap.release()
 
     @classmethod
-    def get_next_video_frames(cls, video_path: Path, batch_size: int) -> Generator[list[np.ndarray], None, None]:
+    def get_next_frames(cls, video_path: Path, batch_size: int) -> Generator[list[np.ndarray], None, None]:
         """
         Generates batches of frames from the specified video using OpenCV.
 
