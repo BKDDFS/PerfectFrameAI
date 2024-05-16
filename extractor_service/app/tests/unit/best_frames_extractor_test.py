@@ -42,14 +42,14 @@ def test_process(extractor, caplog, config):
     assert f"Starting frames extraction process from '{config.input_directory}'." in caplog.text
 
 
-@patch("app.video_processors.OpenCVVideo.get_next_video_frames")
-def test_extract_best_frames(mock_get_next_video_frames, extractor, caplog):
+@patch("app.video_processors.OpenCVVideo.get_next_frames")
+def test_extract_best_frames(mock_get_next_frames, extractor, caplog):
     video_path = Path("/fake/video.mp4")
     frames_batch = [MagicMock() for _ in range(10)]
     frames_batch_1 = frames_batch
     frames_batch_2 = []
     frames_batch_3 = frames_batch
-    mock_get_next_video_frames.return_value = iter([frames_batch_1, frames_batch_2, frames_batch_3])
+    mock_get_next_frames.return_value = iter([frames_batch_1, frames_batch_2, frames_batch_3])
     test_ratings = [5, 6, 3, 8, 5, 2, 9, 1, 4, 7]
     extractor._evaluate_images = MagicMock(return_value=test_ratings)
     extractor._get_best_frames = MagicMock(
@@ -58,7 +58,7 @@ def test_extract_best_frames(mock_get_next_video_frames, extractor, caplog):
     with caplog.at_level(logging.DEBUG):
         best_frames = extractor._extract_best_frames(video_path)
 
-    mock_get_next_video_frames.assert_called_once_with(video_path, extractor._config.batch_size)
+    mock_get_next_frames.assert_called_once_with(video_path, extractor._config.batch_size)
     assert extractor._evaluate_images.call_count == 2
     assert extractor._get_best_frames.call_count == 2
     assert len(best_frames) == 4
