@@ -11,18 +11,18 @@ def test_get_active_extractor():
     assert ExtractorManager.get_active_extractor() is None
 
 
-@patch.object(ExtractorFactory, "get_extractor")
+@patch.object(ExtractorFactory, "create_extractor")
 @patch.object(ExtractorManager, "_check_is_already_extracting")
-def test_start_extractor(mock_checking, mock_get_extractor, config):
+def test_start_extractor(mock_checking, mock_create_extractor, config):
     extractor_name = "some_extractor"
     mock_extractor_class = MagicMock()
     mock_background_tasks = MagicMock(spec=BackgroundTasks)
-    mock_get_extractor.return_value = mock_extractor_class
+    mock_create_extractor.return_value = mock_extractor_class
 
     message = ExtractorManager.start_extractor(mock_background_tasks, config, extractor_name)
 
     mock_checking.assert_called_once()
-    mock_get_extractor.assert_called_once_with(extractor_name)
+    mock_create_extractor.assert_called_once_with(extractor_name)
     mock_background_tasks.add_task.assert_called_once_with(
         ExtractorManager._ExtractorManager__run_extractor,
         mock_extractor_class,

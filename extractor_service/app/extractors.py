@@ -184,7 +184,7 @@ class Extractor(ABC):
 class ExtractorFactory:
     """Extractor factory for getting extractors class by their names."""
     @staticmethod
-    def get_extractor(extractor_name: str) -> Type[Extractor]:
+    def create_extractor(extractor_name: str) -> Type[Extractor]:
         """
         Match extractor class by its name and return its class.
 
