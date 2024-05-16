@@ -4,7 +4,7 @@ from unittest.mock import patch, MagicMock, PropertyMock, call
 
 import pytest
 
-from service_manager.docker_manager import DockerManager, ServiceShutdownSignal
+from service_manager.docker_manager import DockerManager
 
 
 def test_docker_manager_init(caplog, config):
@@ -251,15 +251,18 @@ def test_follow_container_logs_stopped_by_user(mock_stop, mock_run_log, mock_std
 @patch("service_manager.docker_manager.sys.stdout.write")
 @patch.object(DockerManager, "_run_log_process")
 @patch.object(DockerManager, "_stop_container")
-def test_follow_container_logs_stopped_automatically(mock_stop, mock_run_log, mock_stdout, docker, caplog):
+def test_follow_container_logs_stopped_automatically(mock_stop, mock_run_log,
+                                                     mock_stdout, docker, caplog):
     mock_process = MagicMock()
-    mock_process.stdout.readline.side_effect = ["log line 1\n", "log line 2\n", ServiceShutdownSignal()]
+    mock_process.stdout.readline.side_effect = [
+        "log line 1\n", "log line 2\n", DockerManager.ServiceShutdownSignal()
+    ]
     mock_run_log.return_value = mock_process
     mock_process.terminate = MagicMock()
     mock_process.wait = MagicMock()
 
     with caplog.at_level(logging.INFO), \
-            patch.object(subprocess, "Popen", autospec=True) as pop:
+            patch.object(subprocess, "Popen", autospec=True):
         docker.follow_container_logs()
 
     mock_run_log.assert_called_once()

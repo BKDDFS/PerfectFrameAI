@@ -29,15 +29,13 @@ import logging
 logger = logging.getLogger(__name__)
 
 
-class ServiceShutdownSignal(Exception):
-    """Exception raised when the service signals it is ready to be shut down."""
-
-
 class DockerManager:
     """
     Manages Docker containers and images, including operations like building, starting,
     stopping, and logging containers.
     """
+    class ServiceShutdownSignal(Exception):
+        """Exception raised when the service signals it is ready to be shut down."""
 
     def __init__(self, container_name: str, input_dir: str,
                  output_dir: str, port: int, force_build: bool) -> None:
@@ -183,10 +181,10 @@ class DockerManager:
             for line in iter(process.stdout.readline, ''):
                 sys.stdout.write(line)
                 if "Service ready for shutdown" in line:
-                    raise ServiceShutdownSignal("Service has signaled readiness for shutdown.")
+                    raise self.ServiceShutdownSignal("Service has signaled readiness for shutdown.")
         except KeyboardInterrupt:
             logger.info("Process stopped by user.")
-        except ServiceShutdownSignal:
+        except self.ServiceShutdownSignal:
             logger.info("Service has signaled readiness for shutdown.")
         finally:
             self.__stop_log_process(process)
