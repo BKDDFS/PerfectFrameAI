@@ -49,7 +49,7 @@ class ExtractorManager:
         """
         cls._config = config
         cls._check_is_already_extracting()
-        extractor_class = ExtractorFactory.get_extractor(extractor_name)
+        extractor_class = ExtractorFactory.create_extractor(extractor_name)
         background_tasks.add_task(cls.__run_extractor, extractor_class, extractor_name)
         message = f"'{extractor_name}' started."
         return message

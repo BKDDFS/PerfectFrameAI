@@ -59,6 +59,7 @@ class ImageProcessor(ABC):
             np.ndarray: Normalized numpy array containing the resized images.
         """
 
+
 class OpenCVImage(ImageProcessor):
     """Image processor implementation using OpenCV library."""
     @staticmethod
@@ -111,7 +112,7 @@ class OpenCVImage(ImageProcessor):
         return filename
 
     @staticmethod
-    def normalize_images(images: list[np.ndarray], target_size: tuple[int]) -> np.array:
+    def normalize_images(images: list[np.ndarray], target_size: tuple[int, int]) -> np.array:
         """
         Resize a batch of images and convert them to a normalized numpy array.
 
