@@ -32,7 +32,7 @@ class ImageEvaluator(ABC):
         """
 
     @abstractmethod
-    def evaluate_images(self, images: list[np.ndarray]) -> list[float]:
+    def evaluate_images(self, images: np.ndarray) -> list[float]:
         """
         Evaluates images batch and returns it.
 
@@ -79,20 +79,20 @@ class InceptionResNetNIMA(ImageEvaluator):
         """
         self._model = _ResNetModel.get_model(config)
 
-    def evaluate_images(self, images: list[np.ndarray]) -> list[float]:
+    def evaluate_images(self, images: np.ndarray) -> list[float]:
         """
         Evaluate a batch of images using the NIMA model, and return the results.
 
         Args:
-            images (list[np.ndarray]): Batch of numpy array images to be evaluated.
+            images (np.ndarray): Batch of numpy ndarray images to be evaluated.
 
         Returns:
             list[float]: List of scores corresponding to the input images.
         """
         logger.info("Evaluating images...")
-        img_array = OpenCVImage.normalize_images(images)
-        tensor = convert_to_tensor(img_array)
-        predictions = self._model.predict(tensor, batch_size=len(images), verbose=0)
+        tensor = convert_to_tensor(images)
+        batch_size = images.shape[0]
+        predictions = self._model.predict(tensor, batch_size=batch_size, verbose=0)
         weights = _ResNetModel.get_prediction_weights()
         scores = [self._calculate_weighted_mean(prediction, weights) for prediction in predictions]
         self._check_scores(images, scores)
@@ -131,7 +131,7 @@ class _NIMAModel(ABC):
     _model = None
 
     @classmethod
-    def reset(cls):
+    def reset(cls) -> None:
         """Resets class for using new model and config."""
         cls._model = None
         cls._config = None

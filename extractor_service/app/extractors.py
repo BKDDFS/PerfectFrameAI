@@ -88,17 +88,17 @@ class Extractor(ABC):
         logger.debug("Listed file paths: %s", files)
         return files
 
-    def _evaluate_images(self, images: list[np.ndarray]) -> np.array:
+    def _evaluate_images(self, normalized_images: np.ndarray) -> np.array:
         """
         Rating all images in provided images batch using already initialized image evaluator.
 
         Args:
-            images (list[np.ndarray]): List of images in numpy ndarrays.
+            normalized_images (list[np.ndarray]): Already normalized images np.ndarray for evaluating.
 
         Returns:
             np.array: Array with images scores in given images order.
         """
-        scores = np.array(self._image_evaluator.evaluate_images(images))
+        scores = np.array(self._image_evaluator.evaluate_images(normalized_images))
         return scores
 
     @staticmethod
@@ -138,6 +138,21 @@ class Extractor(ABC):
             ) for image in images]
             for future in futures:
                 future.result()
+
+    @staticmethod
+    def _normalize_images(images: list[np.ndarray], target_size: tuple[int, int]) -> np.ndarray:
+        """
+        Normalize all images in given list to target size for further operations.
+
+        Args:
+            images (list[np.ndarray]): List of np.ndarray images to normalize.
+            target_size (tuple[int, int]): Images will be normalized to this size.
+
+        Returns:
+            np.ndarray: All images as a one numpy array.
+        """
+        normalized_images = OpenCVImage.normalize_images(images, target_size)
+        return normalized_images
 
     @staticmethod
     def _add_prefix(prefix: str, path: Path) -> Path:
@@ -225,8 +240,9 @@ class BestFramesExtractor(Extractor):
         for frames in frames_batch_generator:
             if not frames:
                 continue
-            logger.debug("Frames pack generated.")
-            scores = self._evaluate_images(frames)
+            logger.debug("Frames batch generated.")
+            noramalized_frames = self._normalize_images(frames, self._config.target_image_size)
+            scores = self._evaluate_images(noramalized_frames)
             selected_frames = self._get_best_frames(frames, scores,
                                                     self._config.compering_group_size)
             best_frames.extend(selected_frames)
@@ -268,7 +284,8 @@ class TopImagesExtractor(Extractor):
         for batch_index in range(0, len(images_paths), self._config.batch_size):
             batch = images_paths[batch_index:batch_index + self._config.batch_size]
             images = self._read_images(batch)
-            scores = self._evaluate_images(images)
+            noramalized_images = self._normalize_images(images, self._config.target_image_size)
+            scores = self._evaluate_images(noramalized_images)
             top_images = self._get_top_percent_images(images, scores,
                                                       self._config.top_images_percent)
             self._save_images(top_images)
