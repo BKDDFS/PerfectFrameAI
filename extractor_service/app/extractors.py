@@ -221,7 +221,7 @@ class BestFramesExtractor(Extractor):
             list[np.ndarray]: List of best images(frames) from the given video.
         """
         best_frames = []
-        frames_batch_generator = OpenCVVideo.get_next_video_frames(video_path, self._config.batch_size)
+        frames_batch_generator = OpenCVVideo.get_next_frames(video_path, self._config.batch_size)
         for frames in frames_batch_generator:
             if not frames:
                 continue
