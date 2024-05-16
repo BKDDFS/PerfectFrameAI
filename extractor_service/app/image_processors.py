@@ -46,8 +46,7 @@ class ImageProcessor(ABC):
 
     @staticmethod
     @abstractmethod
-    def normalize_images(images: list[np.ndarray],
-                         target_size: tuple[int] | None = (224, 224)) -> np.array:
+    def normalize_images(images: list[np.ndarray], target_size: tuple[int]) -> np.array:
         """
         Resize a batch of images and convert them to a normalized numpy array.
 
@@ -112,15 +111,13 @@ class OpenCVImage(ImageProcessor):
         return filename
 
     @staticmethod
-    def normalize_images(images: list[np.ndarray],
-                         target_size: tuple[int] | None = (224, 224)) -> np.array:
+    def normalize_images(images: list[np.ndarray], target_size: tuple[int]) -> np.array:
         """
         Resize a batch of images and convert them to a normalized numpy array.
 
         Args:
             images (list[np.ndarray]): List of numpy ndarray images to be normalized.
             target_size (tuple | None): Target size to which the images will be resized.
-                Default is (224, 224).
 
         Returns:
             np.ndarray: Normalized numpy array containing the resized images.

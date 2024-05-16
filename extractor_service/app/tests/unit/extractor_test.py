@@ -5,6 +5,7 @@ from unittest.mock import patch, MagicMock
 import numpy as np
 import pytest
 
+from app.image_processors import OpenCVImage
 from app.extractors import (Extractor,
                             ExtractorFactory,
                             BestFramesExtractor,
@@ -89,6 +90,15 @@ def test_save_images(mock_executor, mock_save_image, extractor, config):
     assert mock_executor.submit.call_count == len(images)
     mock_executor.submit.assert_has_calls(calls, any_order=True)
     assert mock_executor.submit.return_value.result.call_count == len(images)
+
+
+@patch.object(OpenCVImage, "normalize_images")
+def test_normalize_images(mock_normalize, extractor, config):
+    images = [MagicMock() for _ in range(3)]
+
+    extractor._normalize_images(images, config.target_image_size)
+
+    mock_normalize.assert_called_once_with(images, config.target_image_size)
 
 
 @patch.object(Path, "iterdir")
