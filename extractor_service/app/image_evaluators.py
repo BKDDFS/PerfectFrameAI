@@ -1,7 +1,23 @@
 """
 This module provides abstract class for creating image evaluators and image evaluators.
 Image evaluators:
-    - NeuralImageAssessment: NIMA model based on the InceptionResNetV2 architecture.
+    - InceptionResNetNIMA: NIMA model with helper classes.
+LICENSE
+=======
+Copyright (C) 2024  Bartłomiej Flis
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
 """
 import logging
 from abc import ABC, abstractmethod
@@ -14,7 +30,6 @@ from tensorflow.keras.models import Model
 from tensorflow.keras.layers import Dense, Dropout
 from tensorflow.keras.applications.inception_resnet_v2 import InceptionResNetV2
 
-from .image_processors import OpenCVImage
 from .schemas import ExtractorConfig
 
 logger = logging.getLogger(__name__)
@@ -67,8 +82,6 @@ class InceptionResNetNIMA(ImageEvaluator):
     """
     NeuralImageAssessment model based image evaluator.
     It uses NIMA for evaluating aesthetics of images.
-    NIMA google research:
-    https://research.google/blog/introducing-nima-neural-image-assessment/
     """
     def __init__(self, config: ExtractorConfig) -> None:
         """
@@ -120,7 +133,8 @@ class InceptionResNetNIMA(ImageEvaluator):
 
 
 class _NIMAModel(ABC):
-    """Abstract base class for the NIMA models. Uses a singleton pattern
+    """
+    Abstract base class for the NIMA models. Uses a singleton pattern
     to manage a unique instance of the models.
     This is helper class for NeuralImageAssessment class.
     """
