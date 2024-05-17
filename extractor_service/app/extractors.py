@@ -257,8 +257,8 @@ class BestFramesExtractor(Extractor):
             if not frames:
                 continue
             logger.debug("Frames batch generated.")
-            noramalized_frames = self._normalize_images(frames, self._config.target_image_size)
-            scores = self._evaluate_images(noramalized_frames)
+            normalized_images = self._normalize_images(frames, self._config.target_image_size)
+            scores = self._evaluate_images(normalized_images)
             selected_frames = self._get_best_frames(frames, scores,
                                                     self._config.compering_group_size)
             best_frames.extend(selected_frames)
@@ -300,8 +300,8 @@ class TopImagesExtractor(Extractor):
         for batch_index in range(0, len(images_paths), self._config.batch_size):
             batch = images_paths[batch_index:batch_index + self._config.batch_size]
             images = self._read_images(batch)
-            noramalized_images = self._normalize_images(images, self._config.target_image_size)
-            scores = self._evaluate_images(noramalized_images)
+            normalized_images = self._normalize_images(images, self._config.target_image_size)
+            scores = self._evaluate_images(normalized_images)
             top_images = self._get_top_percent_images(images, scores,
                                                       self._config.top_images_percent)
             self._save_images(top_images)
