@@ -199,23 +199,32 @@
     <h2>💡O projekcie:</h2>
     <div id="contents">
         <h3>Spis treści:</h3>
-        <a href="#how-it-works">Jak to działa</a><br>
-        &nbsp&nbsp&nbsp&nbsp<a href="#input">Input modelu</a><br>
-        &nbsp&nbsp&nbsp&nbsp<a href="#output">Wyniki oceniania obrazów</a><br>
-        &nbsp&nbsp&nbsp&nbsp<a href="#classes">Klasy estetyczne</a><br>
-        &nbsp&nbsp&nbsp&nbsp<a href="#calculating-mean">Obliczanie ostatecznej oceny obrazu</a><br>
-        <a href="#implementation">Jak to jest zaimplementowane w skrócie</a><br>
-        &nbsp&nbsp&nbsp&nbsp<a href="#model-architecture">Architektura modelu</a><br>
-        &nbsp&nbsp&nbsp&nbsp<a href="#weights">Wagi modelu</a><br>
-        &nbsp&nbsp&nbsp&nbsp<a href="#normalization">Normalizacja obrazów</a><br>
-        &nbsp&nbsp&nbsp&nbsp<a href="#predictions">Przewidywanie przynależności do klas</a><br>
-        &nbsp&nbsp&nbsp&nbsp<a href="#mean-calculation">Obliczanie średniej ważonej</a><br>
-        <a href="#1vs2">v1.0 vs v2.0</a><br>
-        <a href="#build-with">Użyte technologie</a><br>
-        <a href="#tests">Testy</a><br>
-        &nbsp&nbsp&nbsp&nbsp<a href="#unit">jednostkowe</a><br>
-        &nbsp&nbsp&nbsp&nbsp<a href="#integration">integracyjne</a><br>
-        &nbsp&nbsp&nbsp&nbsp<a href="#e2e">e2e</a><br>
+        <ul>
+            <li><a href="#how-it-works">Jak to działa</a></li>
+            <ul>
+                <li><a href="#input">Input modelu</a></li>
+                <li><a href="#output">Wyniki oceniania obrazów</a></li>
+                <li><a href="#classes">Klasy estetyczne</a></li>
+                <li><a href="#calculating-mean">Obliczanie ostatecznej oceny obrazu</a></li>
+            </ul>
+            <li><a href="#implementation">Implementacja w skrócie</a></li>
+            <ul>
+                <li><a href="#model-architecture">Architektura modelu</a></li>
+                <li><a href="#weights">Wagi modelu</a></li>
+                <li><a href="#normalization">Normalizacja obrazów</a></li>
+                <li><a href="#predictions">Przewidywanie przynależności do klas</a></li>
+                <li><a href="#mean-calculation">Obliczanie średniej ważonej</a></li>
+            </ul>
+            <li><a href="#1vs2">v1.0 vs v2.0</a></li>
+            <li><a href="#architecture">Architektura</a></li>
+            <li><a href="#build-with">Użyte technologie</a></li>
+            <li><a href="#tests">Testy</a></li>
+            <ul>
+                <li><a href="#unit">Jednostkowe</a></li>
+                <li><a href="#integration">Integracyjne</a></li>
+                <li><a href="#e2e">E2E</a></li>
+            </ul>
+        </ul>
     </div>
     <div id="how-it-works">
     <h2>📐 Jak to działa</h2>
@@ -371,6 +380,10 @@
             <li>32GB RAM</li>
         </ul>
         <img src="../static/performance.png" height="200">
+    </div>
+    <div id="architecture">
+        <h2>Architektura</h2>
+        <img src="../static/architecture.jpg" width="1000" style="border-radius: 10px;">
     </div>
     <div id="build-with">
     <h2>🛠️ Użyte technologie</h2>
