@@ -79,6 +79,26 @@
             <p>Output: Images saved as <code>.jpg</code>.</p>
         </ol>
     </details>
+    <br>
+    <details>
+        <summary>
+            <strong>🆕 Frames Extraction 🖼️🖼️🖼️</strong>
+            <blockquote>Extract and return frames from a video.</blockquote>
+        </summary>
+        <p>Modifying <code>best_frames_extractor</code> by skipping AI evaluation part.</p>
+        <code>python start.py best_frames_extractor --all_frames</code>
+        <ol>
+            <p>Input: Folder with <code>.mp4</code> video files.</p>
+            <li>Takes the first video from the specified location.</li>
+            <li>
+                Splits the video into frames.
+                Frames are taken at 1-second intervals.
+                Frames are processed in batches.
+            </li>
+            <li>Saves all frames in the chosen location.</li>
+            <p>Output: Frames saved as <code>.jpg</code>.</p>
+        </ol>
+    </details>
 </div>
 <div id="installation">
     <h2>💿 Installation</h2>
