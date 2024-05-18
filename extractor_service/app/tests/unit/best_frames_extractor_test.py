@@ -79,6 +79,37 @@ def test_extract_best_frames(mock_normalize, mock_get_next_frames, extractor, ca
     assert caplog.text.count("Frames batch generated.") == 2
 
 
+@pytest.fixture
+def all_frames_extractor(extractor):
+    extractor._config.all_frames = True
+    yield extractor
+    extractor._config.all_frames = False
+
+
+@patch.object(BestFramesExtractor, "_evaluate_images")
+@patch.object(BestFramesExtractor, "_get_best_frames")
+@patch.object(OpenCVVideo, "get_next_frames")
+@patch.object(BestFramesExtractor, "_normalize_images")
+def test_extract_all_frames(mock_normalize, mock_get_next_frames,
+                            mock_get, mock_evaluate, all_frames_extractor, caplog):
+    video_path = Path("/fake/video.mp4")
+    frames_batch = [MagicMock() for _ in range(3)]
+    frames_batch_1 = frames_batch
+    frames_batch_2 = []
+    frames_batch_3 = frames_batch
+    mock_get_next_frames.return_value = iter([frames_batch_1, frames_batch_2, frames_batch_3])
+
+    with caplog.at_level(logging.DEBUG):
+        best_frames = all_frames_extractor._extract_best_frames(video_path)
+
+    mock_get_next_frames.assert_called_once_with(video_path, all_frames_extractor._config.batch_size)
+    assert len(best_frames) == 6
+    mock_evaluate.assert_not_called()
+    mock_normalize.assert_not_called()
+    mock_get.assert_not_called()
+    assert caplog.text.count("Frames batch generated.") == 2
+
+
 def test_get_best_frames(caplog, extractor):
     images = [MagicMock(spec=np.ndarray) for _ in range(10)]
     ratings = np.array([7, 2, 9, 3, 8, 5, 10, 1, 4, 6])

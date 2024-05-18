@@ -257,6 +257,9 @@ class BestFramesExtractor(Extractor):
             if not frames:
                 continue
             logger.debug("Frames batch generated.")
+            if self._config.all_frames:
+                best_frames.extend(frames)
+                continue
             normalized_images = self._normalize_images(frames, self._config.target_image_size)
             scores = self._evaluate_images(normalized_images)
             selected_frames = self._get_best_frames(frames, scores,

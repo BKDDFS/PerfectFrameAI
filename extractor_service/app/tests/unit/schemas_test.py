@@ -22,6 +22,7 @@ def test_config_default():
     assert config.weights_directory == Path.home() / ".cache" / "huggingface"
     assert config.weights_filename == "weights.h5"
     assert config.weights_repo_url == "https://huggingface.co/BKDDFS/nima_weights/resolve/main/"
+    assert config.all_frames == False
 
 
 def test_request_data_validation_failure_output():
