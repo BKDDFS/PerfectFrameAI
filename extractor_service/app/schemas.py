@@ -49,6 +49,8 @@ class ExtractorConfig(BaseModel):
         weights_directory (Path | str): Directory path where model weights are stored.
         weights_filename (str): The filename of the model weights file to be loaded.
         weights_repo_url (str): URL to the repository where model weights can be downloaded.
+        all_frames (bool): It changes best_frames_extractor -> frames_extractor.
+            If Ture best_frames_extractor returns all frames without filtering/evaluation.
     """
     input_directory: DirectoryPath = Path("/app/input_directory")
     output_directory: DirectoryPath = Path("/app/output_directory")
@@ -63,6 +65,7 @@ class ExtractorConfig(BaseModel):
     weights_directory: Path | str = Path.home() / ".cache" / "huggingface"
     weights_filename: str = "weights.h5"
     weights_repo_url: str = "https://huggingface.co/BKDDFS/nima_weights/resolve/main/"
+    all_frames: bool = False
 
 
 class Message(BaseModel):
