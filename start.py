@@ -72,6 +72,9 @@ def parse_args() -> argparse.Namespace:
                         help="Port to expose the service on the host.")
     parser.add_argument("--build", "-b", action="store_true",
                         help="Forces the Docker image to be rebuilt if set to true.")
+    parser.add_argument("--all_frames", action="store_true",
+                        help="Returning all frames every second without filtering. "
+                             "For best_frames_extractor. Does nothing with others")
     args = parser.parse_args()
     return args
 
