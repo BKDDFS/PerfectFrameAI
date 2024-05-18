@@ -2,6 +2,22 @@
 This module provides abstract class for creating image processors and image processors.
 Image processors:
     - OpenCVImage: using OpenCV library to manage operations on images.
+LICENSE
+=======
+Copyright (C) 2024  Bartłomiej Flis
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
 """
 import logging
 import uuid
@@ -42,6 +58,21 @@ class ImageProcessor(ABC):
 
         Returns:
             Path: Path where image was saved.
+        """
+
+    @staticmethod
+    @abstractmethod
+    def normalize_images(images: list[np.ndarray], target_size: tuple[int]) -> np.array:
+        """
+        Resize a batch of images and convert them to a normalized numpy array.
+
+        Args:
+            images (list[np.ndarray]): List of numpy ndarray images to be normalized.
+            target_size (tuple | None): Target size to which the images will be resized.
+                Default is (224, 224).
+
+        Returns:
+            np.ndarray: Normalized numpy array containing the resized images.
         """
 
 
@@ -97,15 +128,13 @@ class OpenCVImage(ImageProcessor):
         return filename
 
     @staticmethod
-    def normalize_images(images: list[np.ndarray],
-                         target_size: tuple[int] | None = (224, 224)) -> np.array:
+    def normalize_images(images: list[np.ndarray], target_size: tuple[int, int]) -> np.array:
         """
         Resize a batch of images and convert them to a normalized numpy array.
 
         Args:
             images (list[np.ndarray]): List of numpy ndarray images to be normalized.
             target_size (tuple | None): Target size to which the images will be resized.
-                Default is (224, 224).
 
         Returns:
             np.ndarray: Normalized numpy array containing the resized images.

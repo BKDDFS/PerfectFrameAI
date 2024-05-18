@@ -2,6 +2,22 @@
 This module provides abstract class for creating video processors and video processors.
 Video processors:
     - OpenCVVideo: using OpenCV library to manage operations on videos.
+LICENSE
+=======
+Copyright (C) 2024  Bartłomiej Flis
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
 """
 import logging
 from abc import ABC, abstractmethod
@@ -18,7 +34,7 @@ logger = logging.getLogger(__name__)
 class VideoProcessor(ABC):
     """Abstract class for creating video processors used for managing video operations."""
     @abstractmethod
-    def get_next_video_frames(self, video_path: Path, batch_size: int) -> Generator[list[np.ndarray], None, None]:
+    def get_next_frames(self, video_path: Path, batch_size: int) -> Generator[list[np.ndarray], None, None]:
         """
         Abstract generator method to generate batches of frames from a video file.
 
@@ -68,7 +84,7 @@ class OpenCVVideo(VideoProcessor):
             video_cap.release()
 
     @classmethod
-    def get_next_video_frames(cls, video_path: Path, batch_size: int) -> Generator[list[np.ndarray], None, None]:
+    def get_next_frames(cls, video_path: Path, batch_size: int) -> Generator[list[np.ndarray], None, None]:
         """
         Generates batches of frames from the specified video using OpenCV.
 

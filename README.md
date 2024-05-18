@@ -79,6 +79,26 @@
             <p>Output: Images saved as <code>.jpg</code>.</p>
         </ol>
     </details>
+    <br>
+    <details>
+        <summary>
+            <strong>🆕 Frames Extraction 🖼️🖼️🖼️</strong>
+            <blockquote>Extract and return frames from a video.</blockquote>
+        </summary>
+        <p>Modifying <code>best_frames_extractor</code> by skipping AI evaluation part.</p>
+        <code>python start.py best_frames_extractor --all_frames</code>
+        <ol>
+            <p>Input: Folder with <code>.mp4</code> video files.</p>
+            <li>Takes the first video from the specified location.</li>
+            <li>
+                Splits the video into frames.
+                Frames are taken at 1-second intervals.
+                Frames are processed in batches.
+            </li>
+            <li>Saves all frames in the chosen location.</li>
+            <p>Output: Frames saved as <code>.jpg</code>.</p>
+        </ol>
+    </details>
 </div>
 <div id="installation">
     <h2>💿 Installation</h2>
@@ -201,23 +221,32 @@
     <h2>💡 About:</h2>
     <div id="contents">
         <h3>Table of Contents:</h3>
-        <a href="#how-it-works">How it works</a><br>
-        &nbsp&nbsp&nbsp&nbsp<a href="#input">Model Input</a><br>
-        &nbsp&nbsp&nbsp&nbsp<a href="#output">Image Rating Results</a><br>
-        &nbsp&nbsp&nbsp&nbsp<a href="#classes">Aesthetic Classes</a><br>
-        &nbsp&nbsp&nbsp&nbsp<a href="#calculating-mean">Calculating the Final Image Score</a><br>
-        <a href="#implementation">Implementation in Brief</a><br>
-        &nbsp&nbsp&nbsp&nbsp<a href="#model-architecture">Model Architecture</a><br>
-        &nbsp&nbsp&nbsp&nbsp<a href="#weights">Pre-trained Weights</a><br>
-        &nbsp&nbsp&nbsp&nbsp<a href="#normalization">Image Normalization</a><br>
-        &nbsp&nbsp&nbsp&nbsp<a href="#predictions">Class Predictions</a><br>
-        &nbsp&nbsp&nbsp&nbsp<a href="#mean-calculation">Weighted Mean Calculation</a><br>
-        <a href="#1vs2">v1.0 vs v2.0</a><br>
-        <a href="#build-with">Build with</a><br>
-        <a href="#tests">Tests</a><br>
-        &nbsp&nbsp&nbsp&nbsp<a href="#unit">unit</a><br>
-        &nbsp&nbsp&nbsp&nbsp<a href="#integration">integration</a><br>
-        &nbsp&nbsp&nbsp&nbsp<a href="#e2e">e2e</a><br>
+        <ul>
+            <li><a href="#how-it-works">How it works</a></li>
+            <ul>
+                <li><a href="#input">Model Input</a></li>
+                <li><a href="#output">Image Rating Results</a></li>
+                <li><a href="#classes">Aesthetic Classes</a></li>
+                <li><a href="#calculating-mean">Calculating the Final Image Score</a></li>
+            </ul>
+            <li><a href="#implementation">Implementation in Brief</a></li>
+            <ul>
+                <li><a href="#model-architecture">Model Architecture</a></li>
+                <li><a href="#weights">Pre-trained Weights</a></li>
+                <li><a href="#normalization">Image Normalization</a></li>
+                <li><a href="#predictions">Class Predictions</a></li>
+                <li><a href="#mean-calculation">Weighted Mean Calculation</a></li>
+            </ul>
+            <li><a href="#1vs2">v1.0 vs v2.0</a></li>
+            <li><a href="#architecture">Architecture</a></li>
+            <li><a href="#build-with">Build with</a></li>
+            <li><a href="#tests">Tests</a></li>
+            <ul>
+                <li><a href="#unit">unit</a></li>
+                <li><a href="#integration">integration</a></li>
+                <li><a href="#e2e">e2e</a></li>
+            </ul>
+        </ul>
     </div>
     <div id="how-it-works">
     <h2>📐 How it Works</h2>
@@ -351,6 +380,10 @@
             <li>32GB RAM</li>
         </ul>
         <img src="static/performance.png" height="200">
+    </div>
+    <div id="architecture">
+        <h2>Architecture</h2>
+        <img src="static/architecture.jpg" width="1000" style="border-radius: 10px;">
     </div>
     <div id="build-with">
     <h2>🛠️ Built with</h2>

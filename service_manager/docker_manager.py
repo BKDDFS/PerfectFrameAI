@@ -5,6 +5,22 @@ I didn’t want to use any external libraries in this part of the project.
 
 This module defines a DockerManager class to handle Docker operations like building images,
 managing container lifecycle, and monitoring container logs.
+LICENSE
+=======
+Copyright (C) 2024  Bartłomiej Flis
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
 """
 import subprocess
 import sys
@@ -13,15 +29,13 @@ import logging
 logger = logging.getLogger(__name__)
 
 
-class ServiceShutdownSignal(Exception):
-    """Exception raised when the service signals it is ready to be shut down."""
-
-
 class DockerManager:
     """
     Manages Docker containers and images, including operations like building, starting,
     stopping, and logging containers.
     """
+    class ServiceShutdownSignal(Exception):
+        """Exception raised when the service signals it is ready to be shut down."""
 
     def __init__(self, container_name: str, input_dir: str,
                  output_dir: str, port: int, force_build: bool) -> None:
@@ -167,10 +181,10 @@ class DockerManager:
             for line in iter(process.stdout.readline, ''):
                 sys.stdout.write(line)
                 if "Service ready for shutdown" in line:
-                    raise ServiceShutdownSignal("Service has signaled readiness for shutdown.")
+                    raise self.ServiceShutdownSignal("Service has signaled readiness for shutdown.")
         except KeyboardInterrupt:
             logger.info("Process stopped by user.")
-        except ServiceShutdownSignal:
+        except self.ServiceShutdownSignal:
             logger.info("Service has signaled readiness for shutdown.")
         finally:
             self.__stop_log_process(process)
