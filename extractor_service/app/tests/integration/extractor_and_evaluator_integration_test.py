@@ -23,6 +23,7 @@ def test_evaluate_images(extractor, config):
     files = extractor._list_input_directory_files(config.images_extensions)
     images = extractor._read_images(files)
     extractor._get_image_evaluator()
-    result = extractor._evaluate_images(images)
+    normalized_images = extractor._normalize_images(images, config.target_image_size)
+    result = extractor._evaluate_images(normalized_images)
 
     assert isinstance(result, np.ndarray)

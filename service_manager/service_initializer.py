@@ -1,4 +1,22 @@
-"""This module provide tool for starting extractor service."""
+"""
+This module provide tool for starting extractor service.
+LICENSE
+=======
+Copyright (C) 2024  Bartłomiej Flis
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
+"""
 import argparse
 import json
 import logging
@@ -18,10 +36,11 @@ class ServiceInitializer:
     """
     def __init__(self, user_input: argparse.Namespace) -> None:
         """Initializes the service initializer by taking and validating user input."""
-        self.input_directory = self._check_directory(user_input.input_dir)
-        self.output_directory = self._check_directory(user_input.output_dir)
-        self.extractor_name = user_input.extractor_name
-        self.port = user_input.port
+        self._input_directory = self._check_directory(user_input.input_dir)
+        self._output_directory = self._check_directory(user_input.output_dir)
+        self._extractor_name = user_input.extractor_name
+        self._port = user_input.port
+        self._all_frames = user_input.all_frames
 
     @staticmethod
     def _check_directory(directory: str) -> Path:
@@ -47,8 +66,13 @@ class ServiceInitializer:
     def run_extractor(self, extractor_url: Union[str, None] = None) -> None:
         """Send POST request to local port extractor service to start chosen extractor."""
         if not extractor_url:
-            extractor_url = f"http://localhost:{self.port}/extractors/{self.extractor_name}"
-        req = Request(extractor_url, method="POST")
+            extractor_url = f"http://localhost:{self._port}/extractors/{self._extractor_name}"
+        json_data = {"all_frames": self._all_frames}
+        req = Request(
+            extractor_url, method="POST",
+            data=json.dumps(json_data).encode('utf-8'),
+            headers={'Content-Type': 'application/json'}
+        )
         start_time = time.time()
         while True:
             if self._try_to_run_extractor(req, start_time):

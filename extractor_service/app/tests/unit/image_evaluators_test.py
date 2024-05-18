@@ -26,17 +26,15 @@ def test_evaluator_initialization(mock_get_model, config):
     assert instance._model == test_model
 
 
-@patch.object(OpenCVImage, "normalize_images")
 @patch("app.image_evaluators.convert_to_tensor")
 @patch.object(InceptionResNetNIMA, "_calculate_weighted_mean")
 @patch.object(InceptionResNetNIMA, "_check_scores")
-def test_evaluate_images(mock_check, mock_calculate, mock_convert_to_tensor, mock_normalize_images, evaluator, caplog):
-    fake_images = [MagicMock(np.ndarray) for _ in range(3)]
-    img_array = "some_array"
+def test_evaluate_images(mock_check, mock_calculate, mock_convert_to_tensor, evaluator, caplog):
+    fake_images = MagicMock(spec=np.ndarray)
+    fake_images.shape = (3, 2, 2)
     tensor = "some_tensor"
     predictions = [1.0, 2.0, 3.0]
     expected_scores = [10.0, 20.0, 30.0]
-    mock_normalize_images.return_value = img_array
     mock_convert_to_tensor.return_value = tensor
     mock_calculate.side_effect = expected_scores
     evaluator._model.predict.return_value = predictions
@@ -44,9 +42,8 @@ def test_evaluate_images(mock_check, mock_calculate, mock_convert_to_tensor, moc
     with caplog.at_level(logging.INFO):
         result = evaluator.evaluate_images(fake_images)
 
-    mock_normalize_images.assert_called_once_with(fake_images)
-    mock_convert_to_tensor.assert_called_once_with(img_array)
-    evaluator._model.predict.assert_called_once_with(tensor, batch_size=len(fake_images), verbose=0)
+    mock_convert_to_tensor.assert_called_once_with(fake_images)
+    evaluator._model.predict.assert_called_once_with(tensor, batch_size=fake_images.shape[0], verbose=0)
     mock_calculate.assert_has_calls([
         call(prediction, _ResNetModel._prediction_weights) for prediction in predictions],
         any_order=True

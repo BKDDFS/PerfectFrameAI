@@ -62,7 +62,7 @@ def test_get_next_video_frames(mock_read, mock_get_attribute, mock_video_cap,
     mock_read.side_effect = lambda video, idx: f"frame{idx // 30}"
 
     with caplog.at_level(logging.DEBUG):
-        frames_generator = OpenCVVideo.get_next_video_frames(video_path, batch_size)
+        frames_generator = OpenCVVideo.get_next_frames(video_path, batch_size)
         batches = list(frames_generator)
 
     assert len(batches) == expected_num_batches, "Number of batches does not match expected"

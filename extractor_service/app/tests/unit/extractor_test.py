@@ -5,6 +5,7 @@ from unittest.mock import patch, MagicMock
 import numpy as np
 import pytest
 
+from app.image_processors import OpenCVImage
 from app.extractors import (Extractor,
                             ExtractorFactory,
                             BestFramesExtractor,
@@ -91,6 +92,15 @@ def test_save_images(mock_executor, mock_save_image, extractor, config):
     assert mock_executor.submit.return_value.result.call_count == len(images)
 
 
+@patch.object(OpenCVImage, "normalize_images")
+def test_normalize_images(mock_normalize, extractor, config):
+    images = [MagicMock() for _ in range(3)]
+
+    extractor._normalize_images(images, config.target_image_size)
+
+    mock_normalize.assert_called_once_with(images, config.target_image_size)
+
+
 @patch.object(Path, "iterdir")
 @patch.object(Path, "is_file")
 def test_list_input_directory_files(mock_is_file, mock_iterdir, extractor, caplog, config):
@@ -147,17 +157,17 @@ def test_signal_readiness_for_shutdown(extractor, caplog):
     assert "Service ready for shutdown" in caplog.text
 
 
-def test_get_extractor_known_extractors():
-    assert ExtractorFactory.get_extractor("best_frames_extractor") is BestFramesExtractor
-    assert ExtractorFactory.get_extractor("top_images_extractor") is TopImagesExtractor
+def test_create_extractor_known_extractors():
+    assert ExtractorFactory.create_extractor("best_frames_extractor") is BestFramesExtractor
+    assert ExtractorFactory.create_extractor("top_images_extractor") is TopImagesExtractor
 
 
-def test_get_extractor_unknown_extractor_raises(caplog):
+def test_create_extractor_unknown_extractor_raises(caplog):
     unknown_extractor_name = "unknown_extractor"
     expected_massage = f"Provided unknown extractor name: {unknown_extractor_name}"
 
     with pytest.raises(ValueError, match=expected_massage), \
             caplog.at_level(logging.ERROR):
-        ExtractorFactory.get_extractor(unknown_extractor_name)
+        ExtractorFactory.create_extractor(unknown_extractor_name)
 
     assert expected_massage in caplog.text

@@ -4,6 +4,22 @@ Models:
     - ExtractorConfig: Model containing the extractors configuration parameters.
     - Message: Model for encapsulating messages returned by the application.
     - ExtractorStatus: Model representing the status of the currently working extractor in the system.
+LICENSE
+=======
+Copyright (C) 2024  Bartłomiej Flis
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
 """
 import logging
 from pathlib import Path
@@ -29,9 +45,12 @@ class ExtractorConfig(BaseModel):
         compering_group_size (int): Maximum number of images in a group to compare for finding the best one.
         top_images_percent (float): Percentage threshold to determine the top images based on scores.
         images_output_format (str): Format for saving output images, e.g., '.jpg', '.png'.
+        target_image_size (tuple[int, int]): Images will be normalized to this size.
         weights_directory (Path | str): Directory path where model weights are stored.
         weights_filename (str): The filename of the model weights file to be loaded.
         weights_repo_url (str): URL to the repository where model weights can be downloaded.
+        all_frames (bool): It changes best_frames_extractor -> frames_extractor.
+            If Ture best_frames_extractor returns all frames without filtering/evaluation.
     """
     input_directory: DirectoryPath = Path("/app/input_directory")
     output_directory: DirectoryPath = Path("/app/output_directory")
@@ -42,9 +61,11 @@ class ExtractorConfig(BaseModel):
     compering_group_size: int = 5
     top_images_percent: float = 90.0
     images_output_format: str = ".jpg"
+    target_image_size: tuple[int, int] = (224, 224)
     weights_directory: Path | str = Path.home() / ".cache" / "huggingface"
     weights_filename: str = "weights.h5"
     weights_repo_url: str = "https://huggingface.co/BKDDFS/nima_weights/resolve/main/"
+    all_frames: bool = False
 
 
 class Message(BaseModel):
