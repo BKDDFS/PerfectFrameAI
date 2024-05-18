@@ -74,7 +74,7 @@ def parse_args() -> argparse.Namespace:
                         help="Forces the Docker image to be rebuilt if set to true.")
     parser.add_argument("--all_frames", action="store_true",
                         help="Returning all frames every second without filtering. "
-                             "For best_frames_extractor. Does nothing with others")
+                             "For best_frames_extractor - does nothing with others.")
     args = parser.parse_args()
     return args
 
