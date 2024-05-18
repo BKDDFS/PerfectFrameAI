@@ -40,6 +40,7 @@ class ServiceInitializer:
         self._output_directory = self._check_directory(user_input.output_dir)
         self._extractor_name = user_input.extractor_name
         self._port = user_input.port
+        self._all_frames = user_input.all_frames
 
     @staticmethod
     def _check_directory(directory: str) -> Path:
@@ -66,7 +67,12 @@ class ServiceInitializer:
         """Send POST request to local port extractor service to start chosen extractor."""
         if not extractor_url:
             extractor_url = f"http://localhost:{self._port}/extractors/{self._extractor_name}"
-        req = Request(extractor_url, method="POST")
+        json_data = {"all_frames": self._all_frames}
+        req = Request(
+            extractor_url, method="POST",
+            data=json.dumps(json_data).encode('utf-8'),
+            headers={'Content-Type': 'application/json'}
+        )
         start_time = time.time()
         while True:
             if self._try_to_run_extractor(req, start_time):

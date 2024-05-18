@@ -13,6 +13,8 @@ import pytest
 from service_manager import service_initializer
 from service_manager.service_initializer import ServiceInitializer
 
+ALL_FRAMES = False
+
 
 @pytest.fixture
 def service(config):
@@ -21,7 +23,8 @@ def service(config):
         extractor_name=config.service_name,
         input_dir=config.input_directory,
         output_dir=config.output_directory,
-        port=config.port
+        port=config.port,
+        all_frames=ALL_FRAMES
     )
     with patch.object(ServiceInitializer, "_check_directory"):
         initializer = ServiceInitializer(user_input)
@@ -41,7 +44,8 @@ def test_start_various_args(mock_check_directory, arg_set):
         extractor_name=arg_set["extractor_name"],
         input_dir=arg_set["input"],
         output_dir=arg_set["output"],
-        port=arg_set["port"]
+        port=arg_set["port"],
+        all_frames=ALL_FRAMES
     )
     mock_check_directory.side_effect = lambda x: x
 
@@ -51,6 +55,7 @@ def test_start_various_args(mock_check_directory, arg_set):
     assert service._input_directory == arg_set["input"]
     assert service._output_directory == arg_set["output"]
     assert service._port == arg_set["port"]
+    assert service._all_frames == ALL_FRAMES
     mock_check_directory.assert_any_call(arg_set["input"])
     mock_check_directory.assert_any_call(arg_set["output"])
 
@@ -66,7 +71,7 @@ def test_check_valid_directory():
 
 
 @patch.object(time, "time")
-def test_run_extractor(mock_time, service):
+def test_run_extractor_post_request(mock_time, service):
     test_url = f"http://localhost:{service._port}/extractors/{service._extractor_name}"
     test_method = "POST"
     start_time = 100
@@ -82,6 +87,8 @@ def test_run_extractor(mock_time, service):
     request_obj = last_call[0][0]
     assert request_obj.method == test_method
     assert request_obj.full_url == test_url
+    request_data = json.loads(request_obj.data.decode('utf-8'))
+    assert request_data['all_frames'] is False
 
 
 @pytest.fixture
