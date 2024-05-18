@@ -79,6 +79,25 @@
             <p>Output: Obrazy zapisane jako <code>.jpg</code>.</p>
         </ol>
     </details>
+    <br>
+    <details>
+        <summary>
+            <strong>🆕 Frames Extraction 🖼️🖼️🖼️</strong>
+            <blockquote>Zamienia pliki video na klatki.</blockquote>
+        </summary>
+        <p>Modyfikuje <code>best_frames_extractor</code> poprzez pominięcie części z AI/ocenianiem klatek.</p>
+        <code>python start.py best_frames_extractor --all_frames</code>
+        <ol>
+            <p>Input: Folder z plikami video <code>.mp4</code>.</p>
+            <li>Bierze pierwsze video ze wskazanej lokalizacji.</li>
+            <li>
+                Dzieli wideo na klatki. Klatki są brane co 1 sekundę wideo.
+                Klatki są przetwarzane w batchach(seriach).
+            </li>
+            <li>Zapisuje wszystkie klatki w wybranej lokalizacji.</li>
+            <p>Output: Klatki zapisane jako <code>.jpg</code>.</p>
+        </ol>
+    </details>
 </div>
 <div id="installation">
     <h2>💿 Instalacja</h2>
