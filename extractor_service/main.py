@@ -41,7 +41,7 @@ logger = logging.getLogger(__name__)
 app = FastAPI()
 
 
-@app.get("/status")
+@app.get("/v2/status")
 def get_extractors_status() -> ExtractorStatus:
     """
     Checks is some extractor already running on service.
@@ -52,7 +52,7 @@ def get_extractors_status() -> ExtractorStatus:
     return ExtractorStatus(active_extractor=ExtractorManager.get_active_extractor())
 
 
-@app.post("/extractors/{extractor_name}")
+@app.post("/v2/extractors/{extractor_name}")
 def run_extractor(background_tasks: BackgroundTasks, extractor_name: str,
                   config: ExtractorConfig = ExtractorConfig()) -> Message:
     """
