@@ -232,7 +232,8 @@ class BestFramesExtractor(Extractor):
                     self._config.input_directory)
         videos_paths = self._list_input_directory_files(self._config.video_extensions,
                                                         self._config.processed_video_prefix)
-        self._get_image_evaluator()
+        if self._config.all_frames is False:  # evaluator won't be used if all frames
+            self._get_image_evaluator()
         for video_path in videos_paths:
             frames = self._extract_best_frames(video_path)
             self._save_images(frames)

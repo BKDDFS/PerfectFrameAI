@@ -86,6 +86,35 @@ def all_frames_extractor(extractor):
     extractor._config.all_frames = False
 
 
+def test_process_if_all_frames(extractor, caplog, config, all_frames_extractor):
+    test_videos = ["/fake/directory/video1.mp4", "/fake/directory/video2.mp4"]
+    test_frames = ["frame1", "frame2"]
+    extractor._list_input_directory_files = MagicMock(return_value=test_videos)
+    extractor._get_image_evaluator = MagicMock()
+    extractor._extract_best_frames = MagicMock(return_value=test_frames)
+    extractor._save_images = MagicMock()
+    extractor._add_prefix = MagicMock()
+    extractor._signal_readiness_for_shutdown = MagicMock()
+
+    with caplog.at_level(logging.INFO):
+        extractor.process()
+
+    extractor._list_input_directory_files.assert_called_once_with(
+        config.video_extensions, config.processed_video_prefix)
+    extractor._get_image_evaluator.assert_not_called()
+    assert not extractor._image_evaluator
+    assert extractor._extract_best_frames.call_count == len(test_videos)
+    assert extractor._save_images.call_count == len(test_videos)
+    assert extractor._add_prefix.call_count == len(test_videos)
+    extractor._signal_readiness_for_shutdown.assert_called_once()
+    for video in test_videos:
+        extractor._add_prefix.assert_any_call(config.processed_video_prefix, video)
+        extractor._extract_best_frames.assert_any_call(video)
+        extractor._save_images.assert_any_call(test_frames)
+        assert f"Frames extraction has finished for video: {video}" in caplog.text
+    assert f"Starting frames extraction process from '{config.input_directory}'." in caplog.text
+
+
 @patch.object(BestFramesExtractor, "_evaluate_images")
 @patch.object(BestFramesExtractor, "_get_best_frames")
 @patch.object(OpenCVVideo, "get_next_frames")
