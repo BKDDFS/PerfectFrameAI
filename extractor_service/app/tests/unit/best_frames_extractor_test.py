@@ -73,10 +73,11 @@ def test_process_if_all_frames(extractor, caplog, config, all_frames_extractor):
     assert f"Starting frames extraction process from '{config.input_directory}'." in caplog.text
 
 
+@patch("app.extractors.gc.collect")
 @patch.object(BestFramesExtractor, "_get_best_frames")
 @patch.object(BestFramesExtractor, "_save_images")
 @patch.object(OpenCVVideo, "get_next_frames")
-def test_extract_best_frames(mock_generator, mock_save, mock_get, extractor):
+def test_extract_best_frames(mock_generator, mock_save, mock_get, mock_collect, extractor):
     video_path = MagicMock(spec=Path)
 
     batch_1 = [f"frame{i}" for i in range(5)]
@@ -93,12 +94,14 @@ def test_extract_best_frames(mock_generator, mock_save, mock_get, extractor):
     assert mock_get.call_count == 2
     for batch in [batch_1, batch_3]:
         mock_save.assert_called_with(batch)
+    assert mock_collect.call_count == 2
 
 
+@patch("app.extractors.gc.collect")
 @patch.object(BestFramesExtractor, "_get_best_frames")
 @patch.object(BestFramesExtractor, "_save_images")
 @patch.object(OpenCVVideo, "get_next_frames")
-def test_extract_all_frames(mock_generator, mock_save, mock_get, all_frames_extractor):
+def test_extract_all_frames(mock_generator, mock_save, mock_get, mock_collect, all_frames_extractor):
     video_path = MagicMock(spec=Path)
 
     batch_1 = [f"frame{i}" for i in range(5)]
@@ -113,6 +116,7 @@ def test_extract_all_frames(mock_generator, mock_save, mock_get, all_frames_extr
     assert mock_get.assert_not_called
     for batch in [batch_1, batch_3]:
         mock_save.assert_called_with(batch)
+    assert mock_collect.call_count == 2
 
 
 @patch.object(BestFramesExtractor, "_normalize_images")
