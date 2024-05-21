@@ -27,6 +27,7 @@ from pathlib import Path
 from abc import ABC, abstractmethod
 import logging
 from typing import Type
+import gc
 
 import numpy as np
 
@@ -256,6 +257,8 @@ class BestFramesExtractor(Extractor):
             if not self._config.all_frames:
                 frames = self._get_best_frames(frames)
             self._save_images(frames)
+            del frames
+            gc.collect()
 
     def _get_best_frames(self, frames: list[np.ndarray]) -> list[np.ndarray]:
         """
@@ -269,6 +272,7 @@ class BestFramesExtractor(Extractor):
         """
         normalized_images = self._normalize_images(frames, self._config.target_image_size)
         scores = self._evaluate_images(normalized_images)
+        del normalized_images
 
         best_frames = []
         group_size = self._config.compering_group_size
