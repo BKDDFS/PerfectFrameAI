@@ -235,61 +235,50 @@ class BestFramesExtractor(Extractor):
         if self._config.all_frames is False:  # evaluator won't be used if all frames
             self._get_image_evaluator()
         for video_path in videos_paths:
-            frames = self._extract_best_frames(video_path)
-            self._save_images(frames)
+            self._extract_best_frames(video_path)
             self._add_prefix(self._config.processed_video_prefix, video_path)
             logger.info("Frames extraction has finished for video: %s", video_path)
         logger.info("Extraction process finished. All frames extracted.")
         self._signal_readiness_for_shutdown()
 
-    def _extract_best_frames(self, video_path: Path) -> list[np.ndarray]:
+    def _extract_best_frames(self, video_path: Path) -> None:
         """
         Extract best visually frames from given video.
 
         Args:
             video_path (Path): Path of the video that will be extracted.
-
-        Returns:
-            list[np.ndarray]: List of best images(frames) from the given video.
         """
-        best_frames = []
         frames_batch_generator = OpenCVVideo.get_next_frames(video_path, self._config.batch_size)
         for frames in frames_batch_generator:
             if not frames:
                 continue
             logger.debug("Frames batch generated.")
-            if self._config.all_frames:
-                best_frames.extend(frames)
-                continue
-            normalized_images = self._normalize_images(frames, self._config.target_image_size)
-            scores = self._evaluate_images(normalized_images)
-            selected_frames = self._get_best_frames(frames, scores,
-                                                    self._config.compering_group_size)
-            best_frames.extend(selected_frames)
-        return best_frames
+            if not self._config.all_frames:
+                frames = self._get_best_frames(frames, )
+            self._save_images(frames)
 
-    @staticmethod
-    def _get_best_frames(images: list[np.ndarray], scores: np.array,
-                         comparing_group_size: int) -> list[np.ndarray]:
+    def _get_best_frames(self, frames: list[np.ndarray]) -> list[np.ndarray]:
         """
         Splits images batch for comparing groups and select best image for each group.
 
         Args:
-            images (list[np.ndarray]): Batch of images in numpy ndarray.
-            scores (np.array): Array with images scores with images batch order.
-            comparing_group_size (int): The size of the groups into which the batch will be divided.
+            frames (list[np.ndarray]): Batch of images in numpy ndarray.
 
         Returns:
             list[np.ndarray]: Best images list.
         """
-        best_images = []
-        groups = np.array_split(scores, np.arange(comparing_group_size, len(scores), comparing_group_size))
+        normalized_images = self._normalize_images(frames, self._config.target_image_size)
+        scores = self._evaluate_images(normalized_images)
+
+        best_frames = []
+        group_size = self._config.compering_group_size
+        groups = np.array_split(scores, np.arange(group_size, len(scores), group_size))
         for index, group in enumerate(groups):
             best_index = np.argmax(group)
-            global_index = index * comparing_group_size + best_index
-            best_images.append(images[global_index])
-        logger.info("Best frames selected(%s).", len(best_images))
-        return best_images
+            global_index = index * group_size + best_index
+            best_frames.append(frames[global_index])
+        logger.info("Best frames selected(%s).", len(best_frames))
+        return best_frames
 
 
 class TopImagesExtractor(Extractor):
