@@ -48,5 +48,6 @@ def setup_best_frames_extractor_env(files_dir, best_frames_dir) -> tuple[Path, P
         shutil.rmtree(best_frames_dir)
     assert not best_frames_dir.is_dir(), "Output directory was not removed"
     best_frames_dir.mkdir()
+    assert best_frames_dir.is_dir(), "Output dir was not created after cleaning."
 
     return files_dir, best_frames_dir, expected_video_path
