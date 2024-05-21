@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "PerfectFrameAI"
-version = "2.1.1"
+version = "2.2.0"
 description = "AI tool for finding the most aesthetic frames in a video. 🎞️➜🖼️"
 authors = ["Bartłomiej Flis <Bartekdawidflis@gmail.com>"]
 license = "GPL-3.0 license"
