@@ -254,7 +254,7 @@ class BestFramesExtractor(Extractor):
                 continue
             logger.debug("Frames batch generated.")
             if not self._config.all_frames:
-                frames = self._get_best_frames(frames, )
+                frames = self._get_best_frames(frames)
             self._save_images(frames)
 
     def _get_best_frames(self, frames: list[np.ndarray]) -> list[np.ndarray]:
