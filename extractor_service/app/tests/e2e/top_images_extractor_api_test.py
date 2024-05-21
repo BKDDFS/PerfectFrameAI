@@ -10,7 +10,7 @@ def test_top_images_extractor_api(client, setup_top_images_extractor_env):
         "output_directory": str(output_directory)
     }
 
-    response = client.post(f"/extractors/{extractor_name}", json=config)
+    response = client.post(f"/v2/extractors/{extractor_name}", json=config)
 
     assert response.status_code == 200
     assert response.json()["message"] == f"'{extractor_name}' started."

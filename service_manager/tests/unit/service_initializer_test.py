@@ -72,7 +72,7 @@ def test_check_valid_directory():
 
 @patch.object(time, "time")
 def test_run_extractor_post_request(mock_time, service):
-    test_url = f"http://localhost:{service._port}/extractors/{service._extractor_name}"
+    test_url = f"http://localhost:{service._port}/v2/extractors/{service._extractor_name}"
     test_method = "POST"
     start_time = 100
     mock_time.side_effect = [start_time, start_time + 1, start_time + 2, start_time + 3]
