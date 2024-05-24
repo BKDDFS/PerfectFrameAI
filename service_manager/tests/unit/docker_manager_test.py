@@ -110,7 +110,7 @@ def test_container_status(code, output, status, docker, mock_run):
 
 
 @pytest.mark.parametrize("build", (True, False))
-@pytest.mark.parametrize("status", ("exited", None, "running", "dead"))
+@pytest.mark.parametrize("status", ("exited", None, "running", "dead", "created"))
 @patch.object(DockerManager, "_stop_container")
 @patch.object(DockerManager, "_delete_container")
 @patch.object(DockerManager, "_run_container")
@@ -147,7 +147,7 @@ def test_deploy_container(
             mock_stop.assert_not_called()
         mock_delete.assert_called_once()
         mock_run.assert_called_once_with(*deploy_container_args)
-    elif status == "exited":
+    elif status in ["exited", "created"]:
         mock_start.assert_called_once()
         mock_run.assert_not_called()
     elif status == "running":
