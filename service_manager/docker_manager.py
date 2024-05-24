@@ -139,7 +139,7 @@ class DockerManager:
                 self._stop_container()
             self._delete_container()
             self._run_container(container_port, container_input_directory, container_output_directory)
-        elif status == "exited":
+        elif status in ["exited", "created"]:
             self._start_container()
         elif status == "running":
             logging.info(f"Container is already running.")
