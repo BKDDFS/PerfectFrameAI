@@ -106,17 +106,19 @@
         <h3>System Requirements:</h3>
         <ul>
             <li>Docker</li>
-            <li>Python 3.10 or higher (method 1 only)</li>
-            <li>Nvidia GPU (recommended)</li>
-            <li>10 GB free disk space</li>
-        </ul> 
+            <li>Python 3.7+ (method 1 only)</li>
+            <li>8GB+ RAM</li>
+            <li>10GB+ free disk space</li>
+        </ul>
+        <p>Lowest tested specs - i5-4300U, 8GB RAM (ThinkPad T440) - 4k video, default 100img/batch.</p>
+        <p>Remember you can always decrease images batch size in schemas.py if you out of RAM.</p>
     </blockquote>
     <details>
         <summary>Install Docker:</summary>
         Docker Desktop: <a href="https://www.docker.com/products/docker-desktop/">https://www.docker.com/products/docker-desktop/</a>
     </details>
     <details>
-        <summary>Install Python v3.10+:</summary>
+        <summary>Install Python v3.7+:</summary>
         MS Store: <a href="https://apps.microsoft.com/detail/9ncvdn91xzqp?hl=en-US&gl=US">https://apps.microsoft.com/detail/9ncvdn91xzqp?hl=en-US&gl=US</a><br>
         Python.org: <a href="https://www.python.org/downloads/">https://www.python.org/downloads/</a>
     </details>
@@ -148,7 +150,9 @@
                 You can modify the default values in config.py to adjust the application to your needs.<br>
                 <strong>Warning!</strong><br>
                 Please note that when running the .bat file,
-                Windows Defender may flag it as dangerous because it comes from an unknown source.
+                Windows Defender may flag it as dangerous.
+                This happens because obtaining a code-signing certificate
+                to prevent this warning requires a paid certificate...
             </p>
         </blockquote>
         <p>Run <code>start.py</code> from the terminal.</p>
