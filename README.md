@@ -231,6 +231,7 @@
             <blockquote><p><i>Does not require Python. Run using Docker Compose.</i></p></blockquote>
         </summary>
         <p>Docker Compose Docs: <a href="https://docs.docker.com/compose/">https://docs.docker.com/compose/</a></p>
+        <p>Remember to delete GPU part in docker-compose.yaml if you don't have GPU!</p>
         <ol>
             <li>Run the service: <br><code>docker-compose up --build -d</code></li>
             <li>Send a request to the chosen endpoint.

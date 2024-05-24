@@ -6,8 +6,8 @@ services:
     ports:
       - "8100:8100"
     volumes:
-      - "B:/frames_evaluators/input_directory:/app/input_directory"
-      - "B:/frames_evaluators/output_directory:/app/output_directory"
+      - "./input_directory:/app/input_directory"
+      - "./output_directory:/app/output_directory"
     environment:
       - NVIDIA_VISIBLE_DEVICES=all
       - NVIDIA_DRIVER_CAPABILITIES=compute,video,utility
