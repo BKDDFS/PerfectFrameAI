@@ -38,7 +38,7 @@ class DockerManager:
         """Exception raised when the service signals it is ready to be shut down."""
 
     def __init__(self, container_name: str, input_dir: str,
-                 output_dir: str, port: int, force_build: bool) -> None:
+                 output_dir: str, port: int, force_build: bool, cpu_only: bool) -> None:
         """
         Initialize the DockerManager with specific parameters for container and image management.
 
@@ -54,6 +54,7 @@ class DockerManager:
         self._output_directory = output_dir
         self._port = port
         self._force_build = force_build
+        self._cpu_only = cpu_only
         self.__log_input()
 
     @property
@@ -68,6 +69,7 @@ class DockerManager:
         logger.debug("Output directory from user: %s", self._output_directory)
         logger.debug("Port from user: %s", self._port)
         logger.debug("Force build: %s", self._force_build)
+        logger.debug("CPU only: %s", self._cpu_only)
 
     @property
     def docker_image_existence(self) -> bool:
@@ -165,13 +167,15 @@ class DockerManager:
         """
         logging.info("Running a new container...")
         command = [
-            "docker", "run", "--name", self._container_name, "--gpus", "all",
+            "docker", "run", "--name", self._container_name,
             "--restart", "unless-stopped", "-d",
             "-p", f"{self._port}:{container_port}",
             "-v", f"{self._input_directory}:{container_input_directory}",
-            "-v", f"{self._output_directory}:{container_output_directory}",
-            self._image_name
+            "-v", f"{self._output_directory}:{container_output_directory}"
         ]
+        if not self._cpu_only:
+            command.extend(["--gpus", "all"])
+        command.append(self._image_name)
         subprocess.run(command, check=True)
 
     def follow_container_logs(self) -> None:
