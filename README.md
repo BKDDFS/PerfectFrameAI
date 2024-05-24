@@ -356,6 +356,11 @@
                 <td class="check">✅</td>
             </tr>
             <tr>
+                <td>RAM usage optimization</td>
+                <td class="cross">❌</td>
+                <td class="check">✅</td>
+            </tr>
+            <tr>
                 <td>Performance</td>
                 <td>+0%</td>
                 <td>+70%</td>

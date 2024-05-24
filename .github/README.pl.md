@@ -375,6 +375,11 @@
                 <td class="check">✅</td>
             </tr>
             <tr>
+                <td>Optymalizacja zużycia RAMu</td>
+                <td class="cross">❌</td>
+                <td class="check">✅</td>
+            </tr>
+            <tr>
                 <td>Wydajność</td>
                 <td>+0%</td>
                 <td>+70%</td>
