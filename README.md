@@ -140,9 +140,15 @@
          <blockquote>
             <p>
                 <strong>Hint for Windows users:</strong><br>
-                As a Windows user you can use <code>quick_demo.bat</code> file.
-                It will run <code>best_frames_extractor</code> with the default values. Just double click on it.
-                You can modify default values in config.py to adjust the application to your needs.
+                As a Windows user, you can use:<br>
+                <code>quick_demo_gpu.bat</code> or <code>quick_demo_cpu.bat</code>
+                if you don't have an Nvidia GPU.<br>
+                It will run <code>best_frames_extractor</code> with the default values.
+                Just double-click on it.
+                You can modify the default values in config.py to adjust the application to your needs.<br>
+                <strong>Warning!</strong><br>
+                Please note that when running the .bat file,
+                Windows Defender may flag it as dangerous because it comes from an unknown source.
             </p>
         </blockquote>
         <p>Run <code>start.py</code> from the terminal.</p>
@@ -187,6 +193,24 @@
                     <td>
                         Builds a new Docker image with the new specified settings.
                         Always use with the --build flag if you don't understand.
+                    </td>
+                    <td>bool</td>
+                    <td>False</td>
+                </tr>
+                <tr>
+                    <td>--all_frames</td>
+                    <td></td>
+                    <td>
+                        For skipping frames evaluation part.
+                    </td>
+                    <td>bool</td>
+                    <td>False</td>
+                </tr>
+                <tr>
+                    <td>--cpu</td>
+                    <td></td>
+                    <td>
+                        Uses only CPU for processing. If you, don't have GPU you must use it.
                     </td>
                     <td>bool</td>
                     <td>False</td>

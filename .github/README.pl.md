@@ -182,6 +182,24 @@
                     <td>bool</td>
                     <td>False</td>
                 </tr>
+                <tr>
+                    <td>--all_frames</td>
+                    <td></td>
+                    <td>
+                        Do pomijania oceniania klatek.
+                    </td>
+                    <td>bool</td>
+                    <td>False</td>
+                </tr>
+                <tr>
+                    <td>--cpu</td>
+                    <td></td>
+                    <td>
+                        Wyłącza korzystanie z GPU. Musisz tego użyć jeśli nie masz GPU. 
+                    </td>
+                    <td>bool</td>
+                    <td>False</td>
+                </tr>
             </tbody>
         </table>
         <p><strong>Przykład dla Best Frames Extraction:</strong></p> 
