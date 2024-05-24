@@ -15,7 +15,8 @@ def config():
 def manager(config):
     manager = DockerManager(
         config.service_name, config.input_directory,
-        config.output_directory, config.port, False
+        config.output_directory, config.port,
+        False, False
     )
     return manager
 

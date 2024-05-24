@@ -15,13 +15,15 @@ def test_docker_manager_init(caplog, config):
         f"Input directory from user: {config.input_directory}",
         f"Output directory from user: {config.output_directory}",
         f"Port from user: {config.port}",
-        f"Force build: False"
+        "Force build: False",
+        "CPU only: False"
     )
 
     with caplog.at_level(logging.DEBUG):
         docker = DockerManager(
             config.service_name, config.input_directory,
-            config.output_directory, config.port, False
+            config.output_directory, config.port,
+            False, False
         )
 
     assert docker._container_name == config.service_name
@@ -30,6 +32,7 @@ def test_docker_manager_init(caplog, config):
     assert docker._output_directory == config.output_directory
     assert docker._port == config.port
     assert docker._force_build is False
+    assert docker._cpu_only is False
     for message in expected_logs:
         assert message in caplog.text, \
             f"Expected phrase not found in logs: {message}"
@@ -39,7 +42,8 @@ def test_docker_manager_init(caplog, config):
 def docker(config):
     docker = DockerManager(
         config.service_name, config.input_directory,
-        config.output_directory, config.port, False
+        config.output_directory, config.port,
+        False, False
     )
     return docker
 
@@ -170,17 +174,26 @@ def test_start_container_success(docker, mock_run, caplog):
     assert "Starting the existing container..." in caplog.text
 
 
-def test_run_container(docker, mock_run, config, caplog):
+@pytest.mark.parametrize("cpu", (True, False))
+def test_run_container(docker, mock_run, config, caplog, cpu):
+
     expected_command = [
-        "docker", "run", "--name", docker._container_name, "--gpus", "all",
+        "docker", "run", "--name", docker._container_name,
         "--restart", "unless-stopped", "-d",
         "-p", f"{docker._port}:{config.port}",
         "-v", f"{docker._input_directory}:{config.input_directory}",
-        "-v", f"{docker._output_directory}:{config.input_directory}",
-        docker._image_name
+        "-v", f"{docker._output_directory}:{config.input_directory}"
     ]
-    with caplog.at_level(logging.INFO):
-        docker._run_container(config.port, config.input_directory, config.input_directory)
+    if not cpu:
+        expected_command.extend(["--gpus", "all"])
+    expected_command.append(docker._image_name)
+    try:
+        if cpu:
+            docker._cpu_only = True
+        with caplog.at_level(logging.INFO):
+            docker._run_container(config.port, config.input_directory, config.input_directory)
+    finally:
+        docker._cpu_only = False
 
     mock_run.assert_called_once_with(expected_command, check=True)
     assert "Running a new container..." in caplog.text
