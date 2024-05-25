@@ -5,12 +5,16 @@ import numpy as np
 import pytest
 
 from extractor_service.app.extractors import TopImagesExtractor
+from extractor_service.app.image_evaluators import InceptionResNetNIMA
 from extractor_service.app.image_processors import OpenCVImage
+from extractor_service.app.video_processors import OpenCVVideo
 
 
 @pytest.fixture()
 def extractor(config):
-    extractor = TopImagesExtractor(config)
+    extractor = TopImagesExtractor(
+        config, OpenCVImage, OpenCVVideo, InceptionResNetNIMA
+    )
     return extractor
 
 

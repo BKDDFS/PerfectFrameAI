@@ -62,7 +62,7 @@ class ImageProcessor(ABC):
 
     @staticmethod
     @abstractmethod
-    def normalize_images(images: list[np.ndarray], target_size: tuple[int]) -> np.array:
+    def normalize_images(images: list[np.ndarray], target_size: tuple[int, int]) -> np.array:
         """
         Resize a batch of images and convert them to a normalized numpy array.
 

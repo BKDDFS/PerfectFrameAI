@@ -79,7 +79,7 @@ class Extractor(ABC):
         self._image_evaluator = self._image_evaluator_class(self._config)
         return self._image_evaluator
 
-    def _list_input_directory_files(self, extensions: tuple[str],
+    def _list_input_directory_files(self, extensions: tuple[str, ...],
                                     prefix: str | None = None) -> list[Path]:
         """
         List all files with given extensions except files with given filename prefix form
