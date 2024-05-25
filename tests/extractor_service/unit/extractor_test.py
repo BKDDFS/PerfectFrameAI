@@ -5,11 +5,10 @@ from unittest.mock import patch, MagicMock
 import numpy as np
 import pytest
 
-from app.image_processors import OpenCVImage
-from app.extractors import (Extractor,
-                            ExtractorFactory,
-                            BestFramesExtractor,
-                            TopImagesExtractor)
+from extractor_service.app.image_processors import OpenCVImage
+from extractor_service.app.extractors import (ExtractorFactory,
+                                              BestFramesExtractor,
+                                              TopImagesExtractor)
 
 
 def test_extractor_initialization(config):
@@ -24,7 +23,7 @@ def extractor(config):
     return BestFramesExtractor(config)
 
 
-@patch("app.extractors.InceptionResNetNIMA")
+@patch("extractor_service.app.extractors.InceptionResNetNIMA")
 def test_get_image_evaluator(mock_evaluator, extractor, config):
     expected_evaluator = MagicMock()
     mock_evaluator.return_value = expected_evaluator
@@ -52,8 +51,8 @@ def test_evaluate_images(extractor):
 
 
 @pytest.mark.parametrize("image", ("some_image", None))
-@patch("app.extractors.OpenCVImage.read_image", return_value=None)
-@patch("app.extractors.ThreadPoolExecutor")
+@patch("extractor_service.app.extractors.OpenCVImage.read_image", return_value=None)
+@patch("extractor_service.app.extractors.ThreadPoolExecutor")
 def test_read_images(mock_executor, mock_read_image, image, extractor):
     mock_paths = [MagicMock(spec=Path) for _ in range(3)]
     mock_executor.return_value.__enter__.return_value = mock_executor
@@ -74,8 +73,8 @@ def test_read_images(mock_executor, mock_read_image, image, extractor):
         assert not result
 
 
-@patch("app.extractors.OpenCVImage.save_image", return_value=None)
-@patch("app.extractors.ThreadPoolExecutor")
+@patch("extractor_service.app.extractors.OpenCVImage.save_image", return_value=None)
+@patch("extractor_service.app.extractors.ThreadPoolExecutor")
 def test_save_images(mock_executor, mock_save_image, extractor, config):
     images = [MagicMock(spec=np.ndarray) for _ in range(3)]
     mock_executor.return_value.__enter__.return_value = mock_executor

@@ -29,8 +29,8 @@ import sys
 import uvicorn
 from fastapi import FastAPI, BackgroundTasks
 
-from app.schemas import ExtractorConfig, Message, ExtractorStatus
-from app.extractor_manager import ExtractorManager
+from .app.schemas import ExtractorConfig, Message, ExtractorStatus
+from .app.extractor_manager import ExtractorManager
 
 logging.basicConfig(level=logging.DEBUG,
                     format='%(asctime)s - %(levelname)s - %(message)s',

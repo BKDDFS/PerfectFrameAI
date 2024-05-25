@@ -5,7 +5,7 @@ from unittest.mock import patch, MagicMock
 import cv2
 import pytest
 
-from app.video_processors import OpenCVVideo
+from extractor_service.app.video_processors import OpenCVVideo
 
 
 @patch.object(cv2, "VideoCapture")

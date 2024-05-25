@@ -5,8 +5,8 @@ from unittest.mock import MagicMock, patch
 import numpy as np
 import pytest
 
-from app.extractors import BestFramesExtractor
-from app.video_processors import OpenCVVideo
+from extractor_service.app.extractors import BestFramesExtractor
+from extractor_service.app.video_processors import OpenCVVideo
 
 
 @pytest.fixture
@@ -73,7 +73,7 @@ def test_process_if_all_frames(extractor, caplog, config, all_frames_extractor):
     assert f"Starting frames extraction process from '{config.input_directory}'." in caplog.text
 
 
-@patch("app.extractors.gc.collect")
+@patch("extractor_service.app.extractors.gc.collect")
 @patch.object(BestFramesExtractor, "_get_best_frames")
 @patch.object(BestFramesExtractor, "_save_images")
 @patch.object(OpenCVVideo, "get_next_frames")
@@ -97,7 +97,7 @@ def test_extract_best_frames(mock_generator, mock_save, mock_get, mock_collect, 
     assert mock_collect.call_count == 2
 
 
-@patch("app.extractors.gc.collect")
+@patch("extractor_service.app.extractors.gc.collect")
 @patch.object(BestFramesExtractor, "_get_best_frames")
 @patch.object(BestFramesExtractor, "_save_images")
 @patch.object(OpenCVVideo, "get_next_frames")

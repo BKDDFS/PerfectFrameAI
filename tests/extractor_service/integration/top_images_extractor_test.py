@@ -1,5 +1,5 @@
-from app.extractors import TopImagesExtractor
-from app.schemas import ExtractorConfig
+from extractor_service.app.extractors import TopImagesExtractor
+from extractor_service.app.schemas import ExtractorConfig
 
 
 # @pytest.mark.skip(reason="Test time-consuming and dependent on hardware performance")
