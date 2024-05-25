@@ -2,7 +2,7 @@ import docker
 import pytest
 
 from config import Config
-from ...docker_manager import DockerManager
+from service_manager.docker_manager import DockerManager
 
 
 @pytest.fixture(scope="package")

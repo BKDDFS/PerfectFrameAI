@@ -2,7 +2,7 @@ import numpy as np
 import pytest
 from tensorflow.keras.models import Model
 
-from app.image_evaluators import InceptionResNetNIMA
+from extractor_service.app.image_evaluators import InceptionResNetNIMA
 
 
 @pytest.mark.order(1)  # this test must be first because of hugging face limitations

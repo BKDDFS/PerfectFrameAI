@@ -4,8 +4,8 @@ from unittest.mock import MagicMock, patch, call
 import numpy as np
 import pytest
 
-from app.extractors import TopImagesExtractor
-from app.image_processors import OpenCVImage
+from extractor_service.app.extractors import TopImagesExtractor
+from extractor_service.app.image_processors import OpenCVImage
 
 
 @pytest.fixture()

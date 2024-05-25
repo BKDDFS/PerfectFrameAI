@@ -5,7 +5,7 @@ from unittest.mock import patch, MagicMock
 import numpy as np
 import pytest
 
-from app.image_evaluators import _ResNetModel
+from extractor_service.app.image_evaluators import _ResNetModel
 
 
 @pytest.fixture(autouse=True)
@@ -21,10 +21,10 @@ def test_get_prediction_weights():
     assert result is _ResNetModel._prediction_weights
 
 
-@patch("app.image_evaluators.InceptionResNetV2")
-@patch("app.image_evaluators.Dropout")
-@patch("app.image_evaluators.Dense")
-@patch("app.image_evaluators.Model")
+@patch("extractor_service.app.image_evaluators.InceptionResNetV2")
+@patch("extractor_service.app.image_evaluators.Dropout")
+@patch("extractor_service.app.image_evaluators.Dense")
+@patch("extractor_service.app.image_evaluators.Model")
 def test_create_model(mock_model, mock_dense, mock_dropout, mock_resnet, caplog):
     model_weights_path = Path("/fake/path/to/weights.h5")
     model_inputs = "mock_input"
@@ -133,7 +133,7 @@ def test_get_model_weights(mock_download, mock_is_file, file_exists, caplog):
 
 @pytest.mark.parametrize("status_code", (200, 404))
 @patch.object(Path, "write_bytes")
-@patch("app.image_evaluators.requests.get")
+@patch("extractor_service.app.image_evaluators.requests.get")
 @patch.object(Path, "mkdir")
 def test_download_model_weights_success(mock_mkdir, mock_get, mock_write_bytes, status_code, caplog):
     test_url = "http://example.com/weights.h5"

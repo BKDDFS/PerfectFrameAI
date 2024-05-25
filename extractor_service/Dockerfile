@@ -29,6 +29,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 ENV NVIDIA_VISIBLE_DEVICES all
 ENV NVIDIA_DRIVER_CAPABILITIES compute,video,utility
 ENV TF_CPP_MIN_LOG_LEVEL 3
+ENV DOCKER_ENV=1
 
 COPY . .
 
