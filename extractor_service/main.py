@@ -24,17 +24,22 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 """
 import logging
+import os
 import sys
 
 import uvicorn
 from fastapi import FastAPI, BackgroundTasks
 
-from .app.schemas import ExtractorConfig, Message, ExtractorStatus
-from .app.extractor_manager import ExtractorManager
+if os.getenv("DOCKER_ENV"):
+    from app.schemas import ExtractorConfig, Message, ExtractorStatus
+    from app.extractor_manager import ExtractorManager
+else:
+    from .app.schemas import ExtractorConfig, Message, ExtractorStatus
+    from .app.extractor_manager import ExtractorManager
 
 logging.basicConfig(level=logging.DEBUG,
-                    format='%(asctime)s - %(levelname)s - %(message)s',
-                    datefmt='%Y-%m-%d %H:%M:%S',
+                    format="%(asctime)s - %(levelname)s - %(message)s",
+                    datefmt="%Y-%m-%d %H:%M:%S",
                     handlers=[logging.StreamHandler(sys.stdout)])
 logger = logging.getLogger(__name__)
 
