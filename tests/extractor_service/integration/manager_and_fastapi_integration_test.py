@@ -1,9 +1,9 @@
 from fastapi import BackgroundTasks
 from starlette.testclient import TestClient
 
-from app.extractor_manager import ExtractorManager
-from app.schemas import ExtractorConfig
-from main import app
+from extractor_service.app.extractor_manager import ExtractorManager
+from extractor_service.app.schemas import ExtractorConfig
+from extractor_service.main import app
 
 client = TestClient(app)
 

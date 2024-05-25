@@ -4,8 +4,7 @@ from unittest.mock import patch, MagicMock, call
 import numpy as np
 import pytest
 
-from app.image_evaluators import InceptionResNetNIMA, _ResNetModel
-from app.image_processors import OpenCVImage
+from extractor_service.app.image_evaluators import InceptionResNetNIMA, _ResNetModel
 
 
 @pytest.fixture
@@ -26,7 +25,7 @@ def test_evaluator_initialization(mock_get_model, config):
     assert instance._model == test_model
 
 
-@patch("app.image_evaluators.convert_to_tensor")
+@patch("extractor_service.app.image_evaluators.convert_to_tensor")
 @patch.object(InceptionResNetNIMA, "_calculate_weighted_mean")
 @patch.object(InceptionResNetNIMA, "_check_scores")
 def test_evaluate_images(mock_check, mock_calculate, mock_convert_to_tensor, evaluator, caplog):
