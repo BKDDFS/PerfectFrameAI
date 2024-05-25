@@ -3,6 +3,7 @@
 </div>
 <div id="badges">
     <p align="center">
+        <img alt="Github Created At" src="https://img.shields.io/github/created-at/BKDDFS/PerfectFrameAI">
         <img alt="GitHub Downloads (all assets, all releases)" src="https://img.shields.io/github/downloads/BKDDFS/PerfectFrameAI/total?style=flat&color=blue">
         <img alt="GitHub License" src="https://img.shields.io/github/license/BKDDFS/PerfectFrameAI">
         <img alt="GitHub Release" src="https://img.shields.io/github/v/release/BKDDFS/PerfectFrameAI">
