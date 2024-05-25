@@ -34,7 +34,7 @@ import numpy as np
 from .schemas import ExtractorConfig
 from .video_processors import OpenCVVideo
 from .image_processors import OpenCVImage
-from .image_evaluators import InceptionResNetNIMA
+from .image_evaluators import InceptionResNetNIMA, ImageEvaluator
 
 logger = logging.getLogger(__name__)
 
@@ -59,7 +59,7 @@ class Extractor(ABC):
     def process(self) -> None:
         """Abstract main method for extraction process implementation."""
 
-    def _get_image_evaluator(self) -> InceptionResNetNIMA:
+    def _get_image_evaluator(self) -> ImageEvaluator:
         """
         Initializes one of image evaluators (currently NIMA) and
             adds it to extractor instance parameters.
