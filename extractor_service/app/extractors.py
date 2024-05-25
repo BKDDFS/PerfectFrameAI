@@ -32,9 +32,9 @@ import gc
 import numpy as np
 
 from .schemas import ExtractorConfig
-from .video_processors import OpenCVVideo
-from .image_processors import OpenCVImage
-from .image_evaluators import InceptionResNetNIMA, ImageEvaluator
+from .video_processors import VideoProcessor
+from .image_processors import ImageProcessor
+from .image_evaluators import ImageEvaluator
 
 logger = logging.getLogger(__name__)
 
@@ -44,15 +44,24 @@ class Extractor(ABC):
     class EmptyInputDirectoryError(Exception):
         """Error appear when extractor can't get any input to extraction."""
 
-    def __init__(self, config: ExtractorConfig) -> None:
+    def __init__(self, config: ExtractorConfig,
+                 image_processor: Type[ImageProcessor],
+                 video_processor: Type[VideoProcessor],
+                 image_evaluator_class: Type[ImageEvaluator]) -> None:
         """
         Initializes the manager with the given extractor configuration.
 
         Args:
             config (ExtractorConfig): A Pydantic model with configuration
                 parameters for the extractor.
+            image_processor (Type[ImageProcessor]): The class for processing images.
+            video_processor (Type[VideoProcessor]): The class for processing videos.
+            image_evaluator_class (Type[ImageEvaluator]): The class for evaluating images.
         """
         self._config = config
+        self._image_processor = image_processor
+        self._video_processor = video_processor
+        self._image_evaluator_class = image_evaluator_class
         self._image_evaluator = None
 
     @abstractmethod
@@ -67,7 +76,7 @@ class Extractor(ABC):
         Returns:
             PyIQA: Image evaluator class instance for evaluating images.
         """
-        self._image_evaluator = InceptionResNetNIMA(self._config)
+        self._image_evaluator = self._image_evaluator_class(self._config)
         return self._image_evaluator
 
     def _list_input_directory_files(self, extensions: tuple[str],
@@ -118,8 +127,7 @@ class Extractor(ABC):
         scores = np.array(self._image_evaluator.evaluate_images(normalized_images))
         return scores
 
-    @staticmethod
-    def _read_images(paths: list[Path]) -> list[np.ndarray]:
+    def _read_images(self, paths: list[Path]) -> list[np.ndarray]:
         """
         Read all images from given paths synonymously.
 
@@ -132,7 +140,7 @@ class Extractor(ABC):
         with ThreadPoolExecutor() as executor:
             images = []
             futures = [executor.submit(
-                OpenCVImage.read_image, path,
+                self._image_processor.read_image, path,
             ) for path in paths]
             for future in futures:
                 image = future.result()
@@ -149,15 +157,15 @@ class Extractor(ABC):
         """
         with ThreadPoolExecutor() as executor:
             futures = [executor.submit(
-                OpenCVImage.save_image, image,
+                self._image_processor.save_image, image,
                 self._config.output_directory,
                 self._config.images_output_format
             ) for image in images]
             for future in futures:
                 future.result()
 
-    @staticmethod
-    def _normalize_images(images: list[np.ndarray], target_size: tuple[int, int]) -> np.ndarray:
+    def _normalize_images(self, images: list[np.ndarray],
+                          target_size: tuple[int, int]) -> np.ndarray:
         """
         Normalize all images in given list to target size for further operations.
 
@@ -168,7 +176,7 @@ class Extractor(ABC):
         Returns:
             np.ndarray: All images as a one numpy array.
         """
-        normalized_images = OpenCVImage.normalize_images(images, target_size)
+        normalized_images = self._image_processor.normalize_images(images, target_size)
         return normalized_images
 
     @staticmethod
@@ -249,7 +257,9 @@ class BestFramesExtractor(Extractor):
         Args:
             video_path (Path): Path of the video that will be extracted.
         """
-        frames_batch_generator = OpenCVVideo.get_next_frames(video_path, self._config.batch_size)
+        frames_batch_generator = self._video_processor.get_next_frames(
+            video_path, self._config.batch_size
+        )
         for frames in frames_batch_generator:
             if not frames:
                 continue
