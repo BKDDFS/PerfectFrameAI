@@ -6,7 +6,7 @@ from unittest.mock import patch, MagicMock, call
 import cv2
 import numpy as np
 
-from app.image_processors import OpenCVImage
+from extractor_service.app.image_processors import OpenCVImage
 
 
 @patch.object(cv2, "imread")

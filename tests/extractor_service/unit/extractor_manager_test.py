@@ -3,8 +3,8 @@ from unittest.mock import patch, MagicMock
 import pytest
 from fastapi import HTTPException, BackgroundTasks
 
-from app.extractor_manager import ExtractorManager
-from app.extractors import ExtractorFactory
+from extractor_service.app.extractor_manager import ExtractorManager
+from extractor_service.app.extractors import ExtractorFactory
 
 
 def test_get_active_extractor():
@@ -32,7 +32,7 @@ def test_start_extractor(mock_checking, mock_create_extractor, config):
     assert message == expected_message, "The return message does not match expected."
 
 
-@patch("app.extractors.BestFramesExtractor")
+@patch("extractor_service.app.extractors.BestFramesExtractor")
 def test_run_extractor(mock_extractor):
     extractor_name = "some_extractor"
     mock_extractor.return_value.process = MagicMock()
