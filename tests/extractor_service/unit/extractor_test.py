@@ -6,34 +6,39 @@ import numpy as np
 import pytest
 
 from extractor_service.app.image_processors import OpenCVImage
+from extractor_service.app.video_processors import OpenCVVideo
+from extractor_service.app.image_evaluators import InceptionResNetNIMA
 from extractor_service.app.extractors import (ExtractorFactory,
                                               BestFramesExtractor,
                                               TopImagesExtractor)
 
 
 def test_extractor_initialization(config):
-    extractor = BestFramesExtractor(config)
+    extractor = BestFramesExtractor(config, OpenCVImage, OpenCVVideo, InceptionResNetNIMA)
     assert extractor is not None
     assert extractor._config == config
     assert extractor._image_evaluator is None
 
 
-@pytest.fixture
+@pytest.fixture(scope="function")
 def extractor(config):
-    return BestFramesExtractor(config)
+    extractor = BestFramesExtractor(
+        config, OpenCVImage, OpenCVVideo, InceptionResNetNIMA
+    )
+    return extractor
 
 
-@patch("extractor_service.app.extractors.InceptionResNetNIMA")
-def test_get_image_evaluator(mock_evaluator, extractor, config):
-    expected_evaluator = MagicMock()
-    mock_evaluator.return_value = expected_evaluator
+def test_get_image_evaluator(extractor, config):
+    expected = "value"
+    mock_class = MagicMock(return_value=expected)
+    extractor._image_evaluator_class = mock_class
 
     result = extractor._get_image_evaluator()
 
-    mock_evaluator.assert_called_once_with(config)
-    assert result == expected_evaluator, \
+    mock_class.assert_called_once_with(config)
+    assert result == expected, \
         "The method did not return the correct ImageEvaluator instance."
-    assert extractor._image_evaluator == expected_evaluator, \
+    assert extractor._image_evaluator == expected, \
         "The ImageEvaluator instance was not stored correctly in the extractor."
 
 
@@ -51,7 +56,7 @@ def test_evaluate_images(extractor):
 
 
 @pytest.mark.parametrize("image", ("some_image", None))
-@patch("extractor_service.app.extractors.OpenCVImage.read_image", return_value=None)
+@patch.object(OpenCVImage, "read_image", return_value=None)
 @patch("extractor_service.app.extractors.ThreadPoolExecutor")
 def test_read_images(mock_executor, mock_read_image, image, extractor):
     mock_paths = [MagicMock(spec=Path) for _ in range(3)]
@@ -73,14 +78,14 @@ def test_read_images(mock_executor, mock_read_image, image, extractor):
         assert not result
 
 
-@patch("extractor_service.app.extractors.OpenCVImage.save_image", return_value=None)
+@patch.object(OpenCVImage, "read_image", return_value=None)
 @patch("extractor_service.app.extractors.ThreadPoolExecutor")
 def test_save_images(mock_executor, mock_save_image, extractor, config):
     images = [MagicMock(spec=np.ndarray) for _ in range(3)]
     mock_executor.return_value.__enter__.return_value = mock_executor
     mock_executor.submit.return_value.result.return_value = None
     calls = [
-        ((mock_save_image, image, config.output_directory, config.images_output_format),)
+        ((OpenCVImage.save_image, image, config.output_directory, config.images_output_format),)
         for image in images
     ]
 

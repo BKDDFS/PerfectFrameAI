@@ -6,6 +6,8 @@ import numpy as np
 import pytest
 
 from extractor_service.app.extractors import BestFramesExtractor
+from extractor_service.app.image_evaluators import InceptionResNetNIMA
+from extractor_service.app.image_processors import OpenCVImage
 from extractor_service.app.video_processors import OpenCVVideo
 
 
@@ -18,7 +20,9 @@ def all_frames_extractor(extractor):
 
 @pytest.fixture(scope="function")
 def extractor(config):
-    extractor = BestFramesExtractor(config)
+    extractor = BestFramesExtractor(
+        config, OpenCVImage, OpenCVVideo, InceptionResNetNIMA
+    )
     return extractor
 
 
