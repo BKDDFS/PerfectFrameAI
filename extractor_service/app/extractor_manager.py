@@ -24,7 +24,10 @@ from typing import Type
 from fastapi import HTTPException, BackgroundTasks
 
 from .extractors import Extractor, ExtractorFactory
+from .image_evaluators import InceptionResNetNIMA
+from .image_processors import OpenCVImage
 from .schemas import ExtractorConfig
+from .video_processors import OpenCVVideo
 
 logger = logging.getLogger(__name__)
 
@@ -71,17 +74,20 @@ class ExtractorManager:
         return message
 
     @classmethod
-    def __run_extractor(cls, extractor: Type[Extractor], extractor_name: str) -> None:
+    def __run_extractor(cls, extractor_class: Type[Extractor], extractor_name: str) -> None:
         """
         Run extraction process and clean after it's done.
 
         Args:
-            extractor (Extractor): Extractor that will be used for extraction.
+            extractor_class (Type[Extractor]): Extractor that will be used for extraction.
             extractor_name (str): The name of the extractor that will be used.
         """
         try:
             cls._active_extractor = extractor_name
-            extractor(cls._config).process()
+            extractor = extractor_class(
+                cls._config, OpenCVImage, OpenCVVideo, InceptionResNetNIMA
+            )
+            extractor.process()
         finally:
             cls._active_extractor = None
             cls._config = None
