@@ -28,7 +28,7 @@ import os
 import sys
 
 import uvicorn
-from fastapi import FastAPI, BackgroundTasks
+from fastapi import FastAPI, BackgroundTasks, Depends
 
 if os.getenv("DOCKER_ENV"):
     from app.schemas import ExtractorConfig, Message, ExtractorStatus
