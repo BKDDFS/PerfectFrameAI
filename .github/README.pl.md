@@ -453,11 +453,6 @@
             Testy możesz uruchomić instalując zależności z <code>pyproject.toml</code>
             i wpisując w terminal w lokalizacj projektu - <code>pytest</code>.
         </p>
-        <blockquote>
-            Proszę zwrócić uwagę, że w projekcie są dwa foldery <code>tests/</code>.
-            <code>extractor_service</code> i <code>service_initializer</code> mają testy osobno.
-            W pliku common.py znajdują się pliki wpółdzielone przez testy i potrzebne do ich działania.
-        </blockquote>
         <details id="unit">
             <summary>jednostkowe</summary>
             <p>
