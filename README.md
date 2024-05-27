@@ -445,11 +445,6 @@
             You can run the tests by installing the dependencies from <code>pyproject.toml</code>
             and typing in the terminal in the project location - <code>pytest</code>.
         </p>
-        <blockquote>
-            Please note that there are two <code>tests/</code> folders in the project.
-            <code>extractor_service</code> and <code>service_initializer</code> have separate tests.
-            The common.py file contains shared files for the tests and necessary for their operation.
-        </blockquote>
         <details id="unit">
             <summary>unit</summary>
             <p>
