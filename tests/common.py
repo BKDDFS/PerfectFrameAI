@@ -24,9 +24,6 @@ def top_images_dir(files_dir):
 def setup_top_images_extractor_env(files_dir, top_images_dir) -> tuple[Path, Path]:
     assert files_dir.is_dir()
 
-    # found_files = [file for file in files_dir.iterdir() if file.suffix == ".jpg"]
-    # assert len(found_files) > 0, "No JPG files found in test directory"
-
     if top_images_dir.is_dir():
         shutil.rmtree(top_images_dir)
     assert not top_images_dir.is_dir(), "Output directory was not removed"

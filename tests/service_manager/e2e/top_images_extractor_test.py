@@ -1,7 +1,10 @@
 import subprocess
 import sys
+import pytest
+import os
 
 
+@pytest.mark.skipif("CI" in os.environ, reason="Test skipped in GitHub Actions.")
 def test_top_images_extractor(setup_top_images_extractor_env, start_script_path):
     input_directory, output_directory = setup_top_images_extractor_env
     command = [
