@@ -13,3 +13,5 @@ test_video.mp4
 nima.h5
 tests/test_files/best_frames/*
 tests/test_files/top_images/*
+!tests/test_files/best_frames/.gitkeep
+!tests/test_files/top_images/.gitkeep
