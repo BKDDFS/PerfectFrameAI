@@ -19,7 +19,6 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 """
 import logging
-from typing import Type
 
 from fastapi import HTTPException, BackgroundTasks
 
@@ -74,7 +73,7 @@ class ExtractorManager:
         Run extraction process and clean after it's done.
 
         Args:
-            extractor (Type[Extractor]): Extractor that will be used for extraction.
+            extractor (Extractor): Extractor that will be used for extraction.
             extractor_name (str): The name of the extractor that will be used.
         """
         try:

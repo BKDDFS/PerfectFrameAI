@@ -26,9 +26,9 @@ from pathlib import Path
 import requests
 import numpy as np
 from tensorflow import convert_to_tensor
-from tensorflow.keras.models import Model
+from tensorflow.keras import Model
 from tensorflow.keras.layers import Dense, Dropout
-from tensorflow.keras.applications.inception_resnet_v2 import InceptionResNetV2
+import tensorflow as tf
 
 from .schemas import ExtractorConfig
 
@@ -189,35 +189,39 @@ class _NIMAModel(ABC):
             Path: Path to the model weights.
         """
         model_weights_directory = cls._config.weights_directory
-        logger.info("Searching for model weights in weights directory: %s", model_weights_directory)
+        logger.info("Searching for model weights in weights directory: %s",
+                    model_weights_directory)
         model_weights_path = Path(model_weights_directory) / cls._config.weights_filename
         if not model_weights_path.is_file():
-            logger.debug("Can't find model weights in weights directory: %s", model_weights_directory)
+            logger.debug("Can't find model weights in weights directory: %s",
+                         model_weights_directory)
             cls._download_model_weights(model_weights_path)
         else:
-            logger.debug(f"Model weights loaded from: {model_weights_path}")
+            logger.debug("Model weights loaded from: %s", model_weights_path)
         return model_weights_path
 
     @classmethod
-    def _download_model_weights(cls, weights_path: Path) -> None:
+    def _download_model_weights(cls, weights_path: Path, timeout: int = 10) -> None:
         """
         Download the model weights from the specified URL.
 
         Args:
             weights_path (Path): Path to save the downloaded weights.
+            timeout (int): Timeout for the request in seconds.
 
         Raises:
             cls.DownloadingModelWeightsError: If there's an issue downloading the weights.
         """
         url = f"{cls._config.weights_repo_url}{cls._config.weights_filename}"
         logger.debug("Downloading model weights from ulr: %s", url)
-        response = requests.get(url, allow_redirects=True)
+        response = requests.get(url, allow_redirects=True, timeout=timeout)
         if response.status_code == 200:
             weights_path.parent.mkdir(parents=True, exist_ok=True)
             weights_path.write_bytes(response.content)
-            logger.debug(f"Model weights downloaded and saved to %s", weights_path)
+            logger.debug("Model weights downloaded and saved to %s", weights_path)
         else:
-            error_message = f"Failed to download the weights: HTTP status code {response.status_code}"
+            error_message = (f"Failed to download the weights: HTTP status code "
+                             f"{response.status_code}")
             logger.error(error_message)
             raise cls.DownloadingModelWeightsError(error_message)
 
@@ -251,7 +255,7 @@ class _ResNetModel(_NIMAModel):
         Returns:
             Model: NIMA model instance.
         """
-        base_model = InceptionResNetV2(
+        base_model = tf.keras.applications.InceptionResNetV2(
             input_shape=cls._input_shape, include_top=False,
             pooling="avg", weights=None
         )
