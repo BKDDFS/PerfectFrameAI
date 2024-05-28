@@ -8,7 +8,8 @@ def test_best_frames_extractor(setup_best_frames_extractor_env, start_script_pat
         sys.executable, str(start_script_path), "best_frames_extractor",
         "--input_dir", str(input_directory),
         "--output_dir", str(output_directory),
-        "--build"
+        "--build",
+        "--cpu"
     ]
 
     subprocess.run(command)

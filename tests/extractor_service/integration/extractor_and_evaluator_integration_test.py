@@ -1,6 +1,6 @@
 import numpy as np
 import pytest
-from tensorflow.keras.models import Model
+from tensorflow.keras import Model
 
 from extractor_service.app.image_evaluators import InceptionResNetNIMA
 

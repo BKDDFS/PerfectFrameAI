@@ -8,7 +8,8 @@ def test_top_images_extractor(setup_top_images_extractor_env, start_script_path)
         sys.executable, str(start_script_path), "top_images_extractor",
         "--input_dir", input_directory,
         "--output_dir", output_directory,
-        "--build"
+        "--build",
+        "--cpu"
     ]
 
     subprocess.run(command)
