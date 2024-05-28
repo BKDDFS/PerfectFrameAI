@@ -13,19 +13,14 @@ from extractor_service.app.extractors import (ExtractorFactory,
                                               TopImagesExtractor)
 
 
-def test_extractor_initialization(config):
-    extractor = BestFramesExtractor(config, OpenCVImage, OpenCVVideo, InceptionResNetNIMA)
+def test_extractor_initialization(config, dependencies):
+    extractor = BestFramesExtractor(
+        config, dependencies.image_processor,
+        dependencies.video_processor, dependencies.evaluator
+    )
     assert extractor is not None
     assert extractor._config == config
     assert extractor._image_evaluator is None
-
-
-@pytest.fixture(scope="function")
-def extractor(config):
-    extractor = BestFramesExtractor(
-        config, OpenCVImage, OpenCVVideo, InceptionResNetNIMA
-    )
-    return extractor
 
 
 def test_get_image_evaluator(extractor, config):
@@ -162,8 +157,8 @@ def test_signal_readiness_for_shutdown(extractor, caplog):
 
 
 @pytest.mark.parametrize("extractor_name, extractor", (
-    ("best_frames_extractor", BestFramesExtractor),
-    ("top_images_extractor", TopImagesExtractor)
+        ("best_frames_extractor", BestFramesExtractor),
+        ("top_images_extractor", TopImagesExtractor)
 ))
 def test_create_extractor_known_extractors(extractor_name, extractor, config, dependencies):
     extractor_instance = ExtractorFactory.create_extractor(extractor_name, config, dependencies)
