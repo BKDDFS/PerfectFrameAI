@@ -9,7 +9,6 @@ input_directory/*
 output_directory/*
 !input_directory/.gitkeep
 !output_directory/.gitkeep
-test_video.mp4
 nima.h5
 tests/test_files/best_frames/*
 tests/test_files/top_images/*
