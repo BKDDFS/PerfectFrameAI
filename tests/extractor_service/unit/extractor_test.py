@@ -137,8 +137,8 @@ def test_list_input_directory_files_no_files_found(mock_iterdir, extractor, capl
 
 def test_add_prefix(extractor, caplog):
     test_prefix = "prefix_"
-    test_path = Path("test_path\\file.mp4")
-    test_new_path = Path("test_path\\prefix_file.mp4")
+    test_path = Path("test_path/file.mp4")
+    test_new_path = Path("test_path/prefix_file.mp4")
     expected_massage = f"Prefix '{test_prefix}' added to file '{test_path}'. New path: {test_new_path}"
 
     with patch("pathlib.Path.rename") as mock_rename, \
