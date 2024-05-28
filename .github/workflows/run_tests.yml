@@ -45,11 +45,6 @@ jobs:
       - name: Install dependencies
         run: |
           poetry install
-          
-      - name: Start local server
-        run: |
-          nohup python -m http.server 8000 &
-        shell: bash
 
       - name: Run tests
         env:
