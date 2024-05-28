@@ -39,7 +39,7 @@ else:
     from .app.extractor_manager import ExtractorManager
     from .app.dependencies import ExtractorDependencies, get_extractor_dependencies
 
-logging.basicConfig(level=logging.DEBUG,
+logging.basicConfig(level=logging.INFO,
                     format="%(asctime)s - %(levelname)s - %(message)s",
                     datefmt="%Y-%m-%d %H:%M:%S",
                     handlers=[logging.StreamHandler(sys.stdout)])
