@@ -21,7 +21,7 @@ def test_get_prediction_weights():
     assert result is _ResNetModel._prediction_weights
 
 
-@patch("extractor_service.app.image_evaluators.InceptionResNetV2")
+@patch("extractor_service.app.image_evaluators.tf.keras.applications.InceptionResNetV2")
 @patch("extractor_service.app.image_evaluators.Dropout")
 @patch("extractor_service.app.image_evaluators.Dense")
 @patch("extractor_service.app.image_evaluators.Model")
@@ -140,6 +140,7 @@ def test_download_model_weights_success(mock_mkdir, mock_get, mock_write_bytes, 
     test_path = Path("/fake/path/to/weights.h5")
     _ResNetModel._config = MagicMock(weights_repo_url="http://example.com/", weights_filename="weights.h5")
     weights_data = b"weights data"
+    timeout = 12
 
     mock_response = MagicMock()
     mock_response.status_code = status_code
@@ -148,7 +149,7 @@ def test_download_model_weights_success(mock_mkdir, mock_get, mock_write_bytes, 
 
     if status_code == 200:
         with caplog.at_level(logging.DEBUG):
-            _ResNetModel._download_model_weights(test_path)
+            _ResNetModel._download_model_weights(test_path, timeout)
         mock_mkdir.assert_called_once_with(parents=True, exist_ok=True)
         mock_write_bytes.assert_called_once_with(weights_data)
         assert f"Model weights downloaded and saved to {test_path}" in caplog.text
@@ -156,7 +157,7 @@ def test_download_model_weights_success(mock_mkdir, mock_get, mock_write_bytes, 
         error_message = f"Failed to download the weights: HTTP status code {status_code}"
         with caplog.at_level(logging.DEBUG), \
                 pytest.raises(_ResNetModel.DownloadingModelWeightsError, match=error_message):
-            _ResNetModel._download_model_weights(test_path)
+            _ResNetModel._download_model_weights(test_path, timeout)
         assert "Failed to download the weights: HTTP status code 404" in caplog.text
     assert f"Downloading model weights from ulr: {test_url}" in caplog.text
-    mock_get.assert_called_once_with(test_url, allow_redirects=True)
+    mock_get.assert_called_once_with(test_url, allow_redirects=True, timeout=timeout)

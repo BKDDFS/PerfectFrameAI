@@ -112,7 +112,7 @@ class Extractor(ABC):
             )
             logger.error(error_massage)
             raise self.EmptyInputDirectoryError(error_massage)
-        logger.info(f"Directory '%s' files listed.", str(directory))
+        logger.info("Directory '%s' files listed.", str(directory))
         logger.debug("Listed file paths: %s", files)
         return files
 
@@ -121,7 +121,7 @@ class Extractor(ABC):
         Rating all images in provided images batch using already initialized image evaluator.
 
         Args:
-            normalized_images (list[np.ndarray]): Already normalized images np.ndarray for evaluating.
+            normalized_images (list[np.ndarray]): Already normalized images for evaluating.
 
         Returns:
             np.array: Array with images scores in given images order.
@@ -305,7 +305,7 @@ class BestFramesExtractor(Extractor):
 
 
 class TopImagesExtractor(Extractor):
-    """Extractor for extracting images that are in top percent of images in config input directory."""
+    """Images extractor for extracting top percent of images in config input directory."""
 
     def process(self) -> None:
         """

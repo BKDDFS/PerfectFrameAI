@@ -60,7 +60,7 @@ def test_check_image_exists(mock_image, is_exists, docker, mock_run):
 
     mock_run.return_value = MagicMock(stdout=mock_image)
     assert docker.docker_image_existence is is_exists
-    mock_run.assert_called_with(expected_command, capture_output=True, text=True)
+    mock_run.assert_called_with(expected_command, capture_output=True, text=True, check=True)
 
 
 @patch.object(DockerManager, "_check_image_exists")
@@ -70,7 +70,7 @@ def test_build_image(mock_check_image_exists, docker, mock_run, caplog, config):
 
     docker.build_image(config.dockerfile)
 
-    mock_run.assert_called_once_with(expected_command)
+    mock_run.assert_called_once_with(expected_command, check=True)
 
 
 @patch.object(DockerManager, "_check_image_exists")
@@ -109,7 +109,7 @@ def test_container_status(code, output, status, docker, mock_run):
 
     status = docker.container_status
 
-    mock_run.assert_called_once_with(expected_command, capture_output=True, text=True)
+    mock_run.assert_called_once_with(expected_command, capture_output=True, text=True, check=False)
     assert status == status
 
 
