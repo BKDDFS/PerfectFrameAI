@@ -31,6 +31,7 @@ import gc
 
 import numpy as np
 
+from .dependencies import ExtractorDependencies
 from .schemas import ExtractorConfig
 from .video_processors import VideoProcessor
 from .image_processors import ImageProcessor
@@ -41,6 +42,7 @@ logger = logging.getLogger(__name__)
 
 class Extractor(ABC):
     """Abstract class for creating extractors."""
+
     class EmptyInputDirectoryError(Exception):
         """Error appear when extractor can't get any input to extraction."""
 
@@ -97,8 +99,8 @@ class Extractor(ABC):
         files = [
             entry for entry in entries
             if entry.is_file()
-            and entry.suffix in extensions
-            and (prefix is None or not entry.name.startswith(prefix))
+               and entry.suffix in extensions
+               and (prefix is None or not entry.name.startswith(prefix))
         ]
         if not files:
             prefix = prefix if prefix else "Prefix not provided"
@@ -208,22 +210,28 @@ class Extractor(ABC):
 
 class ExtractorFactory:
     """Extractor factory for getting extractors class by their names."""
+
     @staticmethod
-    def create_extractor(extractor_name: str) -> Type[Extractor]:
+    def create_extractor(extractor_name: str, config: ExtractorConfig,
+                         dependencies: ExtractorDependencies) -> Extractor:
         """
         Match extractor class by its name and return its class.
 
         Args:
-            extractor_name (str): Name of the extractor that class will be returned.
+            extractor_name (str): Name of the extractor.
+            config (ExtractorConfig): A Pydantic model with extractor configuration.
+            dependencies(ExtractorDependencies): Dependencies that will be used in extractor.
 
         Returns:
             Extractor: Chosen extractor class.
         """
         match extractor_name:
             case "best_frames_extractor":
-                return BestFramesExtractor
+                return BestFramesExtractor(config, dependencies.image_processor,
+                                           dependencies.video_processor, dependencies.evaluator)
             case "top_images_extractor":
-                return TopImagesExtractor
+                return TopImagesExtractor(config, dependencies.image_processor,
+                                          dependencies.video_processor, dependencies.evaluator)
             case _:
                 error_massage = f"Provided unknown extractor name: {extractor_name}"
                 logger.error(error_massage)
@@ -232,6 +240,7 @@ class ExtractorFactory:
 
 class BestFramesExtractor(Extractor):
     """Extractor for extracting best frames from videos in any input directory."""
+
     def process(self) -> None:
         """
         Rate all videos in given config input directory and
@@ -297,6 +306,7 @@ class BestFramesExtractor(Extractor):
 
 class TopImagesExtractor(Extractor):
     """Extractor for extracting images that are in top percent of images in config input directory."""
+
     def process(self) -> None:
         """
         Rate all images in given config input directory and

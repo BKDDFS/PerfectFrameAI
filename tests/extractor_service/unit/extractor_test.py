@@ -161,17 +161,21 @@ def test_signal_readiness_for_shutdown(extractor, caplog):
     assert "Service ready for shutdown" in caplog.text
 
 
-def test_create_extractor_known_extractors():
-    assert ExtractorFactory.create_extractor("best_frames_extractor") is BestFramesExtractor
-    assert ExtractorFactory.create_extractor("top_images_extractor") is TopImagesExtractor
+@pytest.mark.parametrize("extractor_name, extractor", (
+    ("best_frames_extractor", BestFramesExtractor),
+    ("top_images_extractor", TopImagesExtractor)
+))
+def test_create_extractor_known_extractors(extractor_name, extractor, config, dependencies):
+    extractor_instance = ExtractorFactory.create_extractor(extractor_name, config, dependencies)
+    assert isinstance(extractor_instance, extractor)
 
 
-def test_create_extractor_unknown_extractor_raises(caplog):
+def test_create_extractor_unknown_extractor_raises(caplog, config, dependencies):
     unknown_extractor_name = "unknown_extractor"
     expected_massage = f"Provided unknown extractor name: {unknown_extractor_name}"
 
     with pytest.raises(ValueError, match=expected_massage), \
             caplog.at_level(logging.ERROR):
-        ExtractorFactory.create_extractor(unknown_extractor_name)
+        ExtractorFactory.create_extractor(unknown_extractor_name, config, dependencies)
 
     assert expected_massage in caplog.text

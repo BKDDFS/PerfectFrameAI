@@ -3,11 +3,12 @@ from extractor_service.app.schemas import ExtractorConfig
 
 
 # @pytest.mark.skip(reason="Test time-consuming and dependent on hardware performance")
-def test_top_frames_extractor(setup_top_images_extractor_env):
+def test_top_frames_extractor(setup_top_images_extractor_env, dependencies):
     input_directory, output_directory = setup_top_images_extractor_env
     config = ExtractorConfig(input_directory=input_directory, output_directory=output_directory)
 
-    selector = TopImagesExtractor(config)
+    selector = TopImagesExtractor(config, dependencies.image_processor,
+                                  dependencies.video_processor, dependencies.evaluator)
     selector.process()
 
     found_top_frame_files = [
