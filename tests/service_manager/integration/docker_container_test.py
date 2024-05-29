@@ -1,6 +1,8 @@
 import docker
 import pytest
 
+COMMAND = "sleep 300"
+
 
 @pytest.fixture
 def image(client, manager, config):
@@ -42,7 +44,7 @@ def test_run_container(manager, config, client, cleanup_container, image):
 
 
 def test_start_container(manager, cleanup_container, client, image):
-    container = client.containers.create(image, command="sleep 300", detach=True, name=manager._container_name)
+    container = client.containers.create(image, command=COMMAND, detach=True, name=manager._container_name)
     assert container.status == "created"
     manager._start_container()
     container.reload()
@@ -50,7 +52,7 @@ def test_start_container(manager, cleanup_container, client, image):
 
 
 def test_stop_container(manager, cleanup_container, client, image):
-    container = client.containers.create(image, command="sleep 300", detach=True, name=manager._container_name)
+    container = client.containers.create(image, command=COMMAND, detach=True, name=manager._container_name)
     assert container.status == "created"
     container.start()
     container.reload()
@@ -61,7 +63,7 @@ def test_stop_container(manager, cleanup_container, client, image):
 
 
 def test_delete_container(manager, cleanup_container, client, image):
-    container = client.containers.create(image, command="sleep 300", detach=True, name=manager._container_name)
+    container = client.containers.create(image, command=COMMAND, detach=True, name=manager._container_name)
     assert container.status == "created"
     manager._delete_container()
     with pytest.raises(docker.errors.NotFound):
@@ -69,7 +71,7 @@ def test_delete_container(manager, cleanup_container, client, image):
 
 
 def test_container_status(manager, cleanup_container, client, image):
-    container = client.containers.create(image, command="sleep 300", detach=True, name=manager._container_name)
+    container = client.containers.create(image, command=COMMAND, detach=True, name=manager._container_name)
     assert container.status == "created"
     assert manager.container_status == "created"
     container.start()
