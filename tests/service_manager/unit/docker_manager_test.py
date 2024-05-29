@@ -99,18 +99,18 @@ def test_build_image_when_image_exists_and_force_build(
     assert "Building Docker image..." in caplog.text
 
 
-@pytest.mark.parametrize("code, output, status", ((1, "", None), (0, "'running'", "'running'")))
+@pytest.mark.parametrize("code, output, status", ((1, "", None), (0, "'running'", "running")))
 def test_container_status(code, output, status, docker, mock_run):
     command_output = MagicMock()
     command_output.returncode = code
     command_output.stdout = output
-    mock_subprocess_run.return_value = command_output
+    mock_run.return_value = command_output
     expected_command = ["docker", "inspect", "--format='{{.State.Status}}'", docker._container_name]
 
-    status = docker.container_status
+    result_status = docker.container_status
 
     mock_run.assert_called_once_with(expected_command, capture_output=True, text=True, check=False)
-    assert status == status
+    assert status == result_status
 
 
 @pytest.mark.parametrize("build", (True, False))
