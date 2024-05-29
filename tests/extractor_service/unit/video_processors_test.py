@@ -30,6 +30,7 @@ def test_get_video_capture_failure(mock_cap):
 
     with pytest.raises(OpenCVVideo.CantOpenVideoCapture):
         with OpenCVVideo._video_capture(test_path):
+            # No additional operations are needed here, we are just testing the exception
             pass
 
     mock_video.release.assert_called_once()
