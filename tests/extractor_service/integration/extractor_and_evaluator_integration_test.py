@@ -14,8 +14,8 @@ def test_get_image_evaluator_download_weights_and_create_model(extractor, config
 
     evaluator = extractor._get_image_evaluator()
 
-    isinstance(evaluator, InceptionResNetNIMA)
-    isinstance(evaluator._model, Model)
+    assert isinstance(evaluator, InceptionResNetNIMA)
+    assert isinstance(evaluator._model, Model)
     assert weights_path.exists()
 
 
