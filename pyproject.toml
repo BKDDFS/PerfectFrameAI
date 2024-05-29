@@ -20,6 +20,7 @@ requests = "^2.32.2"
 tensorflow = "^2.16.1"
 tensorflow-io-gcs-filesystem = "0.31.0"
 docker = "^7.1.0"
+pylint = "^3.2.2"
 
 [build-system]
 requires = ["poetry-core"]

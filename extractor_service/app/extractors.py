@@ -16,11 +16,11 @@ the Free Software Foundation, either version 3 of the License, or
 
 This program is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
-along with this program.  If not, see <https://www.gnu.org/licenses/>.
+along with this program. If not, see <https://www.gnu.org/licenses/>.
 """
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
@@ -31,35 +31,46 @@ import gc
 
 import numpy as np
 
+from .dependencies import ExtractorDependencies
 from .schemas import ExtractorConfig
-from .video_processors import OpenCVVideo
-from .image_processors import OpenCVImage
-from .image_evaluators import InceptionResNetNIMA
+from .video_processors import VideoProcessor
+from .image_processors import ImageProcessor
+from .image_evaluators import ImageEvaluator
 
 logger = logging.getLogger(__name__)
 
 
 class Extractor(ABC):
     """Abstract class for creating extractors."""
+
     class EmptyInputDirectoryError(Exception):
         """Error appear when extractor can't get any input to extraction."""
 
-    def __init__(self, config: ExtractorConfig) -> None:
+    def __init__(self, config: ExtractorConfig,
+                 image_processor: Type[ImageProcessor],
+                 video_processor: Type[VideoProcessor],
+                 image_evaluator_class: Type[ImageEvaluator]) -> None:
         """
         Initializes the manager with the given extractor configuration.
 
         Args:
             config (ExtractorConfig): A Pydantic model with configuration
                 parameters for the extractor.
+            image_processor (Type[ImageProcessor]): The class for processing images.
+            video_processor (Type[VideoProcessor]): The class for processing videos.
+            image_evaluator_class (Type[ImageEvaluator]): The class for evaluating images.
         """
         self._config = config
+        self._image_processor = image_processor
+        self._video_processor = video_processor
+        self._image_evaluator_class = image_evaluator_class
         self._image_evaluator = None
 
     @abstractmethod
     def process(self) -> None:
         """Abstract main method for extraction process implementation."""
 
-    def _get_image_evaluator(self) -> InceptionResNetNIMA:
+    def _get_image_evaluator(self) -> ImageEvaluator:
         """
         Initializes one of image evaluators (currently NIMA) and
             adds it to extractor instance parameters.
@@ -67,10 +78,10 @@ class Extractor(ABC):
         Returns:
             PyIQA: Image evaluator class instance for evaluating images.
         """
-        self._image_evaluator = InceptionResNetNIMA(self._config)
+        self._image_evaluator = self._image_evaluator_class(self._config)
         return self._image_evaluator
 
-    def _list_input_directory_files(self, extensions: tuple[str],
+    def _list_input_directory_files(self, extensions: tuple[str, ...],
                                     prefix: str | None = None) -> list[Path]:
         """
         List all files with given extensions except files with given filename prefix form
@@ -88,8 +99,8 @@ class Extractor(ABC):
         files = [
             entry for entry in entries
             if entry.is_file()
-            and entry.suffix in extensions
-            and (prefix is None or not entry.name.startswith(prefix))
+               and entry.suffix in extensions
+               and (prefix is None or not entry.name.startswith(prefix))
         ]
         if not files:
             prefix = prefix if prefix else "Prefix not provided"
@@ -101,7 +112,7 @@ class Extractor(ABC):
             )
             logger.error(error_massage)
             raise self.EmptyInputDirectoryError(error_massage)
-        logger.info(f"Directory '%s' files listed.", str(directory))
+        logger.info("Directory '%s' files listed.", str(directory))
         logger.debug("Listed file paths: %s", files)
         return files
 
@@ -110,7 +121,7 @@ class Extractor(ABC):
         Rating all images in provided images batch using already initialized image evaluator.
 
         Args:
-            normalized_images (list[np.ndarray]): Already normalized images np.ndarray for evaluating.
+            normalized_images (list[np.ndarray]): Already normalized images for evaluating.
 
         Returns:
             np.array: Array with images scores in given images order.
@@ -118,8 +129,7 @@ class Extractor(ABC):
         scores = np.array(self._image_evaluator.evaluate_images(normalized_images))
         return scores
 
-    @staticmethod
-    def _read_images(paths: list[Path]) -> list[np.ndarray]:
+    def _read_images(self, paths: list[Path]) -> list[np.ndarray]:
         """
         Read all images from given paths synonymously.
 
@@ -132,7 +142,7 @@ class Extractor(ABC):
         with ThreadPoolExecutor() as executor:
             images = []
             futures = [executor.submit(
-                OpenCVImage.read_image, path,
+                self._image_processor.read_image, path,
             ) for path in paths]
             for future in futures:
                 image = future.result()
@@ -149,15 +159,15 @@ class Extractor(ABC):
         """
         with ThreadPoolExecutor() as executor:
             futures = [executor.submit(
-                OpenCVImage.save_image, image,
+                self._image_processor.save_image, image,
                 self._config.output_directory,
                 self._config.images_output_format
             ) for image in images]
             for future in futures:
                 future.result()
 
-    @staticmethod
-    def _normalize_images(images: list[np.ndarray], target_size: tuple[int, int]) -> np.ndarray:
+    def _normalize_images(self, images: list[np.ndarray],
+                          target_size: tuple[int, int]) -> np.ndarray:
         """
         Normalize all images in given list to target size for further operations.
 
@@ -168,7 +178,7 @@ class Extractor(ABC):
         Returns:
             np.ndarray: All images as a one numpy array.
         """
-        normalized_images = OpenCVImage.normalize_images(images, target_size)
+        normalized_images = self._image_processor.normalize_images(images, target_size)
         return normalized_images
 
     @staticmethod
@@ -200,22 +210,28 @@ class Extractor(ABC):
 
 class ExtractorFactory:
     """Extractor factory for getting extractors class by their names."""
+
     @staticmethod
-    def create_extractor(extractor_name: str) -> Type[Extractor]:
+    def create_extractor(extractor_name: str, config: ExtractorConfig,
+                         dependencies: ExtractorDependencies) -> Extractor:
         """
         Match extractor class by its name and return its class.
 
         Args:
-            extractor_name (str): Name of the extractor that class will be returned.
+            extractor_name (str): Name of the extractor.
+            config (ExtractorConfig): A Pydantic model with extractor configuration.
+            dependencies(ExtractorDependencies): Dependencies that will be used in extractor.
 
         Returns:
             Extractor: Chosen extractor class.
         """
         match extractor_name:
             case "best_frames_extractor":
-                return BestFramesExtractor
+                return BestFramesExtractor(config, dependencies.image_processor,
+                                           dependencies.video_processor, dependencies.evaluator)
             case "top_images_extractor":
-                return TopImagesExtractor
+                return TopImagesExtractor(config, dependencies.image_processor,
+                                          dependencies.video_processor, dependencies.evaluator)
             case _:
                 error_massage = f"Provided unknown extractor name: {extractor_name}"
                 logger.error(error_massage)
@@ -224,6 +240,7 @@ class ExtractorFactory:
 
 class BestFramesExtractor(Extractor):
     """Extractor for extracting best frames from videos in any input directory."""
+
     def process(self) -> None:
         """
         Rate all videos in given config input directory and
@@ -249,7 +266,9 @@ class BestFramesExtractor(Extractor):
         Args:
             video_path (Path): Path of the video that will be extracted.
         """
-        frames_batch_generator = OpenCVVideo.get_next_frames(video_path, self._config.batch_size)
+        frames_batch_generator = self._video_processor.get_next_frames(
+            video_path, self._config.batch_size
+        )
         for frames in frames_batch_generator:
             if not frames:
                 continue
@@ -286,7 +305,8 @@ class BestFramesExtractor(Extractor):
 
 
 class TopImagesExtractor(Extractor):
-    """Extractor for extracting images that are in top percent of images in config input directory."""
+    """Images extractor for extracting top percent of images in config input directory."""
+
     def process(self) -> None:
         """
         Rate all images in given config input directory and
