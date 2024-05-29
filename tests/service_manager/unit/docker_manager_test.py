@@ -6,6 +6,9 @@ import pytest
 
 from service_manager.docker_manager import DockerManager
 
+LOG_LINE_1 = "log line 1\n"
+LOG_LINE_2 = "log line 2\n"
+
 
 def test_docker_manager_init(caplog, config):
     image_name = f"{config.service_name}_image"
@@ -241,7 +244,7 @@ def test_delete_container_success(docker, mock_run, caplog):
 @patch.object(DockerManager, "_stop_container")
 def test_follow_container_logs_stopped_by_user(mock_stop, mock_run_log, mock_stdout, docker, caplog):
     mock_process = MagicMock()
-    mock_process.stdout.readline.side_effect = ["log line 1\n", "log line 2\n", KeyboardInterrupt()]
+    mock_process.stdout.readline.side_effect = [LOG_LINE_1, LOG_LINE_2, KeyboardInterrupt()]
     mock_run_log.return_value = mock_process
     mock_process.terminate = MagicMock()
     mock_process.wait = MagicMock()
@@ -255,7 +258,7 @@ def test_follow_container_logs_stopped_by_user(mock_stop, mock_run_log, mock_std
     mock_process.wait.assert_called_once()
     mock_stop.assert_called_once()
 
-    calls = [call("log line 1\n"), call("log line 2\n")]
+    calls = [call(LOG_LINE_1), call(LOG_LINE_2)]
     mock_stdout.assert_has_calls(calls, any_order=True)
     assert "Process stopped by user." in caplog.text
     assert "Following container logs stopped." in caplog.text
@@ -268,7 +271,7 @@ def test_follow_container_logs_stopped_automatically(mock_stop, mock_run_log,
                                                      mock_stdout, docker, caplog):
     mock_process = MagicMock()
     mock_process.stdout.readline.side_effect = [
-        "log line 1\n", "log line 2\n", DockerManager.ServiceShutdownSignal()
+        LOG_LINE_1, LOG_LINE_2, DockerManager.ServiceShutdownSignal()
     ]
     mock_run_log.return_value = mock_process
     mock_process.terminate = MagicMock()
@@ -283,7 +286,7 @@ def test_follow_container_logs_stopped_automatically(mock_stop, mock_run_log,
     mock_process.wait.assert_called_once()
     mock_stop.assert_called_once()
 
-    calls = [call("log line 1\n"), call("log line 2\n")]
+    calls = [call(LOG_LINE_1), call(LOG_LINE_2)]
     mock_stdout.assert_has_calls(calls, any_order=True)
     assert "Service has signaled readiness for shutdown." in caplog.text
     assert "Following container logs stopped." in caplog.text
