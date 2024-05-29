@@ -18,7 +18,7 @@ def test_extractor_initialization(config, dependencies):
         config, dependencies.image_processor,
         dependencies.video_processor, dependencies.evaluator
     )
-    assert extractor is not None
+    assert extractor
     assert extractor._config == config
     assert extractor._image_evaluator is None
 
