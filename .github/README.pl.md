@@ -3,6 +3,7 @@
 </div>
 <div id="badges">
     <p align="center">
+        <img alt="Github Created At" src="https://img.shields.io/github/created-at/BKDDFS/PerfectFrameAI">
         <img alt="GitHub Downloads (all assets, all releases)" src="https://img.shields.io/github/downloads/BKDDFS/PerfectFrameAI/total?style=flat&color=blue">
         <img alt="GitHub License" src="https://img.shields.io/github/license/BKDDFS/PerfectFrameAI">
         <img alt="GitHub Release" src="https://img.shields.io/github/v/release/BKDDFS/PerfectFrameAI">
@@ -178,6 +179,24 @@
                     <td>
                         Buduje nowy Docker image z nowymi podanymi ustawieniami.
                         Używaj zawsze z flagą --build, jeśli nie rozumiesz.
+                    </td>
+                    <td>bool</td>
+                    <td>False</td>
+                </tr>
+                <tr>
+                    <td>--all_frames</td>
+                    <td></td>
+                    <td>
+                        Do pomijania oceniania klatek.
+                    </td>
+                    <td>bool</td>
+                    <td>False</td>
+                </tr>
+                <tr>
+                    <td>--cpu</td>
+                    <td></td>
+                    <td>
+                        Wyłącza korzystanie z GPU. Musisz tego użyć jeśli nie masz GPU. 
                     </td>
                     <td>bool</td>
                     <td>False</td>
@@ -434,11 +453,6 @@
             Testy możesz uruchomić instalując zależności z <code>pyproject.toml</code>
             i wpisując w terminal w lokalizacj projektu - <code>pytest</code>.
         </p>
-        <blockquote>
-            Proszę zwrócić uwagę, że w projekcie są dwa foldery <code>tests/</code>.
-            <code>extractor_service</code> i <code>service_initializer</code> mają testy osobno.
-            W pliku common.py znajdują się pliki wpółdzielone przez testy i potrzebne do ich działania.
-        </blockquote>
         <details id="unit">
             <summary>jednostkowe</summary>
             <p>

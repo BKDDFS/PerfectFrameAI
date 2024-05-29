@@ -33,8 +33,10 @@ logger = logging.getLogger(__name__)
 
 class VideoProcessor(ABC):
     """Abstract class for creating video processors used for managing video operations."""
+    @classmethod
     @abstractmethod
-    def get_next_frames(self, video_path: Path, batch_size: int) -> Generator[list[np.ndarray], None, None]:
+    def get_next_frames(cls, video_path: Path,
+                        batch_size: int) -> Generator[list[np.ndarray], None, None]:
         """
         Abstract generator method to generate batches of frames from a video file.
 
@@ -51,6 +53,7 @@ class VideoProcessor(ABC):
 
 
 class OpenCVVideo(VideoProcessor):
+    """Video processor based on OpenCV with FFMPEG extension."""
     class CantOpenVideoCapture(Exception):
         """Exception raised when the video file cannot be opened."""
 
@@ -84,7 +87,8 @@ class OpenCVVideo(VideoProcessor):
             video_cap.release()
 
     @classmethod
-    def get_next_frames(cls, video_path: Path, batch_size: int) -> Generator[list[np.ndarray], None, None]:
+    def get_next_frames(cls, video_path: Path,
+                        batch_size: int) -> Generator[list[np.ndarray], None, None]:
         """
         Generates batches of frames from the specified video using OpenCV.
 
@@ -99,8 +103,10 @@ class OpenCVVideo(VideoProcessor):
             list[np.ndarray]: A batch of video frames.
         """
         with cls._video_capture(video_path) as video:
-            frame_rate = cls._get_video_attribute(video, cv2.CAP_PROP_FPS, "frame rate")
-            total_frames = cls._get_video_attribute(video, cv2.CAP_PROP_FRAME_COUNT, "total frames")
+            frame_rate = cls._get_video_attribute(
+                video, cv2.CAP_PROP_FPS, "frame rate")
+            total_frames = cls._get_video_attribute(
+                video, cv2.CAP_PROP_FRAME_COUNT, "total frames")
             frames_batch = []
             logger.info("Getting frames batch...")
             for frame_index in range(0, total_frames, frame_rate):
@@ -136,7 +142,8 @@ class OpenCVVideo(VideoProcessor):
         return frame
 
     @classmethod
-    def _get_video_attribute(cls, video: cv2.VideoCapture, attribute_id: int, display_name: str) -> int:
+    def _get_video_attribute(cls, video: cv2.VideoCapture,
+                             attribute_id: int, display_name: str) -> int:
         """
         Retrieves a specified attribute value from the video capture object and validates it.
 

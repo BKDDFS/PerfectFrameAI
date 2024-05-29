@@ -24,17 +24,24 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 """
 import logging
+import os
 import sys
 
 import uvicorn
-from fastapi import FastAPI, BackgroundTasks
+from fastapi import FastAPI, BackgroundTasks, Depends
 
-from app.schemas import ExtractorConfig, Message, ExtractorStatus
-from app.extractor_manager import ExtractorManager
+if os.getenv("DOCKER_ENV"):
+    from app.schemas import ExtractorConfig, Message, ExtractorStatus
+    from app.extractor_manager import ExtractorManager
+    from app.dependencies import ExtractorDependencies, get_extractor_dependencies
+else:
+    from .app.schemas import ExtractorConfig, Message, ExtractorStatus
+    from .app.extractor_manager import ExtractorManager
+    from .app.dependencies import ExtractorDependencies, get_extractor_dependencies
 
-logging.basicConfig(level=logging.DEBUG,
-                    format='%(asctime)s - %(levelname)s - %(message)s',
-                    datefmt='%Y-%m-%d %H:%M:%S',
+logging.basicConfig(level=logging.INFO,
+                    format="%(asctime)s - %(levelname)s - %(message)s",
+                    datefmt="%Y-%m-%d %H:%M:%S",
                     handlers=[logging.StreamHandler(sys.stdout)])
 logger = logging.getLogger(__name__)
 
@@ -53,22 +60,26 @@ def get_extractors_status() -> ExtractorStatus:
 
 
 @app.post("/v2/extractors/{extractor_name}")
-def run_extractor(background_tasks: BackgroundTasks, extractor_name: str,
-                  config: ExtractorConfig = ExtractorConfig()) -> Message:
+def run_extractor(
+        extractor_name: str,
+        background_tasks: BackgroundTasks,
+        config: ExtractorConfig = ExtractorConfig(),
+        dependencies: ExtractorDependencies = Depends(get_extractor_dependencies)
+) -> Message:
     """
     Runs provided extractor.
 
     Args:
-        background_tasks (BackgroundTasks): A FastAPI tool for running tasks in background,
-            which allows non-blocking operation of long-running tasks.
         extractor_name (str): The name of the extractor that will be used.
-        config (ExtractorConfig): A Pydantic model with configuration
-            parameters for the extractor.
+        background_tasks (BackgroundTasks): A FastAPI tool for running tasks in background.
+        dependencies(ExtractorDependencies): Dependencies that will be used in extractor.
+        config (ExtractorConfig): A Pydantic model with extractor configuration.
 
     Returns:
         Message: Contains the operation status.
     """
-    message = ExtractorManager.start_extractor(background_tasks, config, extractor_name)
+    message = ExtractorManager.start_extractor(extractor_name, background_tasks,
+                                               config, dependencies)
     return Message(message=message)
 
 

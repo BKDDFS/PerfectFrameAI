@@ -38,7 +38,8 @@ def main() -> None:
         user_input.input_dir,
         user_input.output_dir,
         user_input.port,
-        user_input.build
+        user_input.build,
+        user_input.cpu
     )
     docker.build_image(Config.dockerfile)
     docker.deploy_container(
@@ -75,6 +76,8 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--all_frames", action="store_true",
                         help="Returning all frames every second without filtering. "
                              "For best_frames_extractor - does nothing with others.")
+    parser.add_argument("--cpu", action="store_true",
+                        help="Turn on cpu-only mode.")
     args = parser.parse_args()
     return args
 
