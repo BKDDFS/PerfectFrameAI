@@ -5,7 +5,6 @@ import pytest
 @pytest.fixture
 def image(client, manager, config):
     image_name = "image_name"
-    client = docker.from_env()
     image = client.images.pull("busybox")
     image.tag(image_name)
     manager._image_name = image_name
