@@ -136,9 +136,9 @@ def test_get_model_weights(mock_download, mock_is_file, file_exists, caplog):
 @patch("extractor_service.app.image_evaluators.requests.get")
 @patch.object(Path, "mkdir")
 def test_download_model_weights_success(mock_mkdir, mock_get, mock_write_bytes, status_code, caplog):
-    test_url = "http://example.com/weights.h5"
+    test_url = "https://example.com/weights.h5"
     test_path = Path("/fake/path/to/weights.h5")
-    _ResNetModel._config = MagicMock(weights_repo_url="http://example.com/", weights_filename="weights.h5")
+    _ResNetModel._config = MagicMock(weights_repo_url="https://example.com/", weights_filename="weights.h5")
     weights_data = b"weights data"
     timeout = 12
 
