@@ -20,7 +20,7 @@ def top_images_dir(files_dir):
     return files_dir / "top_images"
 
 
-@pytest.fixture(scope="function")
+@pytest.fixture
 def setup_top_images_extractor_env(files_dir, top_images_dir) -> tuple[Path, Path]:
     assert files_dir.is_dir()
 
@@ -29,10 +29,14 @@ def setup_top_images_extractor_env(files_dir, top_images_dir) -> tuple[Path, Pat
     assert not top_images_dir.is_dir(), "Output directory was not removed"
     top_images_dir.mkdir()
 
-    return files_dir, top_images_dir
+    yield files_dir, top_images_dir
+
+    gitkeep_file = top_images_dir / ".gitkeep"
+    gitkeep_file.touch()
+    assert gitkeep_file.exists()
 
 
-@pytest.fixture(scope="function")
+@pytest.fixture
 def setup_best_frames_extractor_env(files_dir, best_frames_dir) -> tuple[Path, Path, Path]:
     video_filename = "test_video.mp4"
     expected_video_path = files_dir / f"frames_extracted_{video_filename}"
@@ -47,4 +51,8 @@ def setup_best_frames_extractor_env(files_dir, best_frames_dir) -> tuple[Path, P
     best_frames_dir.mkdir()
     assert best_frames_dir.is_dir(), "Output dir was not created after cleaning."
 
-    return files_dir, best_frames_dir, expected_video_path
+    yield files_dir, best_frames_dir, expected_video_path
+
+    gitkeep_file = best_frames_dir / ".gitkeep"
+    gitkeep_file.touch()
+    assert gitkeep_file.exists()
