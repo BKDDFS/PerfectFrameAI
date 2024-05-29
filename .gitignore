@@ -14,5 +14,3 @@ tests/test_files/best_frames/*
 tests/test_files/top_images/*
 !tests/test_files/best_frames/.gitkeep
 !tests/test_files/top_images/.gitkeep
-tests/test_files/test_video.mp4
-tests/test_files/frames_extracted_test_video.mp4
