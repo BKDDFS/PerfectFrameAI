@@ -113,7 +113,7 @@ def test_list_input_directory_files(mock_is_file, mock_iterdir, extractor, caplo
 
     assert result == mock_files
     assert f"Directory '{config.input_directory}' files listed." in caplog.text
-    assert f"Listed file paths: {mock_files}"
+    assert f"Listed file paths: {mock_files}" in caplog.text
 
 
 @patch.object(Path, "iterdir")
