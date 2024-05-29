@@ -64,7 +64,7 @@ def test_class_arguments():
     assert model._model is None
     assert list(model._prediction_weights) == list(np.arange(1, 11))
     assert model._input_shape == (224, 224, 3)
-    assert model._dropout_rate == 0.75
+    assert np.isclose(model._dropout_rate, 0.75, rtol=1e-9)
     assert model._num_classes == 10
 
 
