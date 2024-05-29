@@ -250,7 +250,7 @@ def test_follow_container_logs_stopped_by_user(mock_stop, mock_run_log, mock_std
     mock_process.wait = MagicMock()
 
     with caplog.at_level(logging.INFO), \
-            patch.object(subprocess, "Popen", autospec=True) as pop:
+            patch.object(subprocess, "Popen", autospec=True):
         docker.follow_container_logs()
 
     mock_run_log.assert_called_once()
