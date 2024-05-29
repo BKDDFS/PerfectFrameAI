@@ -81,7 +81,7 @@ def test_container_status(manager, cleanup_container, client, image):
 
 
 def test_run_log_process(manager, cleanup_container, client, image):
-    container = client.containers.run(
+    client.containers.run(
         image,
         command="sh -c 'while true; do date; done'",
         detach=True,
