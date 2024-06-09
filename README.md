@@ -440,7 +440,7 @@
     </div>
     <div id="tests">
         <h2>🧪 Tests</h2>
-        <img src="static/tests_passed.png" width="1000" style="border-radius: 10px;">
+        <img src="static/tests.png" width="1000" style="border-radius: 10px;">
         <p>
             You can run the tests by installing the dependencies from <code>pyproject.toml</code>
             and typing in the terminal in the project location - <code>pytest</code>.
@@ -490,7 +490,6 @@
                 In summary, adding DALI should be another significant step forward
                 in terms of performance improvement.
             </li>
-            <li>Testing on older versions of Python.</li>
             <li>
                 Fixing data spilling during frame evaluation.
                 Currently, evaluation has a slight slowdown in the form of a spilling issue.

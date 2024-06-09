@@ -448,7 +448,7 @@
     </div>
     <div id="tests">
         <h2>🧪 Testy</h2>
-        <img src="../static/tests_passed.png">
+        <img src="../static/tests.png">
         <p>
             Testy możesz uruchomić instalując zależności z <code>pyproject.toml</code>
             i wpisując w terminal w lokalizacj projektu - <code>pytest</code>.
@@ -498,7 +498,6 @@
                 Podsumowując, dodanie DALI powinno być kolejnym poważnym krokiem naprzód,
                 jeśli chodzi o poprawę wydajności.
             </li>
-            <li>Przetestowanie działania na starszych wersjach Pythona.</li>
             <li>
                 Naprawienie spillingu danych podczas oceniania klatek. 
                 Obecnie ocenianie ma delikatne spowolnienie w postaci problemu ze spillingiem.
