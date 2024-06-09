@@ -47,7 +47,7 @@
         </summary>
         <img src="static/start_frames.png" width="350">
         <ol>
-            <p>Input: Folder with <code>.mp4</code> video files.</p>
+            <p>Input: Folder with video files.</p>
             <li>Takes the first video from the specified location.</li>
             <li>
                 Splits the video into frames.
@@ -69,7 +69,7 @@
         </summary>
         <img src="static/start_images.png" width="350">
         <ol>
-            <p>Input: Folder with <code>.jpg</code> images.</p>
+            <p>Input: Folder with images.</p>
             <li>Loads the images. Images are processed in batches.</li>
             <li>Evaluates all images in the batch using an AI model and assigns them a numerical score.</li>
             <li>
@@ -89,7 +89,7 @@
         <p>Modifying <code>best_frames_extractor</code> by skipping AI evaluation part.</p>
         <code>python start.py best_frames_extractor --all_frames</code>
         <ol>
-            <p>Input: Folder with <code>.mp4</code> video files.</p>
+            <p>Input: Folder with video files.</p>
             <li>Takes the first video from the specified location.</li>
             <li>
                 Splits the video into frames.
