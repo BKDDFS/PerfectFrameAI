@@ -47,7 +47,7 @@
         </summary>
         <img src="../static/start_frames.png" width="350">
         <ol>
-            <p>Input: Folder z plikami video <code>.mp4</code>.</p>
+            <p>Input: Folder z plikami video.</p>
             <li>Bierze pierwsze video ze wskazanej lokalizacji.</li>
             <li>
                 Dzieli wideo na klatki.
@@ -69,7 +69,7 @@
         </summary>
         <img src="../static/start_images.png" width="350">
         <ol>
-            <p>Input: Folder z obrazami <code>.jpg</code>.</p>
+            <p>Input: Folder z obrazami.</p>
             <li>Wczytuje obrazy. Obrazy są przetwarzane batchach(seriach).</li>
             <li>Ocenia wszystkie obrazy w batchu za pomocą modelu AI i nadaje im ocenę liczbową.</li>
             <li>
@@ -89,7 +89,7 @@
         <p>Modyfikuje <code>best_frames_extractor</code> poprzez pominięcie części z AI/ocenianiem klatek.</p>
         <code>python start.py best_frames_extractor --all_frames</code>
         <ol>
-            <p>Input: Folder z plikami video <code>.mp4</code>.</p>
+            <p>Input: Folder z plikami video.</p>
             <li>Bierze pierwsze video ze wskazanej lokalizacji.</li>
             <li>
                 Dzieli wideo na klatki. Klatki są brane co 1 sekundę wideo.
