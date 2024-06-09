@@ -4,9 +4,12 @@
 <div id="badges">
     <p align="center">
         <img alt="Github Created At" src="https://img.shields.io/github/created-at/BKDDFS/PerfectFrameAI">
-        <img alt="GitHub Downloads (all assets, all releases)" src="https://img.shields.io/github/downloads/BKDDFS/PerfectFrameAI/total?style=flat&color=blue">
+        <img alt="GitHub last commit" src="https://img.shields.io/github/last-commit/BKDDFS/PerfectFrameAI">
+        <a href="https://codecov.io/github/BKDDFS/PerfectFrameAI" >
+        <img src="https://codecov.io/github/BKDDFS/PerfectFrameAI/graph/badge.svg?token=GT9TGKBGYI"/>
+        </a>
         <img alt="GitHub License" src="https://img.shields.io/github/license/BKDDFS/PerfectFrameAI">
-        <img alt="GitHub Release" src="https://img.shields.io/github/v/release/BKDDFS/PerfectFrameAI">
+        <img alt="GitHub Tag" src="https://img.shields.io/github/v/tag/BKDDFS/PerfectFrameAI">
         <img alt="GitHub Repo stars" src="https://img.shields.io/github/stars/BKDDFS/PerfectFrameAI">
     </p>
 </div>
