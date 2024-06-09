@@ -52,10 +52,15 @@ jobs:
           DOCKER_HOST: tcp://localhost:2375
         run: |
           poetry run coverage run -m pytest
+          poetry run coverage report
           poetry run coverage xml
 
+      - name: Show coverage report
+        run: |
+          cat coverage.xml
+
       - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v4.0.1
+        uses: codecov/codecov-action@v3.1.1
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           files: ./coverage.xml
