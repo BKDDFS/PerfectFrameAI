@@ -12,8 +12,8 @@ def test_config_default():
         config = ExtractorConfig()
     assert config.input_directory == Path("/app/input_directory")
     assert config.output_directory == Path("/app/output_directory")
-    assert config.video_extensions == (".mp4",)
-    assert config.images_extensions == (".jpg",)
+    assert config.video_extensions == (".mp4", ".mov", ".webm", ".mkv", ".avi")
+    assert config.images_extensions == (".jpg", ".jpeg", ".png", ".webp")
     assert config.processed_video_prefix == "frames_extracted_"
     assert isinstance(config.compering_group_size, int)
     assert isinstance(config.batch_size, int)

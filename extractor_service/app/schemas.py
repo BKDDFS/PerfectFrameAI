@@ -54,8 +54,8 @@ class ExtractorConfig(BaseModel):
     """
     input_directory: DirectoryPath = Path("/app/input_directory")
     output_directory: DirectoryPath = Path("/app/output_directory")
-    video_extensions: tuple[str] = (".mp4",)
-    images_extensions: tuple[str] = (".jpg",)
+    video_extensions: tuple[str] = (".mp4", ".mov", ".webm", ".mkv", ".avi")  # add more containers here
+    images_extensions: tuple[str] = (".jpg", ".jpeg", ".png", ".webp")  # add more containers here
     processed_video_prefix: str = "frames_extracted_"
     batch_size: int = 100
     compering_group_size: int = 5

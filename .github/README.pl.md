@@ -4,9 +4,12 @@
 <div id="badges">
     <p align="center">
         <img alt="Github Created At" src="https://img.shields.io/github/created-at/BKDDFS/PerfectFrameAI">
-        <img alt="GitHub Downloads (all assets, all releases)" src="https://img.shields.io/github/downloads/BKDDFS/PerfectFrameAI/total?style=flat&color=blue">
+        <img alt="GitHub last commit" src="https://img.shields.io/github/last-commit/BKDDFS/PerfectFrameAI">
+        <a href="https://codecov.io/github/BKDDFS/PerfectFrameAI" >
+        <img src="https://codecov.io/github/BKDDFS/PerfectFrameAI/graph/badge.svg?token=GT9TGKBGYI"/>
+        </a>
         <img alt="GitHub License" src="https://img.shields.io/github/license/BKDDFS/PerfectFrameAI">
-        <img alt="GitHub Release" src="https://img.shields.io/github/v/release/BKDDFS/PerfectFrameAI">
+        <img alt="GitHub Tag" src="https://img.shields.io/github/v/tag/BKDDFS/PerfectFrameAI">
         <img alt="GitHub Repo stars" src="https://img.shields.io/github/stars/BKDDFS/PerfectFrameAI">
     </p>
 </div>
@@ -47,7 +50,7 @@
         </summary>
         <img src="../static/start_frames.png" width="350">
         <ol>
-            <p>Input: Folder z plikami video <code>.mp4</code>.</p>
+            <p>Input: Folder z plikami video.</p>
             <li>Bierze pierwsze video ze wskazanej lokalizacji.</li>
             <li>
                 Dzieli wideo na klatki.
@@ -69,7 +72,7 @@
         </summary>
         <img src="../static/start_images.png" width="350">
         <ol>
-            <p>Input: Folder z obrazami <code>.jpg</code>.</p>
+            <p>Input: Folder z obrazami.</p>
             <li>Wczytuje obrazy. Obrazy są przetwarzane batchach(seriach).</li>
             <li>Ocenia wszystkie obrazy w batchu za pomocą modelu AI i nadaje im ocenę liczbową.</li>
             <li>
@@ -89,7 +92,7 @@
         <p>Modyfikuje <code>best_frames_extractor</code> poprzez pominięcie części z AI/ocenianiem klatek.</p>
         <code>python start.py best_frames_extractor --all_frames</code>
         <ol>
-            <p>Input: Folder z plikami video <code>.mp4</code>.</p>
+            <p>Input: Folder z plikami video.</p>
             <li>Bierze pierwsze video ze wskazanej lokalizacji.</li>
             <li>
                 Dzieli wideo na klatki. Klatki są brane co 1 sekundę wideo.
@@ -448,7 +451,7 @@
     </div>
     <div id="tests">
         <h2>🧪 Testy</h2>
-        <img src="../static/tests_passed.png">
+        <img src="../static/tests.png">
         <p>
             Testy możesz uruchomić instalując zależności z <code>pyproject.toml</code>
             i wpisując w terminal w lokalizacj projektu - <code>pytest</code>.
@@ -498,7 +501,6 @@
                 Podsumowując, dodanie DALI powinno być kolejnym poważnym krokiem naprzód,
                 jeśli chodzi o poprawę wydajności.
             </li>
-            <li>Przetestowanie działania na starszych wersjach Pythona.</li>
             <li>
                 Naprawienie spillingu danych podczas oceniania klatek. 
                 Obecnie ocenianie ma delikatne spowolnienie w postaci problemu ze spillingiem.
