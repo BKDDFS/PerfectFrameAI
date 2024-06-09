@@ -5,6 +5,9 @@
     <p align="center">
         <img alt="Github Created At" src="https://img.shields.io/github/created-at/BKDDFS/PerfectFrameAI">
         <img alt="GitHub last commit" src="https://img.shields.io/github/last-commit/BKDDFS/PerfectFrameAI">
+        <a href="https://codecov.io/github/BKDDFS/PerfectFrameAI" >
+        <img src="https://codecov.io/github/BKDDFS/PerfectFrameAI/graph/badge.svg?token=GT9TGKBGYI"/>
+        </a>
         <img alt="GitHub License" src="https://img.shields.io/github/license/BKDDFS/PerfectFrameAI">
         <img alt="GitHub Tag" src="https://img.shields.io/github/v/tag/BKDDFS/PerfectFrameAI">
         <img alt="GitHub Repo stars" src="https://img.shields.io/github/stars/BKDDFS/PerfectFrameAI">
@@ -47,7 +50,7 @@
         </summary>
         <img src="static/start_frames.png" width="350">
         <ol>
-            <p>Input: Folder with <code>.mp4</code> video files.</p>
+            <p>Input: Folder with video files.</p>
             <li>Takes the first video from the specified location.</li>
             <li>
                 Splits the video into frames.
@@ -69,7 +72,7 @@
         </summary>
         <img src="static/start_images.png" width="350">
         <ol>
-            <p>Input: Folder with <code>.jpg</code> images.</p>
+            <p>Input: Folder with images.</p>
             <li>Loads the images. Images are processed in batches.</li>
             <li>Evaluates all images in the batch using an AI model and assigns them a numerical score.</li>
             <li>
@@ -89,7 +92,7 @@
         <p>Modifying <code>best_frames_extractor</code> by skipping AI evaluation part.</p>
         <code>python start.py best_frames_extractor --all_frames</code>
         <ol>
-            <p>Input: Folder with <code>.mp4</code> video files.</p>
+            <p>Input: Folder with video files.</p>
             <li>Takes the first video from the specified location.</li>
             <li>
                 Splits the video into frames.
@@ -440,7 +443,7 @@
     </div>
     <div id="tests">
         <h2>🧪 Tests</h2>
-        <img src="static/tests_passed.png" width="1000" style="border-radius: 10px;">
+        <img src="static/tests.png" width="1000" style="border-radius: 10px;">
         <p>
             You can run the tests by installing the dependencies from <code>pyproject.toml</code>
             and typing in the terminal in the project location - <code>pytest</code>.
@@ -490,7 +493,6 @@
                 In summary, adding DALI should be another significant step forward
                 in terms of performance improvement.
             </li>
-            <li>Testing on older versions of Python.</li>
             <li>
                 Fixing data spilling during frame evaluation.
                 Currently, evaluation has a slight slowdown in the form of a spilling issue.
