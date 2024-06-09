@@ -43,17 +43,11 @@ jobs:
         run: |
           poetry install
 
-      - name: Install coverage and codecov
-        run: |
-          poetry add coverage codecov
-
       - name: Run tests with coverage
         env:
           DOCKER_HOST: tcp://localhost:2375
         run: |
-          poetry run coverage run -m pytest
-          poetry run coverage report
-          poetry run coverage xml
+          poetry run pytest --cov --cov-report=xml
 
       - name: Show coverage report
         run: |
