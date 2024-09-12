@@ -1,6 +1,6 @@
 import logging
 import subprocess
-from unittest.mock import patch, MagicMock, PropertyMock, call
+from unittest.mock import MagicMock, PropertyMock, call, patch
 
 import pytest
 
