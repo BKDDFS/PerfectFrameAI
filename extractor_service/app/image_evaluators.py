@@ -23,12 +23,12 @@ import logging
 from abc import ABC, abstractmethod
 from pathlib import Path
 
-import requests
 import numpy as np
+import requests
+import tensorflow as tf
 from tensorflow import convert_to_tensor
 from tensorflow.keras import Model
 from tensorflow.keras.layers import Dense, Dropout
-import tensorflow as tf
 
 from .schemas import ExtractorConfig
 

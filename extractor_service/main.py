@@ -28,16 +28,18 @@ import os
 import sys
 
 import uvicorn
-from fastapi import FastAPI, BackgroundTasks, Depends
+from fastapi import BackgroundTasks, Depends, FastAPI
 
 if os.getenv("DOCKER_ENV"):
-    from app.schemas import ExtractorConfig, Message, ExtractorStatus
+    from app.dependencies import (ExtractorDependencies,
+                                  get_extractor_dependencies)
     from app.extractor_manager import ExtractorManager
-    from app.dependencies import ExtractorDependencies, get_extractor_dependencies
+    from app.schemas import ExtractorConfig, ExtractorStatus, Message
 else:
-    from .app.schemas import ExtractorConfig, Message, ExtractorStatus
+    from .app.dependencies import (ExtractorDependencies,
+                                   get_extractor_dependencies)
     from .app.extractor_manager import ExtractorManager
-    from .app.dependencies import ExtractorDependencies, get_extractor_dependencies
+    from .app.schemas import ExtractorConfig, ExtractorStatus, Message
 
 logging.basicConfig(level=logging.INFO,
                     format="%(asctime)s - %(levelname)s - %(message)s",

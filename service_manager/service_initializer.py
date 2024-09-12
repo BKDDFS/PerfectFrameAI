@@ -21,10 +21,10 @@ import argparse
 import json
 import logging
 import time
+from http.client import RemoteDisconnected
 from pathlib import Path
 from typing import Union
-from urllib.request import urlopen, Request
-from http.client import RemoteDisconnected
+from urllib.request import Request, urlopen
 
 logger = logging.getLogger(__name__)
 

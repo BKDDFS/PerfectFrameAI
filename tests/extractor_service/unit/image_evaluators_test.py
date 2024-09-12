@@ -1,10 +1,11 @@
 import logging
-from unittest.mock import patch, MagicMock, call
+from unittest.mock import MagicMock, call, patch
 
 import numpy as np
 import pytest
 
-from extractor_service.app.image_evaluators import InceptionResNetNIMA, _ResNetModel
+from extractor_service.app.image_evaluators import (InceptionResNetNIMA,
+                                                    _ResNetModel)
 
 
 @pytest.fixture

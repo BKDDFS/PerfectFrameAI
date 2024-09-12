@@ -20,7 +20,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 """
 import logging
 
-from fastapi import HTTPException, BackgroundTasks
+from fastapi import BackgroundTasks, HTTPException
 
 from .dependencies import ExtractorDependencies
 from .extractors import Extractor, ExtractorFactory
