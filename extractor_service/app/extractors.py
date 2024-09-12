@@ -22,20 +22,20 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program. If not, see <https://www.gnu.org/licenses/>.
 """
+import gc
+import logging
+from abc import ABC, abstractmethod
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
-from abc import ABC, abstractmethod
-import logging
 from typing import Type
-import gc
 
 import numpy as np
 
 from .dependencies import ExtractorDependencies
+from .image_evaluators import ImageEvaluator
+from .image_processors import ImageProcessor
 from .schemas import ExtractorConfig
 from .video_processors import VideoProcessor
-from .image_processors import ImageProcessor
-from .image_evaluators import ImageEvaluator
 
 logger = logging.getLogger(__name__)
 

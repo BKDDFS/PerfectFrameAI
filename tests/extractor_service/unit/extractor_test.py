@@ -1,16 +1,16 @@
 import logging
 from pathlib import Path
-from unittest.mock import patch, MagicMock
+from unittest.mock import MagicMock, patch
 
 import numpy as np
 import pytest
 
+from extractor_service.app.extractors import (BestFramesExtractor,
+                                              ExtractorFactory,
+                                              TopImagesExtractor)
+from extractor_service.app.image_evaluators import InceptionResNetNIMA
 from extractor_service.app.image_processors import OpenCVImage
 from extractor_service.app.video_processors import OpenCVVideo
-from extractor_service.app.image_evaluators import InceptionResNetNIMA
-from extractor_service.app.extractors import (ExtractorFactory,
-                                              BestFramesExtractor,
-                                              TopImagesExtractor)
 
 
 def test_extractor_initialization(config, dependencies):
