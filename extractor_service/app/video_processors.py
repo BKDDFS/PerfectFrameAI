@@ -21,9 +21,9 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 """
 import logging
 from abc import ABC, abstractmethod
-from typing import Generator
 from contextlib import contextmanager
 from pathlib import Path
+from typing import Generator
 
 import cv2
 import numpy as np

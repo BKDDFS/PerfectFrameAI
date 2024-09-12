@@ -1,8 +1,7 @@
-from unittest.mock import patch, MagicMock
+from unittest.mock import MagicMock, patch
 
 import pytest
-from fastapi import HTTPException, BackgroundTasks
-
+from fastapi import BackgroundTasks, HTTPException
 
 from extractor_service.app.extractor_manager import ExtractorManager
 from extractor_service.app.extractors import ExtractorFactory

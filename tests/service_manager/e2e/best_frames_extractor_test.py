@@ -1,7 +1,8 @@
+import os
 import subprocess
 import sys
+
 import pytest
-import os
 
 
 @pytest.mark.skipif("CI" in os.environ, reason="Test skipped in GitHub Actions.")

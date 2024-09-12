@@ -18,8 +18,8 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 """
-import logging
 import argparse
+import logging
 
 from config import Config
 from service_manager.docker_manager import DockerManager
