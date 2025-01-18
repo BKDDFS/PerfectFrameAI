@@ -65,7 +65,7 @@ class ServiceInitializer:
 
     def run_extractor(self, extractor_url: Union[str, None] = None) -> None:
         """Send POST request to local port extractor service to start chosen extractor."""
-        if not extractor_url:
+        if extractor_url is None:
             extractor_url = f"http://localhost:{self._port}/v2/extractors/{self._extractor_name}"
         json_data = {"all_frames": self._all_frames}
         req = Request(
