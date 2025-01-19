@@ -23,6 +23,7 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 """
+
 import logging
 import os
 import sys
@@ -31,20 +32,20 @@ import uvicorn
 from fastapi import BackgroundTasks, Depends, FastAPI
 
 if os.getenv("DOCKER_ENV"):
-    from app.dependencies import (ExtractorDependencies,
-                                  get_extractor_dependencies)
+    from app.dependencies import ExtractorDependencies, get_extractor_dependencies
     from app.extractor_manager import ExtractorManager
     from app.schemas import ExtractorConfig, ExtractorStatus, Message
 else:
-    from .app.dependencies import (ExtractorDependencies,
-                                   get_extractor_dependencies)
+    from .app.dependencies import ExtractorDependencies, get_extractor_dependencies
     from .app.extractor_manager import ExtractorManager
     from .app.schemas import ExtractorConfig, ExtractorStatus, Message
 
-logging.basicConfig(level=logging.INFO,
-                    format="%(asctime)s - %(levelname)s - %(message)s",
-                    datefmt="%Y-%m-%d %H:%M:%S",
-                    handlers=[logging.StreamHandler(sys.stdout)])
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s - %(levelname)s - %(message)s",
+    datefmt="%Y-%m-%d %H:%M:%S",
+    handlers=[logging.StreamHandler(sys.stdout)],
+)
 logger = logging.getLogger(__name__)
 
 app = FastAPI()
@@ -63,10 +64,10 @@ def get_extractors_status() -> ExtractorStatus:
 
 @app.post("/v2/extractors/{extractor_name}")
 def run_extractor(
-        extractor_name: str,
-        background_tasks: BackgroundTasks,
-        config: ExtractorConfig = ExtractorConfig(),
-        dependencies: ExtractorDependencies = Depends(get_extractor_dependencies)
+    extractor_name: str,
+    background_tasks: BackgroundTasks,
+    config: ExtractorConfig = ExtractorConfig(),
+    dependencies: ExtractorDependencies = Depends(get_extractor_dependencies),
 ) -> Message:
     """
     Runs provided extractor.
@@ -80,8 +81,7 @@ def run_extractor(
     Returns:
         Message: Contains the operation status.
     """
-    message = ExtractorManager.start_extractor(extractor_name, background_tasks,
-                                               config, dependencies)
+    message = ExtractorManager.start_extractor(extractor_name, background_tasks, config, dependencies)
     return Message(message=message)
 
 

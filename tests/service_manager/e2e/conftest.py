@@ -2,9 +2,13 @@ from pathlib import Path
 
 import pytest
 
-from tests.common import (best_frames_dir, files_dir,
-                          setup_best_frames_extractor_env,
-                          setup_top_images_extractor_env, top_images_dir)
+from tests.common import (
+    best_frames_dir,
+    files_dir,
+    setup_best_frames_extractor_env,
+    setup_top_images_extractor_env,
+    top_images_dir,
+)
 
 
 @pytest.fixture(scope="module")

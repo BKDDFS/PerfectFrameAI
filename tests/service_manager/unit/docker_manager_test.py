@@ -19,14 +19,17 @@ def test_docker_manager_init(caplog, config):
         f"Output directory from user: {config.output_directory}",
         f"Port from user: {config.port}",
         "Force build: False",
-        "CPU only: False"
+        "CPU only: False",
     )
 
     with caplog.at_level(logging.DEBUG):
         docker = DockerManager(
-            config.service_name, config.input_directory,
-            config.output_directory, config.port,
-            False, False
+            config.service_name,
+            config.input_directory,
+            config.output_directory,
+            config.port,
+            False,
+            False,
         )
 
     assert docker._container_name == config.service_name
@@ -37,16 +40,18 @@ def test_docker_manager_init(caplog, config):
     assert docker._force_build is False
     assert docker._cpu_only is False
     for message in expected_logs:
-        assert message in caplog.text, \
-            f"Expected phrase not found in logs: {message}"
+        assert message in caplog.text, f"Expected phrase not found in logs: {message}"
 
 
 @pytest.fixture(scope="function")
 def docker(config):
     docker = DockerManager(
-        config.service_name, config.input_directory,
-        config.output_directory, config.port,
-        False, False
+        config.service_name,
+        config.input_directory,
+        config.output_directory,
+        config.port,
+        False,
+        False,
     )
     return docker
 
@@ -77,8 +82,7 @@ def test_build_image(mock_check_image_exists, docker, mock_run, caplog, config):
 
 
 @patch.object(DockerManager, "_check_image_exists")
-def test_build_image_when_image_exists_and_not_force_build(
-        mock_check_image_exists, docker, mock_run, caplog, config):
+def test_build_image_when_image_exists_and_not_force_build(mock_check_image_exists, docker, mock_run, caplog, config):
     mock_check_image_exists.return_value = True
 
     with caplog.at_level(logging.INFO):
@@ -89,8 +93,7 @@ def test_build_image_when_image_exists_and_not_force_build(
 
 
 @patch.object(DockerManager, "_check_image_exists")
-def test_build_image_when_image_exists_and_force_build(
-        mock_check_image_exists, docker, mock_run, caplog, config):
+def test_build_image_when_image_exists_and_force_build(mock_check_image_exists, docker, mock_run, caplog, config):
     mock_check_image_exists.return_value = True
     docker._force_build = True
 
@@ -108,7 +111,12 @@ def test_container_status(code, output, status, docker, mock_run):
     command_output.returncode = code
     command_output.stdout = output
     mock_run.return_value = command_output
-    expected_command = ["docker", "inspect", "--format='{{.State.Status}}'", docker._container_name]
+    expected_command = [
+        "docker",
+        "inspect",
+        "--format='{{.State.Status}}'",
+        docker._container_name,
+    ]
 
     result_status = docker.container_status
 
@@ -124,8 +132,16 @@ def test_container_status(code, output, status, docker, mock_run):
 @patch.object(DockerManager, "_start_container")
 @patch.object(DockerManager, "container_status", new_callable=PropertyMock)
 def test_deploy_container(
-        mock_status, mock_start, mock_run, mock_delete, mock_stop,
-        status, build, docker, caplog, config
+    mock_status,
+    mock_start,
+    mock_run,
+    mock_delete,
+    mock_stop,
+    status,
+    build,
+    docker,
+    caplog,
+    config,
 ):
     container_input_directory = "/container_input_directory/"
     container_output_directory = "/container_output_directory/"
@@ -133,7 +149,7 @@ def test_deploy_container(
     deploy_container_args = (
         config.port,
         container_input_directory,
-        container_output_directory
+        container_output_directory,
     )
     docker._force_build = build
 
@@ -179,13 +195,20 @@ def test_start_container_success(docker, mock_run, caplog):
 
 @pytest.mark.parametrize("cpu", (True, False))
 def test_run_container(docker, mock_run, config, caplog, cpu):
-
     expected_command = [
-        "docker", "run", "--name", docker._container_name,
-        "--restart", "unless-stopped", "-d",
-        "-p", f"{docker._port}:{config.port}",
-        "-v", f"{docker._input_directory}:{config.input_directory}",
-        "-v", f"{docker._output_directory}:{config.input_directory}"
+        "docker",
+        "run",
+        "--name",
+        docker._container_name,
+        "--restart",
+        "unless-stopped",
+        "-d",
+        "-p",
+        f"{docker._port}:{config.port}",
+        "-v",
+        f"{docker._input_directory}:{config.input_directory}",
+        "-v",
+        f"{docker._output_directory}:{config.input_directory}",
     ]
     if not cpu:
         expected_command.extend(["--gpus", "all"])
@@ -210,8 +233,11 @@ def test_run_log_process(mock_popen, docker, caplog):
         result = docker._run_log_process()
 
     mock_popen.assert_called_once_with(
-        command, stdout=subprocess.PIPE,
-        stderr=subprocess.STDOUT, text=True, encoding="utf-8"
+        command,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.STDOUT,
+        text=True,
+        encoding="utf-8",
     )
     assert result
     assert f"Following logs for {docker._container_name}" in caplog.text
@@ -244,13 +270,19 @@ def test_delete_container_success(docker, mock_run, caplog):
 @patch.object(DockerManager, "_stop_container")
 def test_follow_container_logs_stopped_by_user(mock_stop, mock_run_log, mock_stdout, docker, caplog):
     mock_process = MagicMock()
-    mock_process.stdout.readline.side_effect = [LOG_LINE_1, LOG_LINE_2, KeyboardInterrupt()]
+    mock_process.stdout.readline.side_effect = [
+        LOG_LINE_1,
+        LOG_LINE_2,
+        KeyboardInterrupt(),
+    ]
     mock_run_log.return_value = mock_process
     mock_process.terminate = MagicMock()
     mock_process.wait = MagicMock()
 
-    with caplog.at_level(logging.INFO), \
-            patch.object(subprocess, "Popen", autospec=True):
+    with (
+        caplog.at_level(logging.INFO),
+        patch.object(subprocess, "Popen", autospec=True),
+    ):
         docker.follow_container_logs()
 
     mock_run_log.assert_called_once()
@@ -267,18 +299,21 @@ def test_follow_container_logs_stopped_by_user(mock_stop, mock_run_log, mock_std
 @patch("service_manager.docker_manager.sys.stdout.write")
 @patch.object(DockerManager, "_run_log_process")
 @patch.object(DockerManager, "_stop_container")
-def test_follow_container_logs_stopped_automatically(mock_stop, mock_run_log,
-                                                     mock_stdout, docker, caplog):
+def test_follow_container_logs_stopped_automatically(mock_stop, mock_run_log, mock_stdout, docker, caplog):
     mock_process = MagicMock()
     mock_process.stdout.readline.side_effect = [
-        LOG_LINE_1, LOG_LINE_2, DockerManager.ServiceShutdownSignal()
+        LOG_LINE_1,
+        LOG_LINE_2,
+        DockerManager.ServiceShutdownSignal(),
     ]
     mock_run_log.return_value = mock_process
     mock_process.terminate = MagicMock()
     mock_process.wait = MagicMock()
 
-    with caplog.at_level(logging.INFO), \
-            patch.object(subprocess, "Popen", autospec=True):
+    with (
+        caplog.at_level(logging.INFO),
+        patch.object(subprocess, "Popen", autospec=True),
+    ):
         docker.follow_container_logs()
 
     mock_run_log.assert_called_once()

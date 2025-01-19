@@ -1,4 +1,5 @@
 """Common fixtures for all conftest files."""
+
 import shutil
 from pathlib import Path
 

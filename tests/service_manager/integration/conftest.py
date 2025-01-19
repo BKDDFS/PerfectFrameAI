@@ -14,9 +14,12 @@ def config():
 @pytest.fixture(scope="module")
 def manager(config):
     manager = DockerManager(
-        config.service_name, config.input_directory,
-        config.output_directory, config.port,
-        False, True
+        config.service_name,
+        config.input_directory,
+        config.output_directory,
+        config.port,
+        False,
+        True,
     )
     return manager
 
@@ -25,4 +28,3 @@ def manager(config):
 def client():
     client = docker.from_env()
     return client
-

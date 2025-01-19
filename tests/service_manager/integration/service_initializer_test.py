@@ -14,9 +14,7 @@ def test_check_invalid_directory(caplog):
     invalid_directory = Path("/invalid/input")
     error_massage = f"Invalid directory path: {str(invalid_directory)}"
 
-    with pytest.raises(NotADirectoryError), \
-            caplog.at_level(logging.ERROR):
+    with pytest.raises(NotADirectoryError), caplog.at_level(logging.ERROR):
         ServiceInitializer._check_directory(str(invalid_directory))
 
     assert error_massage in caplog.text, "Invalid logging."
-    

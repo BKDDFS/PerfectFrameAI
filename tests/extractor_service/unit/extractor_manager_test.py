@@ -26,7 +26,7 @@ def test_start_extractor(mock_checking, mock_create_extractor, config, dependenc
     mock_background_tasks.add_task.assert_called_once_with(
         ExtractorManager._ExtractorManager__run_extractor,
         mock_extractor,
-        extractor_name
+        extractor_name,
     )
     expected_message = f"'{extractor_name}' started."
     assert message == expected_message, "The return message does not match expected."

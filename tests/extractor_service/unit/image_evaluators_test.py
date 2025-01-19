@@ -4,8 +4,7 @@ from unittest.mock import MagicMock, call, patch
 import numpy as np
 import pytest
 
-from extractor_service.app.image_evaluators import (InceptionResNetNIMA,
-                                                    _ResNetModel)
+from extractor_service.app.image_evaluators import InceptionResNetNIMA, _ResNetModel
 
 
 @pytest.fixture
@@ -44,9 +43,9 @@ def test_evaluate_images(mock_check, mock_calculate, mock_convert_to_tensor, eva
 
     mock_convert_to_tensor.assert_called_once_with(fake_images)
     evaluator._model.predict.assert_called_once_with(tensor, batch_size=fake_images.shape[0], verbose=0)
-    mock_calculate.assert_has_calls([
-        call(prediction, _ResNetModel._prediction_weights) for prediction in predictions],
-        any_order=True
+    mock_calculate.assert_has_calls(
+        [call(prediction, _ResNetModel._prediction_weights) for prediction in predictions],
+        any_order=True,
     )
     mock_check.assert_called_once()
     assert "Evaluating images..." in caplog.text

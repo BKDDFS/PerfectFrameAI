@@ -18,6 +18,7 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 """
+
 import logging
 
 from fastapi import BackgroundTasks, HTTPException
@@ -34,6 +35,7 @@ class ExtractorManager:
     This class orchestrates extractors, ensuring that only one extractor is active at once,
     maintaining system stability.
     """
+
     _active_extractor = None
 
     @classmethod
@@ -47,8 +49,13 @@ class ExtractorManager:
         return cls._active_extractor
 
     @classmethod
-    def start_extractor(cls, extractor_name: str, background_tasks: BackgroundTasks,
-                        config: ExtractorConfig, dependencies: ExtractorDependencies) -> str:
+    def start_extractor(
+        cls,
+        extractor_name: str,
+        background_tasks: BackgroundTasks,
+        config: ExtractorConfig,
+        dependencies: ExtractorDependencies,
+    ) -> str:
         """
         Initializes the extractor class and runs the extraction process in the background.
 

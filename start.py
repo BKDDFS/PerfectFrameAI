@@ -18,6 +18,7 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 """
+
 import argparse
 import logging
 
@@ -39,14 +40,10 @@ def main() -> None:
         user_input.output_dir,
         user_input.port,
         user_input.build,
-        user_input.cpu
+        user_input.cpu,
     )
     docker.build_image(Config.dockerfile)
-    docker.deploy_container(
-        Config.port,
-        Config.volume_input_directory,
-        Config.volume_output_directory
-    )
+    docker.deploy_container(Config.port, Config.volume_input_directory, Config.volume_output_directory)
     service.run_extractor()
     docker.follow_container_logs()
     logger.info("Process stopped.")
@@ -62,22 +59,43 @@ def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
         description="Tool to manage and execute image processing tasks within a Docker container."
     )
-    parser.add_argument("extractor_name",
-                        choices=["best_frames_extractor", "top_images_extractor"],
-                        help="Name of extractor to run.")
-    parser.add_argument("--input_dir", "-i", default=Config.input_directory,
-                        help="Full path to the extractors input directory.")
-    parser.add_argument("--output_dir", "-o", default=Config.output_directory,
-                        help="Full path to the extractors output directory.")
-    parser.add_argument("--port", "-p", type=int, default=Config.port,
-                        help="Port to expose the service on the host.")
-    parser.add_argument("--build", "-b", action="store_true",
-                        help="Forces the Docker image to be rebuilt if set to true.")
-    parser.add_argument("--all_frames", action="store_true",
-                        help="Returning all frames every second without filtering. "
-                             "For best_frames_extractor - does nothing with others.")
-    parser.add_argument("--cpu", action="store_true",
-                        help="Turn on cpu-only mode.")
+    parser.add_argument(
+        "extractor_name",
+        choices=["best_frames_extractor", "top_images_extractor"],
+        help="Name of extractor to run.",
+    )
+    parser.add_argument(
+        "--input_dir",
+        "-i",
+        default=Config.input_directory,
+        help="Full path to the extractors input directory.",
+    )
+    parser.add_argument(
+        "--output_dir",
+        "-o",
+        default=Config.output_directory,
+        help="Full path to the extractors output directory.",
+    )
+    parser.add_argument(
+        "--port",
+        "-p",
+        type=int,
+        default=Config.port,
+        help="Port to expose the service on the host.",
+    )
+    parser.add_argument(
+        "--build",
+        "-b",
+        action="store_true",
+        help="Forces the Docker image to be rebuilt if set to true.",
+    )
+    parser.add_argument(
+        "--all_frames",
+        action="store_true",
+        help="Returning all frames every second without filtering. "
+        "For best_frames_extractor - does nothing with others.",
+    )
+    parser.add_argument("--cpu", action="store_true", help="Turn on cpu-only mode.")
     args = parser.parse_args()
     return args
 

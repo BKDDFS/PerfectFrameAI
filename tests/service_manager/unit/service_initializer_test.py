@@ -24,19 +24,30 @@ def service(config):
         input_dir=config.input_directory,
         output_dir=config.output_directory,
         port=config.port,
-        all_frames=ALL_FRAMES
+        all_frames=ALL_FRAMES,
     )
     with patch.object(ServiceInitializer, "_check_directory"):
         initializer = ServiceInitializer(user_input)
     return initializer
 
 
-@pytest.mark.parametrize("arg_set", (
-        {"extractor_name": "best_frames_extractor",
-         "input": "/valid/input", "output": "/valid/output", "port": 8000},
-        {"extractor_name": "top_images_extractor",
-         "input": "/another/input", "output": "/another/output", "port": 9000}
-))
+@pytest.mark.parametrize(
+    "arg_set",
+    (
+        {
+            "extractor_name": "best_frames_extractor",
+            "input": "/valid/input",
+            "output": "/valid/output",
+            "port": 8000,
+        },
+        {
+            "extractor_name": "top_images_extractor",
+            "input": "/another/input",
+            "output": "/another/output",
+            "port": 9000,
+        },
+    ),
+)
 @patch.object(ServiceInitializer, "_check_directory")
 def test_start_various_args(mock_check_directory, arg_set):
     user_input = MagicMock(
@@ -45,7 +56,7 @@ def test_start_various_args(mock_check_directory, arg_set):
         input_dir=arg_set["input"],
         output_dir=arg_set["output"],
         port=arg_set["port"],
-        all_frames=ALL_FRAMES
+        all_frames=ALL_FRAMES,
     )
     mock_check_directory.side_effect = lambda x: x
 
@@ -87,8 +98,8 @@ def test_run_extractor_post_request(mock_time, service):
     request_obj = last_call[0][0]
     assert request_obj.method == test_method
     assert request_obj.full_url == test_url
-    request_data = json.loads(request_obj.data.decode('utf-8'))
-    assert request_data['all_frames'] is False
+    request_data = json.loads(request_obj.data.decode("utf-8"))
+    assert request_data["all_frames"] is False
 
 
 @pytest.fixture
@@ -106,7 +117,7 @@ def test_try_to_run_extractor_success(mock_urlopen, service, caplog, mock_reques
     mock_response = MagicMock()
     mock_response.status = 200
     mock_message = "Success"
-    response_content = json.dumps({"message": mock_message}).encode('utf-8')
+    response_content = json.dumps({"message": mock_message}).encode("utf-8")
     mock_response.read.return_value = response_content
     mock_urlopen.return_value.__enter__.return_value = mock_response
 
@@ -136,8 +147,10 @@ def test_try_to_run_extractor_timeout(mock_time, mock_urlopen, service, caplog, 
     mock_urlopen.side_effect = RemoteDisconnected
     error_massage = "Timed out waiting for service to respond."
     start_time = 1
-    with caplog.at_level(logging.ERROR), \
-            pytest.raises(TimeoutError, match=error_massage):
+    with (
+        caplog.at_level(logging.ERROR),
+        pytest.raises(TimeoutError, match=error_massage),
+    ):
         service._try_to_run_extractor(mock_request, start_time, 1)
 
     mock_urlopen.assert_called_once()

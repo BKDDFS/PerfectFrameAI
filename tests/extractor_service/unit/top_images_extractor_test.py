@@ -12,9 +12,7 @@ from extractor_service.app.video_processors import OpenCVVideo
 
 @pytest.fixture()
 def extractor(config):
-    extractor = TopImagesExtractor(
-        config, OpenCVImage, OpenCVVideo, InceptionResNetNIMA
-    )
+    extractor = TopImagesExtractor(config, OpenCVImage, OpenCVVideo, InceptionResNetNIMA)
     return extractor
 
 
@@ -23,7 +21,10 @@ def extractor(config):
 def test_process_with_images(mock_normalize, mock_read_image, extractor, caplog, config):
     # Setup
     test_images = [
-        "/fake/directory/image1.jpg", "/fake/directory/image2.jpg", "/fake/directory/image3.jpg"]
+        "/fake/directory/image1.jpg",
+        "/fake/directory/image2.jpg",
+        "/fake/directory/image3.jpg",
+    ]
     test_ratings = [10, 20, 30]
     best_image = ["image3.jpg"]
 
@@ -40,19 +41,20 @@ def test_process_with_images(mock_normalize, mock_read_image, extractor, caplog,
         extractor.process()
 
     # Check that the internal methods were called as expected
-    extractor._list_input_directory_files.assert_called_once_with(
-        extractor._config.images_extensions)
+    extractor._list_input_directory_files.assert_called_once_with(extractor._config.images_extensions)
     mock_read_image.assert_has_calls([call(path) for path in test_images])
-    mock_normalize.assert_called_once_with([mock_read_image.return_value]*3, extractor._config.target_image_size)
+    mock_normalize.assert_called_once_with([mock_read_image.return_value] * 3, extractor._config.target_image_size)
     extractor._evaluate_images.assert_called_once_with(mock_normalize.return_value)
     extractor._get_top_percent_images.assert_called_once_with(
-        [mock_read_image.return_value]*3, test_ratings, extractor._config.top_images_percent)
+        [mock_read_image.return_value] * 3,
+        test_ratings,
+        extractor._config.top_images_percent,
+    )
     extractor._save_images.assert_called_once_with(best_image)
 
     # Check logging
     expected_massage = (
-        f"Extraction process finished."
-        f" All top images extracted from directory: {config.input_directory}."
+        f"Extraction process finished. All top images extracted from directory: {config.input_directory}."
     )
     assert expected_massage in caplog.text
     extractor._signal_readiness_for_shutdown.assert_called_once()

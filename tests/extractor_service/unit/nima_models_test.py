@@ -155,8 +155,10 @@ def test_download_model_weights_success(mock_mkdir, mock_get, mock_write_bytes, 
         assert f"Model weights downloaded and saved to {test_path}" in caplog.text
     else:
         error_message = f"Failed to download the weights: HTTP status code {status_code}"
-        with caplog.at_level(logging.DEBUG), \
-                pytest.raises(_ResNetModel.DownloadingModelWeightsError, match=error_message):
+        with (
+            caplog.at_level(logging.DEBUG),
+            pytest.raises(_ResNetModel.DownloadingModelWeightsError, match=error_message),
+        ):
             _ResNetModel._download_model_weights(test_path, timeout)
         assert "Failed to download the weights: HTTP status code 404" in caplog.text
     assert f"Downloading model weights from ulr: {test_url}" in caplog.text

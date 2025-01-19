@@ -33,8 +33,7 @@ def test_read_image_invalid_image(mock_imread, caplog):
 
     assert result is None
     mock_imread.assert_called_once_with(str(mock_path))
-    assert (f"Can't read image. OpenCV reading not returns np.ndarray"
-            f" for image path: {str(mock_path)}") in caplog.text
+    assert (f"Can't read image. OpenCV reading not returns np.ndarray for image path: {str(mock_path)}") in caplog.text
 
 
 @patch.object(uuid, "uuid4")
@@ -70,15 +69,8 @@ def test_normalize_images(mock_array, mock_cvt, mock_resize, caplog):
 
     result = OpenCVImage.normalize_images(batch_images, target_size)
 
-    calls = [call(
-        image,
-        target_size,
-        interpolation=cv2.INTER_LANCZOS4
-    ) for image in batch_images]
+    calls = [call(image, target_size, interpolation=cv2.INTER_LANCZOS4) for image in batch_images]
     mock_resize.assert_has_calls(calls, any_order=True)
-    calls = [call(
-        image,
-        cv2.COLOR_BGR2RGB
-    ) for image in resized_images]
+    calls = [call(image, cv2.COLOR_BGR2RGB) for image in resized_images]
     mock_cvt.assert_has_calls(calls, any_order=True)
     np.testing.assert_array_equal(result, mock_array.return_value)

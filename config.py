@@ -17,6 +17,7 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 """
+
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -39,6 +40,7 @@ class Config:
         input_directory (str): Directory with input for the extraction process.
         output_directory (str): Directory where extraction process output will be saved.
     """
+
     service_name: str = "extractor_service"
     dockerfile: str = str(BASE_DIRECTORY / "extractor_service")
     port: int = 8100

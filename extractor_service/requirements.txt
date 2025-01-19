@@ -1,5 +1,4 @@
-fastapi==0.111.1
-uvicorn==0.29.0
+fastapi==0.115.6
+uvicorn==0.34.0
 opencv-python==4.11.0.86
-numpy==1.26.4
 tensorflow==2.18.0

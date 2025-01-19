@@ -22,6 +22,7 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program. If not, see <https://www.gnu.org/licenses/>.
 """
+
 import gc
 import logging
 from abc import ABC, abstractmethod
@@ -46,10 +47,13 @@ class Extractor(ABC):
     class EmptyInputDirectoryError(Exception):
         """Error appear when extractor can't get any input to extraction."""
 
-    def __init__(self, config: ExtractorConfig,
-                 image_processor: Type[ImageProcessor],
-                 video_processor: Type[VideoProcessor],
-                 image_evaluator_class: Type[ImageEvaluator]) -> None:
+    def __init__(
+        self,
+        config: ExtractorConfig,
+        image_processor: Type[ImageProcessor],
+        video_processor: Type[VideoProcessor],
+        image_evaluator_class: Type[ImageEvaluator],
+    ) -> None:
         """
         Initializes the manager with the given extractor configuration.
 
@@ -81,8 +85,7 @@ class Extractor(ABC):
         self._image_evaluator = self._image_evaluator_class(self._config)
         return self._image_evaluator
 
-    def _list_input_directory_files(self, extensions: tuple[str, ...],
-                                    prefix: str | None = None) -> list[Path]:
+    def _list_input_directory_files(self, extensions: tuple[str, ...], prefix: str | None = None) -> list[Path]:
         """
         List all files with given extensions except files with given filename prefix form
             config input directory.
@@ -97,10 +100,9 @@ class Extractor(ABC):
         directory = self._config.input_directory
         entries = directory.iterdir()
         files = [
-            entry for entry in entries
-            if entry.is_file()
-               and entry.suffix in extensions
-               and (prefix is None or not entry.name.startswith(prefix))
+            entry
+            for entry in entries
+            if entry.is_file() and entry.suffix in extensions and (prefix is None or not entry.name.startswith(prefix))
         ]
         if not files:
             prefix = prefix if prefix else "Prefix not provided"
@@ -141,9 +143,13 @@ class Extractor(ABC):
         """
         with ThreadPoolExecutor() as executor:
             images = []
-            futures = [executor.submit(
-                self._image_processor.read_image, path,
-            ) for path in paths]
+            futures = [
+                executor.submit(
+                    self._image_processor.read_image,
+                    path,
+                )
+                for path in paths
+            ]
             for future in futures:
                 image = future.result()
                 if image is not None:
@@ -158,16 +164,19 @@ class Extractor(ABC):
             images (list[np.ndarray]): List of images in numpy ndarrays.
         """
         with ThreadPoolExecutor() as executor:
-            futures = [executor.submit(
-                self._image_processor.save_image, image,
-                self._config.output_directory,
-                self._config.images_output_format
-            ) for image in images]
+            futures = [
+                executor.submit(
+                    self._image_processor.save_image,
+                    image,
+                    self._config.output_directory,
+                    self._config.images_output_format,
+                )
+                for image in images
+            ]
             for future in futures:
                 future.result()
 
-    def _normalize_images(self, images: list[np.ndarray],
-                          target_size: tuple[int, int]) -> np.ndarray:
+    def _normalize_images(self, images: list[np.ndarray], target_size: tuple[int, int]) -> np.ndarray:
         """
         Normalize all images in given list to target size for further operations.
 
@@ -185,7 +194,7 @@ class Extractor(ABC):
     def _add_prefix(prefix: str, path: Path) -> Path:
         """
         Adds prefix to file filename.
-        
+
         Args:
             prefix (str): Prefix that will be added.
             path (Path): Path to file that filename will be changed.
@@ -195,8 +204,7 @@ class Extractor(ABC):
         """
         new_path = path.parent / f"{prefix}{path.name}"
         path.rename(new_path)
-        logger.debug("Prefix '%s' added to file '%s'. New path: %s",
-                     prefix, path, new_path)
+        logger.debug("Prefix '%s' added to file '%s'. New path: %s", prefix, path, new_path)
         return new_path
 
     @staticmethod
@@ -212,8 +220,11 @@ class ExtractorFactory:
     """Extractor factory for getting extractors class by their names."""
 
     @staticmethod
-    def create_extractor(extractor_name: str, config: ExtractorConfig,
-                         dependencies: ExtractorDependencies) -> Extractor:
+    def create_extractor(
+        extractor_name: str,
+        config: ExtractorConfig,
+        dependencies: ExtractorDependencies,
+    ) -> Extractor:
         """
         Match extractor class by its name and return its class.
 
@@ -227,11 +238,19 @@ class ExtractorFactory:
         """
         match extractor_name:
             case "best_frames_extractor":
-                return BestFramesExtractor(config, dependencies.image_processor,
-                                           dependencies.video_processor, dependencies.evaluator)
+                return BestFramesExtractor(
+                    config,
+                    dependencies.image_processor,
+                    dependencies.video_processor,
+                    dependencies.evaluator,
+                )
             case "top_images_extractor":
-                return TopImagesExtractor(config, dependencies.image_processor,
-                                          dependencies.video_processor, dependencies.evaluator)
+                return TopImagesExtractor(
+                    config,
+                    dependencies.image_processor,
+                    dependencies.video_processor,
+                    dependencies.evaluator,
+                )
             case _:
                 error_massage = f"Provided unknown extractor name: {extractor_name}"
                 logger.error(error_massage)
@@ -246,10 +265,13 @@ class BestFramesExtractor(Extractor):
         Rate all videos in given config input directory and
         extract best visually frames from every video.
         """
-        logger.info("Starting frames extraction process from '%s'.",
-                    self._config.input_directory)
-        videos_paths = self._list_input_directory_files(self._config.video_extensions,
-                                                        self._config.processed_video_prefix)
+        logger.info(
+            "Starting frames extraction process from '%s'.",
+            self._config.input_directory,
+        )
+        videos_paths = self._list_input_directory_files(
+            self._config.video_extensions, self._config.processed_video_prefix
+        )
         if self._config.all_frames is False:  # evaluator won't be used if all frames
             self._get_image_evaluator()
         for video_path in videos_paths:
@@ -266,9 +288,7 @@ class BestFramesExtractor(Extractor):
         Args:
             video_path (Path): Path of the video that will be extracted.
         """
-        frames_batch_generator = self._video_processor.get_next_frames(
-            video_path, self._config.batch_size
-        )
+        frames_batch_generator = self._video_processor.get_next_frames(video_path, self._config.batch_size)
         for frames in frames_batch_generator:
             if not frames:
                 continue
@@ -315,20 +335,20 @@ class TopImagesExtractor(Extractor):
         images_paths = self._list_input_directory_files(self._config.images_extensions)
         self._get_image_evaluator()
         for batch_index in range(0, len(images_paths), self._config.batch_size):
-            batch = images_paths[batch_index:batch_index + self._config.batch_size]
+            batch = images_paths[batch_index : batch_index + self._config.batch_size]
             images = self._read_images(batch)
             normalized_images = self._normalize_images(images, self._config.target_image_size)
             scores = self._evaluate_images(normalized_images)
-            top_images = self._get_top_percent_images(images, scores,
-                                                      self._config.top_images_percent)
+            top_images = self._get_top_percent_images(images, scores, self._config.top_images_percent)
             self._save_images(top_images)
-        logger.info("Extraction process finished. All top images extracted from directory: %s.",
-                    self._config.input_directory)
+        logger.info(
+            "Extraction process finished. All top images extracted from directory: %s.",
+            self._config.input_directory,
+        )
         self._signal_readiness_for_shutdown()
 
     @staticmethod
-    def _get_top_percent_images(images: list[np.ndarray], scores: np.array,
-                                top_percent: float) -> list[np.ndarray]:
+    def _get_top_percent_images(images: list[np.ndarray], scores: np.array, top_percent: float) -> list[np.ndarray]:
         """
         Returns images that have scores in the top percent of all scores.
 

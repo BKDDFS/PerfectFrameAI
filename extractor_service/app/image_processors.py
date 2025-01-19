@@ -19,6 +19,7 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 """
+
 import logging
 import uuid
 from abc import ABC, abstractmethod
@@ -32,6 +33,7 @@ logger = logging.getLogger(__name__)
 
 class ImageProcessor(ABC):
     """Abstract class for creating image processors used for managing image operations."""
+
     @staticmethod
     @abstractmethod
     def read_image(image_path: Path) -> np.ndarray:
@@ -78,6 +80,7 @@ class ImageProcessor(ABC):
 
 class OpenCVImage(ImageProcessor):
     """Image processor implementation using OpenCV library."""
+
     @staticmethod
     def read_image(image_path: Path) -> np.ndarray | None:
         """
@@ -91,8 +94,10 @@ class OpenCVImage(ImageProcessor):
         """
         image = cv2.imread(str(image_path))
         if not isinstance(image, np.ndarray):
-            logger.warning("Can't read image. OpenCV reading not returns np.ndarray for "
-                           "image path: %s", str(image_path))
+            logger.warning(
+                "Can't read image. OpenCV reading not returns np.ndarray for image path: %s",
+                str(image_path),
+            )
             return None
         logger.debug("Image '%s' has successfully read.", image_path)
         return image

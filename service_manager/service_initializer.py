@@ -17,6 +17,7 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 """
+
 import argparse
 import json
 import logging
@@ -34,6 +35,7 @@ class ServiceInitializer:
     Handles command-line input and manages the setup and
     execution of Docker-based image processing tasks.
     """
+
     def __init__(self, user_input: argparse.Namespace) -> None:
         """Initializes the service initializer by taking and validating user input."""
         self._input_directory = self._check_directory(user_input.input_dir)
@@ -69,9 +71,10 @@ class ServiceInitializer:
             extractor_url = f"http://localhost:{self._port}/v2/extractors/{self._extractor_name}"
         json_data = {"all_frames": self._all_frames}
         req = Request(
-            extractor_url, method="POST",
-            data=json.dumps(json_data).encode('utf-8'),
-            headers={'Content-Type': 'application/json'}
+            extractor_url,
+            method="POST",
+            data=json.dumps(json_data).encode("utf-8"),
+            headers={"Content-Type": "application/json"},
         )
         start_time = time.time()
         while True:

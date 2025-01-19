@@ -17,6 +17,7 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 """
+
 from dataclasses import dataclass
 from typing import Type
 
@@ -37,6 +38,7 @@ class ExtractorDependencies:
         video_processor (Type[OpenCVVideo]): Processor for video processing.
         evaluator (Type[InceptionResNetNIMA]): Evaluator for image quality.
     """
+
     image_processor: Type[OpenCVImage]
     video_processor: Type[OpenCVVideo]
     evaluator: Type[InceptionResNetNIMA]
@@ -73,9 +75,9 @@ def get_evaluator() -> Type[InceptionResNetNIMA]:
 
 
 def get_extractor_dependencies(
-        image_processor=Depends(get_image_processor),
-        video_processor=Depends(get_video_processor),
-        evaluator=Depends(get_evaluator)
+    image_processor=Depends(get_image_processor),
+    video_processor=Depends(get_video_processor),
+    evaluator=Depends(get_evaluator),
 ) -> ExtractorDependencies:
     """
     Provides the dependencies required for the extractor.
@@ -91,5 +93,5 @@ def get_extractor_dependencies(
     return ExtractorDependencies(
         image_processor=image_processor,
         video_processor=video_processor,
-        evaluator=evaluator
+        evaluator=evaluator,
     )

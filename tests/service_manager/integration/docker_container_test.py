@@ -37,8 +37,8 @@ def test_run_container(manager, config, client, cleanup_container, image):
     assert container.status == "running" or container.status == "restarting"
     assert container.attrs["Config"]["Image"] == manager.image_name
     port_binding = container.attrs["HostConfig"]["PortBindings"]
-    assert '8100/tcp' in port_binding
-    assert port_binding['8100/tcp'][0]['HostPort'] == str(config.port)
+    assert "8100/tcp" in port_binding
+    assert port_binding["8100/tcp"][0]["HostPort"] == str(config.port)
     assert f"{manager._input_directory}:{config.volume_input_directory}" in container.attrs["HostConfig"]["Binds"]
     assert f"{manager._output_directory}:{config.volume_output_directory}" in container.attrs["HostConfig"]["Binds"]
 
@@ -85,7 +85,7 @@ def test_run_log_process(manager, cleanup_container, client, image):
         image,
         command="sh -c 'while true; do date; done'",
         detach=True,
-        name=manager._container_name
+        name=manager._container_name,
     )
     log_process = manager._run_log_process()
     assert log_process.poll() is None, "Log process should be running"

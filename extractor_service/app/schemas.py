@@ -21,6 +21,7 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 """
+
 import logging
 from pathlib import Path
 
@@ -52,10 +53,22 @@ class ExtractorConfig(BaseModel):
         all_frames (bool): It changes best_frames_extractor -> frames_extractor.
             If Ture best_frames_extractor returns all frames without filtering/evaluation.
     """
+
     input_directory: DirectoryPath = Path("/app/input_directory")
     output_directory: DirectoryPath = Path("/app/output_directory")
-    video_extensions: tuple[str] = (".mp4", ".mov", ".webm", ".mkv", ".avi")  # add more containers here
-    images_extensions: tuple[str] = (".jpg", ".jpeg", ".png", ".webp")  # add more containers here
+    video_extensions: tuple[str] = (
+        ".mp4",
+        ".mov",
+        ".webm",
+        ".mkv",
+        ".avi",
+    )  # add more containers here
+    images_extensions: tuple[str] = (
+        ".jpg",
+        ".jpeg",
+        ".png",
+        ".webp",
+    )  # add more containers here
     processed_video_prefix: str = "frames_extracted_"
     batch_size: int = 100
     compering_group_size: int = 5
@@ -75,6 +88,7 @@ class Message(BaseModel):
     Attributes:
         message (str): The message content.
     """
+
     message: str
 
 
@@ -85,4 +99,5 @@ class ExtractorStatus(BaseModel):
     Attributes:
         active_extractor (str): The name of the currently active extractor.
     """
+
     active_extractor: str | None

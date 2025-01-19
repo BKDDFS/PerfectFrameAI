@@ -19,6 +19,7 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 """
+
 import logging
 from abc import ABC, abstractmethod
 from pathlib import Path
@@ -37,6 +38,7 @@ logger = logging.getLogger(__name__)
 
 class ImageEvaluator(ABC):
     """Abstract class for creating image evaluators."""
+
     @abstractmethod
     def __init__(self, config: ExtractorConfig) -> None:
         """
@@ -83,6 +85,7 @@ class InceptionResNetNIMA(ImageEvaluator):
     NeuralImageAssessment model based image evaluator.
     It uses NIMA for evaluating aesthetics of images.
     """
+
     def __init__(self, config: ExtractorConfig) -> None:
         """
         Initialize the Neural Image Assessment with the provided configuration.
@@ -138,6 +141,7 @@ class _NIMAModel(ABC):
     to manage a unique instance of the models.
     This is helper class for NeuralImageAssessment class.
     """
+
     class DownloadingModelWeightsError(Exception):
         """Error raised when there's an issue with downloading model weights."""
 
@@ -189,12 +193,16 @@ class _NIMAModel(ABC):
             Path: Path to the model weights.
         """
         model_weights_directory = cls._config.weights_directory
-        logger.info("Searching for model weights in weights directory: %s",
-                    model_weights_directory)
+        logger.info(
+            "Searching for model weights in weights directory: %s",
+            model_weights_directory,
+        )
         model_weights_path = Path(model_weights_directory) / cls._config.weights_filename
         if not model_weights_path.is_file():
-            logger.debug("Can't find model weights in weights directory: %s",
-                         model_weights_directory)
+            logger.debug(
+                "Can't find model weights in weights directory: %s",
+                model_weights_directory,
+            )
             cls._download_model_weights(model_weights_path)
         else:
             logger.debug("Model weights loaded from: %s", model_weights_path)
@@ -220,8 +228,7 @@ class _NIMAModel(ABC):
             weights_path.write_bytes(response.content)
             logger.debug("Model weights downloaded and saved to %s", weights_path)
         else:
-            error_message = (f"Failed to download the weights: HTTP status code "
-                             f"{response.status_code}")
+            error_message = f"Failed to download the weights: HTTP status code {response.status_code}"
             logger.error(error_message)
             raise cls.DownloadingModelWeightsError(error_message)
 
@@ -231,6 +238,7 @@ class _ResNetModel(_NIMAModel):
     Implements the specific InceptionResNetV2-based NIMA model.
     This is helper class for NeuralImageAssessment class.
     """
+
     _prediction_weights = np.arange(1, 11)
     _input_shape = (224, 224, 3)
     _dropout_rate = 0.75
@@ -256,8 +264,7 @@ class _ResNetModel(_NIMAModel):
             Model: NIMA model instance.
         """
         base_model = tf.keras.applications.InceptionResNetV2(
-            input_shape=cls._input_shape, include_top=False,
-            pooling="avg", weights=None
+            input_shape=cls._input_shape, include_top=False, pooling="avg", weights=None
         )
         processed_output = Dropout(cls._dropout_rate)(base_model.output)
         final_output = Dense(cls._num_classes, activation="softmax")(processed_output)

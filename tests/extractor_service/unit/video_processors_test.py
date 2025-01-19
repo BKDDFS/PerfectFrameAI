@@ -42,26 +42,41 @@ def test_get_video_capture_failure(mock_cap):
 def mock_video():
     video = MagicMock()
     video.get.return_value = 30
-    video.read.side_effect = [(True, "frame1"), (True, "frame2"), (True, "frame3"), (False, None)]
+    video.read.side_effect = [
+        (True, "frame1"),
+        (True, "frame2"),
+        (True, "frame3"),
+        (False, None),
+    ]
     return video
 
 
-@pytest.mark.parametrize("batch_size, expected_num_batches", [
-    (1, 3),
-    (2, 2),
-    (3, 1),
-])
-@patch.object(OpenCVVideo, '_video_capture')
-@patch.object(OpenCVVideo, '_get_video_attribute')
-@patch.object(OpenCVVideo, '_read_next_frame')
-def test_get_next_video_frames(mock_read, mock_get_attribute, mock_video_cap,
-                               batch_size, expected_num_batches, caplog):
+@pytest.mark.parametrize(
+    "batch_size, expected_num_batches",
+    [
+        (1, 3),
+        (2, 2),
+        (3, 1),
+    ],
+)
+@patch.object(OpenCVVideo, "_video_capture")
+@patch.object(OpenCVVideo, "_get_video_attribute")
+@patch.object(OpenCVVideo, "_read_next_frame")
+def test_get_next_video_frames(
+    mock_read,
+    mock_get_attribute,
+    mock_video_cap,
+    batch_size,
+    expected_num_batches,
+    caplog,
+):
     frame_rate_attr = "frame rate"
     video_path = MagicMock()
     mock_video = MagicMock()
     frames_number = 3
-    mock_get_attribute.side_effect = lambda video, attribute_id, value_name: \
-        frames_number if TOTAL_FRAMES_ATTR in value_name else 1
+    mock_get_attribute.side_effect = (
+        lambda video, attribute_id, value_name: frames_number if TOTAL_FRAMES_ATTR in value_name else 1
+    )
     mock_video_cap.return_value.__enter__.return_value = mock_video
     mock_read.side_effect = lambda video, idx: f"frame{idx // 30}"
 
@@ -128,8 +143,10 @@ def test_get_video_attribute_invalid(mock_check_cap, caplog):
     mock_cap.get.return_value = total_frames
     expected_message = f"Invalid {value_name} retrieved: {total_frames}."
 
-    with caplog.at_level(logging.ERROR), \
-            pytest.raises(ValueError, match=expected_message):
+    with (
+        caplog.at_level(logging.ERROR),
+        pytest.raises(ValueError, match=expected_message),
+    ):
         OpenCVVideo._get_video_attribute(mock_cap, attribute_id, value_name)
 
     mock_check_cap.assert_called_once_with(mock_cap)
@@ -139,11 +156,9 @@ def test_get_video_attribute_invalid(mock_check_cap, caplog):
 def test_check_video_capture(caplog):
     mock_cap = MagicMock(spec=cv2.VideoCapture)
     mock_cap.isOpened.return_value = False
-    error_message = ("Invalid video capture object or object not opened. "
-                     "Probably video capture closed at some point.")
+    error_message = "Invalid video capture object or object not opened. Probably video capture closed at some point."
 
-    with caplog.at_level(logging.ERROR), \
-            pytest.raises(ValueError, match=error_message):
+    with caplog.at_level(logging.ERROR), pytest.raises(ValueError, match=error_message):
         OpenCVVideo._check_video_capture(mock_cap)
 
     assert error_message in caplog.text

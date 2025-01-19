@@ -1,10 +1,13 @@
 """Common fixtures for all conftest files."""
+
 import pytest
 
-from extractor_service.app.dependencies import (ExtractorDependencies,
-                                                get_evaluator,
-                                                get_image_processor,
-                                                get_video_processor)
+from extractor_service.app.dependencies import (
+    ExtractorDependencies,
+    get_evaluator,
+    get_image_processor,
+    get_video_processor,
+)
 from extractor_service.app.extractors import BestFramesExtractor
 from extractor_service.app.schemas import ExtractorConfig
 
@@ -18,15 +21,17 @@ def dependencies():
     return ExtractorDependencies(
         image_processor=image_processor,
         video_processor=video_processor,
-        evaluator=evaluator
+        evaluator=evaluator,
     )
 
 
 @pytest.fixture(scope="package")
 def extractor(config, dependencies):
     extractor = BestFramesExtractor(
-        config, dependencies.image_processor,
-        dependencies.video_processor, dependencies.evaluator
+        config,
+        dependencies.image_processor,
+        dependencies.video_processor,
+        dependencies.evaluator,
     )
     return extractor
 
@@ -38,6 +43,6 @@ def config(files_dir, best_frames_dir) -> ExtractorConfig:
         output_directory=best_frames_dir,
         images_output_format=".jpg",
         video_extensions=(".mp4",),
-        processed_video_prefix="done_"
+        processed_video_prefix="done_",
     )
     return config

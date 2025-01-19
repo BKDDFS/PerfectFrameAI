@@ -20,9 +20,7 @@ def all_frames_extractor(extractor):
 
 @pytest.fixture(scope="function")
 def extractor(config):
-    extractor = BestFramesExtractor(
-        config, OpenCVImage, OpenCVVideo, InceptionResNetNIMA
-    )
+    extractor = BestFramesExtractor(config, OpenCVImage, OpenCVVideo, InceptionResNetNIMA)
     return extractor
 
 
@@ -39,7 +37,8 @@ def test_process(extractor, caplog, config):
         extractor.process()
 
     extractor._list_input_directory_files.assert_called_once_with(
-        config.video_extensions, config.processed_video_prefix)
+        config.video_extensions, config.processed_video_prefix
+    )
     extractor._get_image_evaluator.assert_called_once()
     assert extractor._extract_best_frames.call_count == len(test_videos)
     assert extractor._add_prefix.call_count == len(test_videos)
@@ -64,7 +63,8 @@ def test_process_if_all_frames(extractor, caplog, config, all_frames_extractor):
         extractor.process()
 
     extractor._list_input_directory_files.assert_called_once_with(
-        config.video_extensions, config.processed_video_prefix)
+        config.video_extensions, config.processed_video_prefix
+    )
     extractor._get_image_evaluator.assert_not_called()
     assert not extractor._image_evaluator
     assert extractor._extract_best_frames.call_count == len(test_videos)

@@ -22,6 +22,7 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 """
+
 import logging
 import subprocess
 import sys
@@ -35,11 +36,19 @@ class DockerManager:
     Manages Docker containers and images, including operations like building, starting,
     stopping, and logging containers.
     """
+
     class ServiceShutdownSignal(Exception):
         """Exception raised when the service signals it is ready to be shut down."""
 
-    def __init__(self, container_name: str, input_dir: str,
-                 output_dir: str, port: int, force_build: bool, cpu_only: bool) -> None:
+    def __init__(
+        self,
+        container_name: str,
+        input_dir: str,
+        output_dir: str,
+        port: int,
+        force_build: bool,
+        cpu_only: bool,
+    ) -> None:
         """
         Initialize the DockerManager with specific parameters for container and image management.
 
@@ -99,8 +108,7 @@ class DockerManager:
             bool: True if the image exists, False otherwise.
         """
         command = ["docker", "images", "-q", self._image_name]
-        process_output = subprocess.run(command, capture_output=True,
-                                        text=True, check=True).stdout.strip()
+        process_output = subprocess.run(command, capture_output=True, text=True, check=True).stdout.strip()
         is_exists = process_output != ""
         return is_exists
 
@@ -135,14 +143,23 @@ class DockerManager:
         Returns:
             str: The status of the container.
         """
-        command = ["docker", "inspect", "--format='{{.State.Status}}'", self._container_name]
+        command = [
+            "docker",
+            "inspect",
+            "--format='{{.State.Status}}'",
+            self._container_name,
+        ]
         result = subprocess.run(command, capture_output=True, text=True, check=False)
         if result.returncode == 0:
             return result.stdout.strip().replace("'", "")
         return None
 
-    def deploy_container(self, container_port: int, container_input_directory: str,
-                         container_output_directory: str) -> None:
+    def deploy_container(
+        self,
+        container_port: int,
+        container_input_directory: str,
+        container_output_directory: str,
+    ) -> None:
         """Deploys or starts the Docker container based on its current status.
 
         Args:
@@ -153,22 +170,22 @@ class DockerManager:
         status = self.container_status
         if status is None:
             logging.info("No existing container found. Running a new container.")
-            self._run_container(container_port, container_input_directory,
-                                container_output_directory)
+            self._run_container(container_port, container_input_directory, container_output_directory)
         elif self._force_build:
             logging.info("Force rebuild initiated.")
             if status in ["running", "paused"]:
                 self._stop_container()
             self._delete_container()
-            self._run_container(container_port, container_input_directory,
-                                container_output_directory)
+            self._run_container(container_port, container_input_directory, container_output_directory)
         elif status in ["exited", "created"]:
             self._start_container()
         elif status == "running":
             logging.info("Container is already running.")
         else:
-            logging.warning("Container in unsupported status: %s. Fix container on your own.",
-                            status)
+            logging.warning(
+                "Container in unsupported status: %s. Fix container on your own.",
+                status,
+            )
 
     def _start_container(self) -> None:
         """Start the container if it exists but stopped."""
@@ -176,8 +193,12 @@ class DockerManager:
         command = ["docker", "start", self._container_name]
         subprocess.run(command, check=True)
 
-    def _run_container(self, container_port: int, container_input_directory: str,
-                       container_output_directory: str) -> None:
+    def _run_container(
+        self,
+        container_port: int,
+        container_input_directory: str,
+        container_output_directory: str,
+    ) -> None:
         """
         Runs a new Docker container using the configured parameters.
 
@@ -188,11 +209,19 @@ class DockerManager:
         """
         logging.info("Running a new container...")
         command = [
-            "docker", "run", "--name", self._container_name,
-            "--restart", "unless-stopped", "-d",
-            "-p", f"{self._port}:{container_port}",
-            "-v", f"{self._input_directory}:{container_input_directory}",
-            "-v", f"{self._output_directory}:{container_output_directory}"
+            "docker",
+            "run",
+            "--name",
+            self._container_name,
+            "--restart",
+            "unless-stopped",
+            "-d",
+            "-p",
+            f"{self._port}:{container_port}",
+            "-v",
+            f"{self._input_directory}:{container_input_directory}",
+            "-v",
+            f"{self._output_directory}:{container_output_directory}",
         ]
         if not self._cpu_only:
             command.extend(["--gpus", "all"])
@@ -203,7 +232,7 @@ class DockerManager:
         """Starts following the logs of the running Docker container."""
         try:
             process = self._run_log_process()
-            for line in iter(process.stdout.readline, ''):
+            for line in iter(process.stdout.readline, ""):
                 sys.stdout.write(line)
                 if "Service ready for shutdown" in line:
                     raise self.ServiceShutdownSignal("Service has signaled readiness for shutdown.")
@@ -223,8 +252,11 @@ class DockerManager:
         logger.info("Following logs for %s...", self._container_name)
         command = ["docker", "logs", "-f", "--since", "1s", self._container_name]
         process = subprocess.Popen(
-            command, stdout=subprocess.PIPE,
-            stderr=subprocess.STDOUT, text=True, encoding="utf-8"
+            command,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
+            text=True,
+            encoding="utf-8",
         )
         return process
 

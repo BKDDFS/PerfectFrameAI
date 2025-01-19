@@ -4,8 +4,7 @@ from unittest.mock import patch
 import pytest
 from pydantic import ValidationError
 
-from extractor_service.app.schemas import (ExtractorConfig, ExtractorStatus,
-                                           Message)
+from extractor_service.app.schemas import ExtractorConfig, ExtractorStatus, Message
 
 
 def test_config_default():
@@ -23,7 +22,7 @@ def test_config_default():
     assert config.weights_directory == Path.home() / ".cache" / "huggingface"
     assert config.weights_filename == "weights.h5"
     assert config.weights_repo_url == "https://huggingface.co/BKDDFS/nima_weights/resolve/main/"
-    assert config.all_frames == False
+    assert config.all_frames is False
 
 
 def test_request_data_validation_failure_output():

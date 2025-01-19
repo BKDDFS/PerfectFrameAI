@@ -5,18 +5,20 @@ from unittest.mock import MagicMock, patch
 import numpy as np
 import pytest
 
-from extractor_service.app.extractors import (BestFramesExtractor,
-                                              ExtractorFactory,
-                                              TopImagesExtractor)
-from extractor_service.app.image_evaluators import InceptionResNetNIMA
+from extractor_service.app.extractors import (
+    BestFramesExtractor,
+    ExtractorFactory,
+    TopImagesExtractor,
+)
 from extractor_service.app.image_processors import OpenCVImage
-from extractor_service.app.video_processors import OpenCVVideo
 
 
 def test_extractor_initialization(config, dependencies):
     extractor = BestFramesExtractor(
-        config, dependencies.image_processor,
-        dependencies.video_processor, dependencies.evaluator
+        config,
+        dependencies.image_processor,
+        dependencies.video_processor,
+        dependencies.evaluator,
     )
     assert extractor
     assert extractor._config == config
@@ -31,10 +33,10 @@ def test_get_image_evaluator(extractor, config):
     result = extractor._get_image_evaluator()
 
     mock_class.assert_called_once_with(config)
-    assert result == expected, \
-        "The method did not return the correct ImageEvaluator instance."
-    assert extractor._image_evaluator == expected, \
+    assert result == expected, "The method did not return the correct ImageEvaluator instance."
+    assert extractor._image_evaluator == expected, (
         "The ImageEvaluator instance was not stored correctly in the extractor."
+    )
 
 
 def test_evaluate_images(extractor):
@@ -57,10 +59,7 @@ def test_read_images(mock_executor, mock_read_image, image, extractor):
     mock_paths = [MagicMock(spec=Path) for _ in range(3)]
     mock_executor.return_value.__enter__.return_value = mock_executor
     mock_executor.submit.return_value.result.return_value = image
-    calls = [
-        ((mock_read_image, path),)
-        for path in mock_paths
-    ]
+    calls = [((mock_read_image, path),) for path in mock_paths]
 
     result = extractor._read_images(mock_paths)
 
@@ -80,7 +79,14 @@ def test_save_images(mock_executor, mock_save_image, extractor, config):
     mock_executor.return_value.__enter__.return_value = mock_executor
     mock_executor.submit.return_value.result.return_value = None
     calls = [
-        ((OpenCVImage.save_image, image, config.output_directory, config.images_output_format),)
+        (
+            (
+                OpenCVImage.save_image,
+                image,
+                config.output_directory,
+                config.images_output_format,
+            ),
+        )
         for image in images
     ]
 
@@ -128,8 +134,10 @@ def test_list_input_directory_files_no_files_found(mock_iterdir, extractor, capl
         f"\nCheck input directory."
     )
 
-    with pytest.raises(BestFramesExtractor.EmptyInputDirectoryError), \
-            caplog.at_level(logging.ERROR):
+    with (
+        pytest.raises(BestFramesExtractor.EmptyInputDirectoryError),
+        caplog.at_level(logging.ERROR),
+    ):
         extractor._list_input_directory_files(mock_extensions)
 
     assert error_massage in caplog.text
@@ -141,8 +149,7 @@ def test_add_prefix(extractor, caplog):
     test_new_path = Path("test_path/prefix_file.mp4")
     expected_massage = f"Prefix '{test_prefix}' added to file '{test_path}'. New path: {test_new_path}"
 
-    with patch("pathlib.Path.rename") as mock_rename, \
-            caplog.at_level(logging.DEBUG):
+    with patch("pathlib.Path.rename") as mock_rename, caplog.at_level(logging.DEBUG):
         result = extractor._add_prefix(test_prefix, test_path)
 
         mock_rename.assert_called_once_with(test_new_path)
@@ -156,10 +163,13 @@ def test_signal_readiness_for_shutdown(extractor, caplog):
     assert "Service ready for shutdown" in caplog.text
 
 
-@pytest.mark.parametrize("extractor_name, extractor", (
+@pytest.mark.parametrize(
+    "extractor_name, extractor",
+    (
         ("best_frames_extractor", BestFramesExtractor),
-        ("top_images_extractor", TopImagesExtractor)
-))
+        ("top_images_extractor", TopImagesExtractor),
+    ),
+)
 def test_create_extractor_known_extractors(extractor_name, extractor, config, dependencies):
     extractor_instance = ExtractorFactory.create_extractor(extractor_name, config, dependencies)
     assert isinstance(extractor_instance, extractor)
@@ -169,8 +179,10 @@ def test_create_extractor_unknown_extractor_raises(caplog, config, dependencies)
     unknown_extractor_name = "unknown_extractor"
     expected_massage = f"Provided unknown extractor name: {unknown_extractor_name}"
 
-    with pytest.raises(ValueError, match=expected_massage), \
-            caplog.at_level(logging.ERROR):
+    with (
+        pytest.raises(ValueError, match=expected_massage),
+        caplog.at_level(logging.ERROR),
+    ):
         ExtractorFactory.create_extractor(unknown_extractor_name, config, dependencies)
 
     assert expected_massage in caplog.text
