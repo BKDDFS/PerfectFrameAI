@@ -102,7 +102,7 @@ class ServiceInitializer:
                     message = response_body.get("message", "No message returned")
                     logger.info("Response from server: %s", message)
                     return True
-        except RemoteDisconnected:
+        except (RemoteDisconnected, ConnectionResetError):
             logger.info("Waiting for service to be available...")
             self.__check_timeout(start_time, timeout)
             time.sleep(3)
