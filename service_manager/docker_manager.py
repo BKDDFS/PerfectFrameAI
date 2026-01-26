@@ -1,7 +1,7 @@
 """
 I built a custom Docker manager because I wanted to simplify and accelerate the process of
 launching the service using a script as much as possible. Therefore,
-I didn’t want to use any external libraries in this part of the project.
+I didn't want to use any external libraries in this part of the project.
 
 This module defines a DockerManager class to handle Docker operations like building images,
 managing container lifecycle, and monitoring container logs.
@@ -24,6 +24,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 """
 
 import logging
+import platform
 import subprocess
 import sys
 from typing import Optional
@@ -87,6 +88,15 @@ class DockerManager:
         logger.debug("Force build: %s", self._force_build)
         logger.debug("CPU only: %s", self._cpu_only)
 
+    def _is_macos_arm64(self) -> bool:
+        """
+        Check if running on macOS with ARM64 architecture.
+
+        Returns:
+            bool: True if running on macOS ARM64 (Apple Silicon), False otherwise.
+        """
+        return platform.system() == "Darwin" and platform.machine() == "arm64"
+
     @property
     def docker_image_existence(self) -> bool:
         """
@@ -121,7 +131,10 @@ class DockerManager:
         """
         if not self.docker_image_existence or self._force_build:
             logging.info("Building Docker image...")
-            command = ["docker", "build", "-t", self._image_name, dockerfile_path]
+            command = ["docker", "build", "-t", self._image_name]
+            if not self._is_macos_arm64():
+                command.extend(["--platform", "linux/amd64"])
+            command.append(dockerfile_path)
             subprocess.run(command, check=True)
         else:
             logger.info("Image is already created. Using existing one.")
@@ -208,9 +221,10 @@ class DockerManager:
             container_output_directory (str): Directory inside the container for output data.
         """
         logging.info("Running a new container...")
-        command = [
-            "docker",
-            "run",
+        command = ["docker", "run"]
+        if not self._is_macos_arm64():
+            command.extend(["--platform", "linux/amd64"])
+        command.extend([
             "--name",
             self._container_name,
             "--restart",
@@ -222,9 +236,12 @@ class DockerManager:
             f"{self._input_directory}:{container_input_directory}",
             "-v",
             f"{self._output_directory}:{container_output_directory}",
-        ]
-        if not self._cpu_only:
+        ])
+        is_macos = platform.system() == "Darwin"
+        if not self._cpu_only and not is_macos:
             command.extend(["--gpus", "all"])
+        elif not self._cpu_only and is_macos:
+            logger.warning("GPU mode requested but macOS detected. Running in CPU mode.")
         command.append(self._image_name)
         subprocess.run(command, check=True)
 

@@ -71,10 +71,11 @@ def test_check_image_exists(mock_image, is_exists, docker, mock_run):
     mock_run.assert_called_with(expected_command, capture_output=True, text=True, check=True)
 
 
+@patch.object(DockerManager, "_is_macos_arm64", return_value=False)
 @patch.object(DockerManager, "_check_image_exists")
-def test_build_image(mock_check_image_exists, docker, mock_run, caplog, config):
+def test_build_image(mock_check_image_exists, mock_is_arm64, docker, mock_run, caplog, config):
     mock_check_image_exists.return_value = False
-    expected_command = ["docker", "build", "-t", docker._image_name, config.dockerfile]
+    expected_command = ["docker", "build", "-t", docker._image_name, "--platform", "linux/amd64", config.dockerfile]
 
     docker.build_image(config.dockerfile)
 
@@ -194,10 +195,14 @@ def test_start_container_success(docker, mock_run, caplog):
 
 
 @pytest.mark.parametrize("cpu", (True, False))
-def test_run_container(docker, mock_run, config, caplog, cpu):
+@patch.object(DockerManager, "_is_macos_arm64", return_value=False)
+@patch("service_manager.docker_manager.platform.system", return_value="Linux")
+def test_run_container(mock_platform, mock_is_arm64, docker, mock_run, config, caplog, cpu):
     expected_command = [
         "docker",
         "run",
+        "--platform",
+        "linux/amd64",
         "--name",
         docker._container_name,
         "--restart",
@@ -325,3 +330,66 @@ def test_follow_container_logs_stopped_automatically(mock_stop, mock_run_log, mo
     mock_stdout.assert_has_calls(calls, any_order=True)
     assert "Service has signaled readiness for shutdown." in caplog.text
     assert "Following container logs stopped." in caplog.text
+
+
+@patch("service_manager.docker_manager.platform.machine", return_value="arm64")
+@patch("service_manager.docker_manager.platform.system", return_value="Darwin")
+def test_is_macos_arm64_true(mock_system, mock_machine, docker):
+    assert docker._is_macos_arm64() is True
+
+
+@pytest.mark.parametrize("system, machine", [
+    ("Linux", "x86_64"),
+    ("Darwin", "x86_64"),
+    ("Linux", "arm64"),
+    ("Windows", "AMD64"),
+])
+def test_is_macos_arm64_false(system, machine, docker):
+    with (
+        patch("service_manager.docker_manager.platform.system", return_value=system),
+        patch("service_manager.docker_manager.platform.machine", return_value=machine),
+    ):
+        assert docker._is_macos_arm64() is False
+
+
+@patch.object(DockerManager, "_is_macos_arm64", return_value=True)
+@patch.object(DockerManager, "_check_image_exists")
+def test_build_image_on_macos_arm64(mock_check_image_exists, mock_is_arm64, docker, mock_run, config):
+    mock_check_image_exists.return_value = False
+    expected_command = ["docker", "build", "-t", docker._image_name, config.dockerfile]
+
+    docker.build_image(config.dockerfile)
+
+    mock_run.assert_called_once_with(expected_command, check=True)
+
+
+@pytest.mark.parametrize("cpu", (True, False))
+@patch.object(DockerManager, "_is_macos_arm64", return_value=True)
+@patch("service_manager.docker_manager.platform.system", return_value="Darwin")
+def test_run_container_on_macos_arm64(mock_platform, mock_is_arm64, docker, mock_run, config, caplog, cpu):
+    expected_command = [
+        "docker",
+        "run",
+        "--name",
+        docker._container_name,
+        "--restart",
+        "unless-stopped",
+        "-d",
+        "-p",
+        f"{docker._port}:{config.port}",
+        "-v",
+        f"{docker._input_directory}:{config.input_directory}",
+        "-v",
+        f"{docker._output_directory}:{config.input_directory}",
+    ]
+    expected_command.append(docker._image_name)
+    try:
+        if cpu:
+            docker._cpu_only = True
+        with caplog.at_level(logging.INFO):
+            docker._run_container(config.port, config.input_directory, config.input_directory)
+    finally:
+        docker._cpu_only = False
+
+    mock_run.assert_called_once_with(expected_command, check=True)
+    assert "Running a new container..." in caplog.text
