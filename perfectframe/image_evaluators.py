@@ -51,9 +51,6 @@ class ImageEvaluator(ABC):
 
         Args:
             images (list[np.ndarray]): Batch of images that will be evaluated.
-
-        Returns:
-            list[float]: List of images' scores.
         """
 
     @staticmethod
@@ -96,9 +93,6 @@ class InceptionResNetNIMA(ImageEvaluator):
 
         Args:
             images (np.ndarray): Batch of numpy ndarray images to be evaluated.
-
-        Returns:
-            list[float]: List of scores corresponding to the input images.
         """
         logger.info("Evaluating images...")
         predictions = self._session.run(None, {self._input_name: images.astype(np.float32)})[0]
@@ -120,9 +114,6 @@ class InceptionResNetNIMA(ImageEvaluator):
             prediction (np.array): Array of classification scores.
             weights (np.array): Optional weights for calculating weighted mean.
                 If None, uses equal weights.
-
-        Returns:
-            float: Weighted mean of the prediction.
         """
         if weights is None:
             weights = np.ones_like(prediction)  # Default weights, equally distribute importance
@@ -154,9 +145,6 @@ class _ONNXModel:
 
         Args:
             config (ExtractorConfig): Configuration object for the model.
-
-        Returns:
-            Path: Path to the ONNX model file.
         """
         model_weights_directory = config.weights_directory
         logger.info(

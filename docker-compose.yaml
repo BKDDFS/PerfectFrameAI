@@ -1,5 +1,5 @@
 services:
-  extractor_service:
+  perfectframe:
     build:
       context: .
       dockerfile: Dockerfile
@@ -9,8 +9,6 @@ services:
       - "${INPUT_DIR:-./input_directory}:/app/input_directory"
       - "${OUTPUT_DIR:-./output_directory}:/app/output_directory"
     working_dir: /app
-    environment:
-      - TF_CPP_MIN_LOG_LEVEL=3
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8100/health"]
       interval: 10s
@@ -20,9 +18,9 @@ services:
     entrypoint: [ "uvicorn", "perfectframe.app:app", "--host", "0.0.0.0", "--port", "8100" ]
 
   # GPU-enabled version (use with --profile gpu)
-  extractor_service_gpu:
+  perfectframe_gpu:
     extends:
-      service: extractor_service
+      service: perfectframe
     profiles:
       - gpu
     deploy:

@@ -1,5 +1,5 @@
 # .pre-commit-config.yaml
-default_install_hook_types: [pre-commit, pre-push]
+default_install_hook_types: [pre-commit]
 default_stages: [pre-commit]
 
 repos:

@@ -33,7 +33,7 @@ from fastapi import BackgroundTasks, Depends, FastAPI
 
 from perfectframe.dependencies import ExtractorDependencies, get_extractor_dependencies
 from perfectframe.extractor_manager import ExtractorManager
-from perfectframe.schemas import ExtractorConfig, ExtractorStatus, Message
+from perfectframe.schemas import ExtractorConfig, ExtractorName, ExtractorStatus, Message
 
 logging.basicConfig(
     level=logging.INFO,
@@ -54,17 +54,13 @@ def health_check() -> dict[str, str]:
 
 @app.get("/v2/status")
 def get_extractors_status() -> ExtractorStatus:
-    """Check if some extractor is already running on service.
-
-    Returns:
-        ExtractorStatus: Contains the name of the currently active extractor.
-    """
+    """Check if some extractor is already running on service."""
     return ExtractorStatus(active_extractor=ExtractorManager.get_active_extractor())
 
 
 @app.post("/v2/extractors/{extractor_name}")
 def run_extractor(
-    extractor_name: str,
+    extractor_name: ExtractorName,
     background_tasks: BackgroundTasks,
     dependencies: Annotated[ExtractorDependencies, Depends(get_extractor_dependencies)],
     config: ExtractorConfig = ExtractorConfig(),
@@ -72,13 +68,10 @@ def run_extractor(
     """Run the provided extractor.
 
     Args:
-        extractor_name (str): The name of the extractor that will be used.
+        extractor_name (ExtractorName): The name of the extractor that will be used.
         background_tasks (BackgroundTasks): A FastAPI tool for running tasks in background.
         dependencies (ExtractorDependencies): Dependencies that will be used in extractor.
         config (ExtractorConfig): A Pydantic model with extractor configuration.
-
-    Returns:
-        Message: Contains the operation status.
     """
     message = ExtractorManager.start_extractor(
         extractor_name, background_tasks, config, dependencies

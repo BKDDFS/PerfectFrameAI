@@ -5,12 +5,11 @@ from unittest.mock import call  # noqa: TID251
 
 import cv2
 import numpy as np
-from pytest_mock import MockerFixture
 
 from perfectframe.image_processors import OpenCVImage
 
 
-def test_read_image(mocker: MockerFixture, caplog):
+def test_read_image(mocker, caplog):
     mock_imread = mocker.patch.object(cv2, "imread")
     mock_path = Path("some/path/to/image.jpg")
     expected_image = mocker.MagicMock(spec=np.ndarray)
@@ -24,7 +23,7 @@ def test_read_image(mocker: MockerFixture, caplog):
     assert f"Image '{mock_path}' has successfully read." in caplog.text
 
 
-def test_read_image_invalid_image(mocker: MockerFixture, caplog):
+def test_read_image_invalid_image(mocker, caplog):
     mock_imread = mocker.patch.object(cv2, "imread")
     mock_path = Path("some/path/to/image.jpg")
     mock_imread.return_value = None
@@ -39,7 +38,7 @@ def test_read_image_invalid_image(mocker: MockerFixture, caplog):
     ) in caplog.text
 
 
-def test_save_image(mocker: MockerFixture, caplog):
+def test_save_image(mocker, caplog):
     mock_imwrite = mocker.patch.object(cv2, "imwrite")
     mock_uuid = mocker.patch.object(uuid, "uuid4")
     file_name = "some_filename"
@@ -57,7 +56,7 @@ def test_save_image(mocker: MockerFixture, caplog):
     assert f"Image saved at '{expected_path}'." in caplog.text
 
 
-def test_normalize_images(mocker: MockerFixture):
+def test_normalize_images(mocker):
     mock_resize = mocker.patch.object(cv2, "resize")
     mock_cvt = mocker.patch.object(cv2, "cvtColor")
     mock_array = mocker.patch.object(np, "array")

@@ -3,7 +3,6 @@ from pathlib import Path
 
 import numpy as np
 import pytest
-from pytest_mock import MockerFixture
 
 from perfectframe.extractors import BestFramesExtractor
 from perfectframe.image_evaluators import InceptionResNetNIMA
@@ -23,7 +22,7 @@ def extractor(config):
     return BestFramesExtractor(config, OpenCVImage, OpenCVVideo, InceptionResNetNIMA)
 
 
-def test_process(mocker: MockerFixture, extractor, caplog, config):
+def test_process(mocker, extractor, caplog, config):
     test_videos = ["/fake/directory/video1.mp4", "/fake/directory/video2.mp4"]
     test_frames = ["frame1", "frame2"]
     extractor._list_input_directory_files = mocker.MagicMock(return_value=test_videos)
@@ -49,7 +48,7 @@ def test_process(mocker: MockerFixture, extractor, caplog, config):
     assert f"Starting frames extraction process from '{config.input_directory}'." in caplog.text
 
 
-def test_process_if_all_frames(mocker: MockerFixture, all_frames_extractor, caplog, config):
+def test_process_if_all_frames(mocker, all_frames_extractor, caplog, config):
     test_videos = ["/fake/directory/video1.mp4", "/fake/directory/video2.mp4"]
     test_frames = ["frame1", "frame2"]
     all_frames_extractor._list_input_directory_files = mocker.MagicMock(return_value=test_videos)
@@ -76,7 +75,7 @@ def test_process_if_all_frames(mocker: MockerFixture, all_frames_extractor, capl
     assert f"Starting frames extraction process from '{config.input_directory}'." in caplog.text
 
 
-def test_extract_best_frames(mocker: MockerFixture, extractor):
+def test_extract_best_frames(mocker, extractor):
     mock_generator = mocker.patch.object(OpenCVVideo, "get_next_frames")
     mock_save = mocker.patch.object(BestFramesExtractor, "_save_images")
     mock_get = mocker.patch.object(BestFramesExtractor, "_get_best_frames")
@@ -101,7 +100,7 @@ def test_extract_best_frames(mocker: MockerFixture, extractor):
     assert mock_collect.call_count == expected_call_count
 
 
-def test_extract_all_frames(mocker: MockerFixture, all_frames_extractor):
+def test_extract_all_frames(mocker, all_frames_extractor):
     mock_generator = mocker.patch.object(OpenCVVideo, "get_next_frames")
     mock_save = mocker.patch.object(BestFramesExtractor, "_save_images")
     mock_get = mocker.patch.object(BestFramesExtractor, "_get_best_frames")
@@ -124,7 +123,7 @@ def test_extract_all_frames(mocker: MockerFixture, all_frames_extractor):
     assert mock_collect.call_count == expected_call_count
 
 
-def test_get_best_frames(mocker: MockerFixture, caplog, extractor, config):
+def test_get_best_frames(mocker, caplog, extractor, config):
     mock_normalize = mocker.patch.object(BestFramesExtractor, "_normalize_images")
     mock_evaluate = mocker.patch.object(BestFramesExtractor, "_evaluate_images")
     frames = [f"frames{i}" for i in range(10)]

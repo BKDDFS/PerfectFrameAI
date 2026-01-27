@@ -4,7 +4,6 @@ from pathlib import Path
 
 import numpy as np
 import pytest
-from pytest_mock import MockerFixture
 
 from perfectframe.image_evaluators import _ONNXModel
 
@@ -21,7 +20,7 @@ def test_class_arguments():
 
 
 @pytest.mark.parametrize("file_exists", [True, False])
-def test_get_model_path(mocker: MockerFixture, file_exists, config, caplog):
+def test_get_model_path(mocker, file_exists, config, caplog):
     mock_is_file = mocker.patch.object(Path, "is_file")
     mock_download = mocker.patch.object(_ONNXModel, "_download_model_weights")
     mock_is_file.return_value = file_exists
@@ -47,7 +46,7 @@ def test_get_model_path(mocker: MockerFixture, file_exists, config, caplog):
 
 
 @pytest.mark.parametrize("status_code", [HTTPStatus.OK, HTTPStatus.NOT_FOUND])
-def test_download_model_weights(mocker: MockerFixture, status_code, config, caplog):
+def test_download_model_weights(mocker, status_code, config, caplog):
     mock_mkdir = mocker.patch.object(Path, "mkdir")
     mock_get = mocker.patch("perfectframe.image_evaluators.requests.get")
     mock_write_bytes = mocker.patch.object(Path, "write_bytes")

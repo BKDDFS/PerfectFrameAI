@@ -2,12 +2,11 @@ from pathlib import Path
 
 import pytest
 from pydantic import ValidationError
-from pytest_mock import MockerFixture
 
 from perfectframe.schemas import ExtractorConfig, ExtractorStatus, Message
 
 
-def test_config_default(mocker: MockerFixture):
+def test_config_default(mocker):
     mocker.patch.object(Path, "is_dir", return_value=True)
     config = ExtractorConfig()
     assert config.input_directory == Path("/app/input_directory")

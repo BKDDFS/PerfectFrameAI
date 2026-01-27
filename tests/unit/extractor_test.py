@@ -3,7 +3,6 @@ from pathlib import Path
 
 import numpy as np
 import pytest
-from pytest_mock import MockerFixture
 
 from perfectframe.extractors import (
     BestFramesExtractor,
@@ -11,6 +10,7 @@ from perfectframe.extractors import (
     TopImagesExtractor,
 )
 from perfectframe.image_processors import OpenCVImage
+from perfectframe.schemas import ExtractorName
 
 
 def test_extractor_initialization(config, dependencies):
@@ -25,7 +25,7 @@ def test_extractor_initialization(config, dependencies):
     assert extractor._image_evaluator is None
 
 
-def test_get_image_evaluator(mocker: MockerFixture, extractor, config):
+def test_get_image_evaluator(mocker, extractor, config):
     expected = "value"
     mock_class = mocker.MagicMock(return_value=expected)
     extractor._image_evaluator_class = mock_class
@@ -39,7 +39,7 @@ def test_get_image_evaluator(mocker: MockerFixture, extractor, config):
     )
 
 
-def test_evaluate_images(mocker: MockerFixture, extractor):
+def test_evaluate_images(mocker, extractor):
     test_input = mocker.MagicMock(spec=np.ndarray)
     expected = "expected"
     extractor._image_evaluator = mocker.MagicMock()
@@ -53,7 +53,7 @@ def test_evaluate_images(mocker: MockerFixture, extractor):
 
 
 @pytest.mark.parametrize("image", ["some_image", None])
-def test_read_images(mocker: MockerFixture, image, extractor):
+def test_read_images(mocker, image, extractor):
     mock_executor = mocker.patch("perfectframe.extractors.ThreadPoolExecutor")
     mock_read_image = mocker.patch.object(OpenCVImage, "read_image", return_value=None)
     mock_paths = [mocker.MagicMock(spec=Path) for _ in range(3)]
@@ -72,7 +72,7 @@ def test_read_images(mocker: MockerFixture, image, extractor):
         assert not result
 
 
-def test_save_images(mocker: MockerFixture, extractor, config):
+def test_save_images(mocker, extractor, config):
     mock_executor = mocker.patch("perfectframe.extractors.ThreadPoolExecutor")
     mocker.patch.object(OpenCVImage, "read_image", return_value=None)
     images = [mocker.MagicMock(spec=np.ndarray) for _ in range(3)]
@@ -97,7 +97,7 @@ def test_save_images(mocker: MockerFixture, extractor, config):
     assert mock_executor.submit.return_value.result.call_count == len(images)
 
 
-def test_normalize_images(mocker: MockerFixture, extractor, config):
+def test_normalize_images(mocker, extractor, config):
     mock_normalize = mocker.patch.object(OpenCVImage, "normalize_images")
     images = [mocker.MagicMock() for _ in range(3)]
 
@@ -106,7 +106,7 @@ def test_normalize_images(mocker: MockerFixture, extractor, config):
     mock_normalize.assert_called_once_with(images, config.target_image_size)
 
 
-def test_list_input_directory_files(mocker: MockerFixture, extractor, caplog, config):
+def test_list_input_directory_files(mocker, extractor, caplog, config):
     mock_iterdir = mocker.patch.object(Path, "iterdir")
     mock_is_file = mocker.patch.object(Path, "is_file")
     mock_files = [Path("/fake/directory/file1.txt"), Path("/fake/directory/file2.log")]
@@ -122,9 +122,7 @@ def test_list_input_directory_files(mocker: MockerFixture, extractor, caplog, co
     assert f"Listed file paths: {mock_files}" in caplog.text
 
 
-def test_list_input_directory_files_no_files_found(
-    mocker: MockerFixture, extractor, caplog, config
-):
+def test_list_input_directory_files_no_files_found(mocker, extractor, caplog, config):
     mock_iterdir = mocker.patch.object(Path, "iterdir")
     mock_files = []
     mock_extensions = (".txt", ".log")
@@ -145,7 +143,7 @@ def test_list_input_directory_files_no_files_found(
     assert error_massage in caplog.text
 
 
-def test_add_prefix(mocker: MockerFixture, extractor, caplog):
+def test_add_prefix(mocker, extractor, caplog):
     mock_rename = mocker.patch("pathlib.Path.rename")
     test_prefix = "prefix_"
     test_path = Path("test_path/file.mp4")
@@ -171,23 +169,10 @@ def test_signal_readiness_for_shutdown(extractor, caplog):
 @pytest.mark.parametrize(
     ("extractor_name", "extractor_class"),
     [
-        ("best_frames_extractor", BestFramesExtractor),
-        ("top_images_extractor", TopImagesExtractor),
+        (ExtractorName.BEST_FRAMES, BestFramesExtractor),
+        (ExtractorName.TOP_IMAGES, TopImagesExtractor),
     ],
 )
 def test_create_extractor_known_extractors(extractor_name, extractor_class, config, dependencies):
     extractor_instance = ExtractorFactory.create_extractor(extractor_name, config, dependencies)
     assert isinstance(extractor_instance, extractor_class)
-
-
-def test_create_extractor_unknown_extractor_raises(caplog, config, dependencies):
-    unknown_extractor_name = "unknown_extractor"
-    expected_massage = f"Provided unknown extractor name: {unknown_extractor_name}"
-
-    with (
-        pytest.raises(ValueError, match=expected_massage),
-        caplog.at_level(logging.ERROR),
-    ):
-        ExtractorFactory.create_extractor(unknown_extractor_name, config, dependencies)
-
-    assert expected_massage in caplog.text
