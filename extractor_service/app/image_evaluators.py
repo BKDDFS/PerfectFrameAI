@@ -25,11 +25,8 @@ from abc import ABC, abstractmethod
 from pathlib import Path
 
 import numpy as np
+import onnxruntime as ort
 import requests
-import tensorflow as tf
-from tensorflow import convert_to_tensor
-from tensorflow.keras import Model
-from tensorflow.keras.layers import Dense, Dropout
 
 from .schemas import ExtractorConfig
 
@@ -93,7 +90,9 @@ class InceptionResNetNIMA(ImageEvaluator):
         Args:
             config (ExtractorConfig): Configuration object for the image evaluator.
         """
-        self._model = _ResNetModel.get_model(config)
+        model_path = _ONNXModel.get_model_path(config)
+        self._session = ort.InferenceSession(str(model_path))
+        self._input_name = self._session.get_inputs()[0].name
 
     def evaluate_images(self, images: np.ndarray) -> list[float]:
         """
@@ -106,10 +105,8 @@ class InceptionResNetNIMA(ImageEvaluator):
             list[float]: List of scores corresponding to the input images.
         """
         logger.info("Evaluating images...")
-        tensor = convert_to_tensor(images)
-        batch_size = images.shape[0]
-        predictions = self._model.predict(tensor, batch_size=batch_size, verbose=0)
-        weights = _ResNetModel.get_prediction_weights()
+        predictions = self._session.run(None, {self._input_name: images.astype(np.float32)})[0]
+        weights = _ONNXModel.get_prediction_weights()
         scores = [self._calculate_weighted_mean(prediction, weights) for prediction in predictions]
         self._check_scores(images, scores)
         logger.info("Images batch evaluated.")
@@ -135,114 +132,16 @@ class InceptionResNetNIMA(ImageEvaluator):
         return weighted_mean
 
 
-class _NIMAModel(ABC):
+class _ONNXModel:
     """
-    Abstract base class for the NIMA models. Uses a singleton pattern
-    to manage a unique instance of the models.
-    This is helper class for NeuralImageAssessment class.
+    Helper class for managing ONNX model weights.
+    Handles downloading and caching of model weights.
     """
 
     class DownloadingModelWeightsError(Exception):
         """Error raised when there's an issue with downloading model weights."""
 
-    _config = None
-    _model = None
-
-    @classmethod
-    def reset(cls) -> None:
-        """Resets class for using new model and config."""
-        cls._model = None
-        cls._config = None
-
-    @classmethod
-    def get_model(cls, config: ExtractorConfig) -> Model:
-        """
-        Get the NIMA model instance, downloading the weights if necessary.
-
-        Args:
-            config (ExtractorConfig): Configuration object for the model.
-
-        Returns:
-            Model: NIMA model instance.
-        """
-        if cls._model is None:
-            cls._config = config
-            model_weights_path = cls._get_model_weights()
-            cls._model = cls._create_model(model_weights_path)
-        return cls._model
-
-    @classmethod
-    @abstractmethod
-    def _create_model(cls, model_weights_path: Path) -> Model:
-        """
-        Create the NIMA model with the provided weights.
-
-        Args:
-            model_weights_path (Path): Path to the model weights.
-
-        Returns:
-            Model: NIMA model instance.
-        """
-
-    @classmethod
-    def _get_model_weights(cls) -> Path:
-        """
-        Get the path to the model weights, downloading them if necessary.
-
-        Returns:
-            Path: Path to the model weights.
-        """
-        model_weights_directory = cls._config.weights_directory
-        logger.info(
-            "Searching for model weights in weights directory: %s",
-            model_weights_directory,
-        )
-        model_weights_path = Path(model_weights_directory) / cls._config.weights_filename
-        if not model_weights_path.is_file():
-            logger.debug(
-                "Can't find model weights in weights directory: %s",
-                model_weights_directory,
-            )
-            cls._download_model_weights(model_weights_path)
-        else:
-            logger.debug("Model weights loaded from: %s", model_weights_path)
-        return model_weights_path
-
-    @classmethod
-    def _download_model_weights(cls, weights_path: Path, timeout: int = 10) -> None:
-        """
-        Download the model weights from the specified URL.
-
-        Args:
-            weights_path (Path): Path to save the downloaded weights.
-            timeout (int): Timeout for the request in seconds.
-
-        Raises:
-            cls.DownloadingModelWeightsError: If there's an issue downloading the weights.
-        """
-        url = f"{cls._config.weights_repo_url}{cls._config.weights_filename}"
-        logger.debug("Downloading model weights from ulr: %s", url)
-        response = requests.get(url, allow_redirects=True, timeout=timeout)
-        if response.status_code == 200:
-            weights_path.parent.mkdir(parents=True, exist_ok=True)
-            weights_path.write_bytes(response.content)
-            logger.debug("Model weights downloaded and saved to %s", weights_path)
-        else:
-            error_message = f"Failed to download the weights: HTTP status code {response.status_code}"
-            logger.error(error_message)
-            raise cls.DownloadingModelWeightsError(error_message)
-
-
-class _ResNetModel(_NIMAModel):
-    """
-    Implements the specific InceptionResNetV2-based NIMA model.
-    This is helper class for NeuralImageAssessment class.
-    """
-
     _prediction_weights = np.arange(1, 11)
-    _input_shape = (224, 224, 3)
-    _dropout_rate = 0.75
-    _num_classes = 10
 
     @classmethod
     def get_prediction_weights(cls):
@@ -253,22 +152,53 @@ class _ResNetModel(_NIMAModel):
         return cls._prediction_weights
 
     @classmethod
-    def _create_model(cls, model_weights_path: Path) -> Model:
+    def get_model_path(cls, config: ExtractorConfig) -> Path:
         """
-        Create the InceptionResNetV2-based NIMA model with the provided weights.
+        Get the path to the ONNX model, downloading it if necessary.
 
         Args:
-            model_weights_path (Path): Path to the model weights.
+            config (ExtractorConfig): Configuration object for the model.
 
         Returns:
-            Model: NIMA model instance.
+            Path: Path to the ONNX model file.
         """
-        base_model = tf.keras.applications.InceptionResNetV2(
-            input_shape=cls._input_shape, include_top=False, pooling="avg", weights=None
+        model_weights_directory = config.weights_directory
+        logger.info(
+            "Searching for model weights in weights directory: %s",
+            model_weights_directory,
         )
-        processed_output = Dropout(cls._dropout_rate)(base_model.output)
-        final_output = Dense(cls._num_classes, activation="softmax")(processed_output)
-        model = Model(inputs=base_model.input, outputs=final_output)
-        model.load_weights(model_weights_path)
-        logger.debug("Model loaded successfully.")
-        return model
+        model_weights_path = Path(model_weights_directory) / config.weights_filename
+        if not model_weights_path.is_file():
+            logger.debug(
+                "Can't find model weights in weights directory: %s",
+                model_weights_directory,
+            )
+            cls._download_model_weights(model_weights_path, config)
+        else:
+            logger.debug("Model weights loaded from: %s", model_weights_path)
+        return model_weights_path
+
+    @classmethod
+    def _download_model_weights(cls, weights_path: Path, config: ExtractorConfig, timeout: int = 10) -> None:
+        """
+        Download the model weights from the specified URL.
+
+        Args:
+            weights_path (Path): Path to save the downloaded weights.
+            config (ExtractorConfig): Configuration object with URL info.
+            timeout (int): Timeout for the request in seconds.
+
+        Raises:
+            cls.DownloadingModelWeightsError: If there's an issue downloading the weights.
+        """
+        url = f"{config.weights_repo_url}{config.weights_filename}"
+        logger.debug("Downloading model weights from ulr: %s", url)
+        response = requests.get(url, allow_redirects=True, timeout=timeout)
+        if response.status_code == 200:
+            weights_path.parent.mkdir(parents=True, exist_ok=True)
+            weights_path.write_bytes(response.content)
+            logger.debug("Model weights downloaded and saved to %s", weights_path)
+        else:
+            error_message = f"Failed to download the weights: HTTP status code {response.status_code}"
+            logger.error(error_message)
+            raise cls.DownloadingModelWeightsError(error_message)

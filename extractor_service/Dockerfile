@@ -1,9 +1,9 @@
-FROM python:3.13-slim
+FROM python:3.14.2-slim-bookworm
 
 LABEL authors="BKDDFS"
 
 # Install uv (fixed version)
-COPY --from=ghcr.io/astral-sh/uv:0.9.26 /uv /bin/uv
+COPY --from=ghcr.io/astral-sh/uv:0.9.27 /uv /bin/uv
 
 # Install system dependencies
 RUN apt-get update && apt-get install -y \
@@ -37,7 +37,6 @@ COPY pyproject.toml uv.lock ./
 RUN uv sync --frozen --no-dev --no-editable
 
 # Set environment variables
-ENV TF_CPP_MIN_LOG_LEVEL=3
 ENV DOCKER_ENV=1
 ENV PATH="/app/.venv/bin:$PATH"
 
