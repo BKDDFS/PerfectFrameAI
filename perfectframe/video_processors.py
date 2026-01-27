@@ -28,7 +28,8 @@ from contextlib import contextmanager
 from pathlib import Path
 
 import cv2
-import numpy as np
+
+from perfectframe.schemas import Image, Images
 
 logger = logging.getLogger(__name__)
 
@@ -38,7 +39,7 @@ class VideoProcessor(ABC):
 
     @classmethod
     @abstractmethod
-    def get_next_frames(cls, video_path: Path, batch_size: int) -> Generator[list[np.ndarray]]:
+    def get_next_frames(cls, video_path: Path, frames_batch_size: int) -> Generator[Images]:
         """Abstract generator method to generate batches of frames from a video file."""
 
 
@@ -67,18 +68,20 @@ class OpenCVVideo(VideoProcessor):
             video_cap.release()
 
     @classmethod
-    def get_next_frames(cls, video_path: Path, batch_size: int) -> Generator[list[np.ndarray]]:
+    def get_next_frames(cls, video_path: Path, frames_batch_size: int) -> Generator[Images]:
         """Generate batches of frames from the specified video using OpenCV."""
         with cls._video_capture(video_path) as video:
             frame_rate = cls._get_video_attribute(video, cv2.CAP_PROP_FPS, "frame rate")
             total_frames = cls._get_video_attribute(video, cv2.CAP_PROP_FRAME_COUNT, "total frames")
-            frames_batch = []
+            frames_batch: Images = []
             logger.info("Getting frames batch...")
             for frame_index in range(0, total_frames, frame_rate):
                 frame = cls._read_next_frame(video, frame_index)
+                if frame is None:
+                    continue
                 frames_batch.append(frame)
                 logger.debug("Frame appended to frames batch.")
-                if len(frames_batch) == batch_size:
+                if len(frames_batch) == frames_batch_size:
                     logger.info("Got full frames batch.")
                     yield frames_batch
                     frames_batch = []
@@ -87,7 +90,7 @@ class OpenCVVideo(VideoProcessor):
                 yield frames_batch
 
     @classmethod
-    def _read_next_frame(cls, video: cv2.VideoCapture, frame_index: int) -> np.ndarray | None:
+    def _read_next_frame(cls, video: cv2.VideoCapture, frame_index: int) -> Image | None:
         """Read frame with specified index from provided video."""
         cls._check_video_capture(video)
         video.set(cv2.CAP_PROP_POS_FRAMES, frame_index)

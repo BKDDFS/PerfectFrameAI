@@ -53,7 +53,7 @@ def mock_video(mocker):
 
 
 @pytest.mark.parametrize(
-    ("batch_size", "expected_num_batches"),
+    ("frames_batch_size", "expected_num_batches"),
     [
         (1, 3),
         (2, 2),
@@ -62,7 +62,7 @@ def mock_video(mocker):
 )
 def test_get_next_video_frames(
     mocker,
-    batch_size,
+    frames_batch_size,
     expected_num_batches,
     caplog,
 ):
@@ -86,13 +86,13 @@ def test_get_next_video_frames(
     mock_read.side_effect = read_side_effect
 
     with caplog.at_level(logging.DEBUG):
-        frames_generator = OpenCVVideo.get_next_frames(video_path, batch_size)
+        frames_generator = OpenCVVideo.get_next_frames(video_path, frames_batch_size)
         batches = list(frames_generator)
 
     expected_attribute_calls = 2
     assert len(batches) == expected_num_batches, "Number of batches does not match expected"
     for batch in batches:
-        assert len(batch) <= batch_size, "Batch size is larger than expected"
+        assert len(batch) <= frames_batch_size, "Batch size is larger than expected"
     assert mock_video_cap.called
     assert mock_get_attribute.call_count == expected_attribute_calls
     mock_get_attribute.assert_any_call(mock_video, cv2.CAP_PROP_FPS, frame_rate_attr)
@@ -101,8 +101,28 @@ def test_get_next_video_frames(
 
     assert "Frame appended to frames batch." in caplog.text
     assert "Got full frames batch." in caplog.text
-    if batch_size % frames_number and frames_number > expected_num_batches * batch_size:
+    if (
+        frames_batch_size % frames_number
+        and frames_number > expected_num_batches * frames_batch_size
+    ):
         assert "Returning last frames batch." in caplog.text
+
+
+def test_get_next_video_frames_skips_none_frames(mocker):
+    mock_read = mocker.patch.object(OpenCVVideo, "_read_next_frame")
+    mock_get_attribute = mocker.patch.object(OpenCVVideo, "_get_video_attribute")
+    mock_video_cap = mocker.patch.object(OpenCVVideo, "_video_capture")
+    video_path = mocker.MagicMock()
+    mock_video = mocker.MagicMock()
+
+    mock_get_attribute.side_effect = lambda _v, _a, name: 2 if "total" in name else 1
+    mock_video_cap.return_value.__enter__.return_value = mock_video
+    mock_read.side_effect = ["frame0", None]
+
+    batches = list(OpenCVVideo.get_next_frames(video_path, 10))
+
+    assert len(batches) == 1
+    assert batches[0] == ["frame0"]
 
 
 @pytest.mark.parametrize("read_return", [(True, "frame"), (False, None)])
