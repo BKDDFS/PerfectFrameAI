@@ -24,7 +24,7 @@ from fastapi import BackgroundTasks, HTTPException
 
 from perfectframe.dependencies import ExtractorDependencies
 from perfectframe.extractors import Extractor, ExtractorFactory
-from perfectframe.schemas import ExtractorConfig
+from perfectframe.schemas import ExtractorConfig, ExtractorName
 
 logger = logging.getLogger(__name__)
 
@@ -36,17 +36,13 @@ class ExtractorManager:
 
     @classmethod
     def get_active_extractor(cls) -> str:
-        """Return the active extractor name.
-
-        Returns:
-            str: Active extractor name.
-        """
+        """Return the active extractor name."""
         return cls._active_extractor
 
     @classmethod
     def start_extractor(
         cls,
-        extractor_name: str,
+        extractor_name: ExtractorName,
         background_tasks: BackgroundTasks,
         config: ExtractorConfig,
         dependencies: ExtractorDependencies,
@@ -54,13 +50,10 @@ class ExtractorManager:
         """Initialize the extractor class and run the extraction process in the background.
 
         Args:
-            extractor_name (str): The name of the extractor that will be used.
+            extractor_name (ExtractorName): The name of the extractor that will be used.
             background_tasks (BackgroundTasks): A FastAPI tool for running tasks in background.
             config (ExtractorConfig): A Pydantic model with extractor configuration.
             dependencies(ExtractorDependencies): Dependencies that will be used in extractor.
-
-        Returns:
-            str: Endpoint feedback message with started extractor name.
         """
         cls._check_is_already_extracting()
         extractor = ExtractorFactory.create_extractor(extractor_name, config, dependencies)
@@ -68,12 +61,12 @@ class ExtractorManager:
         return f"'{extractor_name}' started."
 
     @classmethod
-    def __run_extractor(cls, extractor: Extractor, extractor_name: str) -> None:
+    def __run_extractor(cls, extractor: Extractor, extractor_name: ExtractorName) -> None:
         """Run extraction process and clean after it's done.
 
         Args:
             extractor (Extractor): Extractor that will be used for extraction.
-            extractor_name (str): The name of the extractor that will be used.
+            extractor_name (ExtractorName): The name of the extractor that will be used.
         """
         try:
             cls._active_extractor = extractor_name

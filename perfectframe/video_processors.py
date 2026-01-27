@@ -46,12 +46,6 @@ class VideoProcessor(ABC):
         Args:
             video_path (Path): Path for video from which frames will be read.
             batch_size (int): Number of frames to include in each batch.
-
-        Returns:
-             Generator: Generator yielding batches of frames as lists of numpy ndarrays.
-
-        Yields:
-            list[np.ndarray]: A batch of video frames.
         """
 
 
@@ -71,9 +65,6 @@ class OpenCVVideo(VideoProcessor):
 
         Args:
             video_path (str): Path to the video file to be opened.
-
-        Yields:
-            cv2.VideoCapture: OpenCV video capture object.
 
         Raises:
             CantOpenVideoCaptureError: If the video file cannot be opened.
@@ -98,12 +89,6 @@ class OpenCVVideo(VideoProcessor):
         Args:
             video_path (Path): Path for video from which frames will be read.
             batch_size (int): Maximum number of frames per batch.
-
-        Returns:
-            Generator: Generator yielding batches of frames as lists of numpy ndarrays.
-
-        Yields:
-            list[np.ndarray]: A batch of video frames.
         """
         with cls._video_capture(video_path) as video:
             frame_rate = cls._get_video_attribute(video, cv2.CAP_PROP_FPS, "frame rate")
@@ -129,9 +114,6 @@ class OpenCVVideo(VideoProcessor):
         Args:
             video: Video capture object from which frame will be taken.
             frame_index (int): Place of the frame in video among other frames measured in indexes.
-
-        Returns:
-            np.ndarray: Decoded frame.
         """
         cls._check_video_capture(video)
         video.set(cv2.CAP_PROP_POS_FRAMES, frame_index)
@@ -151,9 +133,6 @@ class OpenCVVideo(VideoProcessor):
             video (cv2.VideoCapture): OpenCV video capture object.
             attribute_id (int): OpenCV video capture ID of the attribute to retrieve.
             display_name (str): Descriptive name of the attribute for logging purposes.
-
-        Returns:
-            int: The value of the requested attribute, validated to be a positive integer.
 
         Raises:
             ValueError: If the retrieved value is invalid.

@@ -2,13 +2,12 @@ import logging
 
 import numpy as np
 import pytest
-from pytest_mock import MockerFixture
 
 from perfectframe.image_evaluators import InceptionResNetNIMA, _ONNXModel
 
 
 @pytest.fixture
-def evaluator(mocker: MockerFixture):
+def evaluator(mocker):
     mocker.patch.object(_ONNXModel, "get_model_path", return_value="/fake/path/model.onnx")
     mock_session = mocker.patch("perfectframe.image_evaluators.ort.InferenceSession")
     mock_session_instance = mocker.MagicMock()
@@ -17,7 +16,7 @@ def evaluator(mocker: MockerFixture):
     return InceptionResNetNIMA(mocker.MagicMock())
 
 
-def test_evaluator_initialization(mocker: MockerFixture, config):
+def test_evaluator_initialization(mocker, config):
     mock_get_path = mocker.patch.object(_ONNXModel, "get_model_path")
     mock_session = mocker.patch("perfectframe.image_evaluators.ort.InferenceSession")
     test_path = "/some/path/model.onnx"
@@ -36,7 +35,7 @@ def test_evaluator_initialization(mocker: MockerFixture, config):
     assert instance._input_name == "input"
 
 
-def test_evaluate_images(mocker: MockerFixture, evaluator, caplog):
+def test_evaluate_images(mocker, evaluator, caplog):
     mock_calculate = mocker.patch.object(InceptionResNetNIMA, "_calculate_weighted_mean")
     mock_check = mocker.patch.object(InceptionResNetNIMA, "_check_scores")
     fake_images = mocker.MagicMock(spec=np.ndarray)
@@ -83,7 +82,7 @@ def test_calculate_weighted_mean_with_custom_weights(evaluator):
 
 
 @pytest.mark.parametrize(("score_len", "images_len"), [(1, 1), (1, 2)])
-def test_check_scores(mocker: MockerFixture, score_len, images_len, evaluator, caplog):
+def test_check_scores(mocker, score_len, images_len, evaluator, caplog):
     scores = [mocker.MagicMock(spec=np.ndarray) for _ in range(score_len)]
     images = [mocker.MagicMock(spec=float) for _ in range(images_len)]
     with caplog.at_level(logging.DEBUG):

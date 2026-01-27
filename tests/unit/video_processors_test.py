@@ -3,14 +3,13 @@ from pathlib import Path
 
 import cv2
 import pytest
-from pytest_mock import MockerFixture
 
 from perfectframe.video_processors import OpenCVVideo
 
 TOTAL_FRAMES_ATTR = "total frames"
 
 
-def test_get_video_capture_success(mocker: MockerFixture):
+def test_get_video_capture_success(mocker):
     mock_cap = mocker.patch.object(cv2, "VideoCapture")
     test_path = mocker.MagicMock(spec=Path)
     mock_video = mocker.MagicMock()
@@ -23,7 +22,7 @@ def test_get_video_capture_success(mocker: MockerFixture):
     mock_video.release.assert_called_once()
 
 
-def test_get_video_capture_failure(mocker: MockerFixture):
+def test_get_video_capture_failure(mocker):
     mock_cap = mocker.patch.object(cv2, "VideoCapture")
     test_path = mocker.MagicMock(spec=Path)
     mock_video = mocker.MagicMock()
@@ -41,7 +40,7 @@ def test_get_video_capture_failure(mocker: MockerFixture):
 
 
 @pytest.fixture
-def mock_video(mocker: MockerFixture):
+def mock_video(mocker):
     video = mocker.MagicMock()
     video.get.return_value = 30
     video.read.side_effect = [
@@ -62,7 +61,7 @@ def mock_video(mocker: MockerFixture):
     ],
 )
 def test_get_next_video_frames(
-    mocker: MockerFixture,
+    mocker,
     batch_size,
     expected_num_batches,
     caplog,
@@ -107,7 +106,7 @@ def test_get_next_video_frames(
 
 
 @pytest.mark.parametrize("read_return", [(True, "frame"), (False, None)])
-def test_read_next_frame(mocker: MockerFixture, read_return, caplog):
+def test_read_next_frame(mocker, read_return, caplog):
     mock_check_cap = mocker.patch.object(OpenCVVideo, "_check_video_capture")
     mock_cap = mocker.MagicMock(spec=cv2.VideoCapture)
     mock_cap.read = mocker.MagicMock(return_value=read_return)
@@ -125,7 +124,7 @@ def test_read_next_frame(mocker: MockerFixture, read_return, caplog):
         assert f"Couldn't read frame with index: {test_frame_index}" in caplog.text
 
 
-def test_get_video_attribute(mocker: MockerFixture, caplog):
+def test_get_video_attribute(mocker, caplog):
     mock_check_cap = mocker.patch.object(OpenCVVideo, "_check_video_capture")
     mock_cap = mocker.MagicMock(spec=cv2.VideoCapture)
     attribute_id = cv2.CAP_PROP_FRAME_COUNT
@@ -142,7 +141,7 @@ def test_get_video_attribute(mocker: MockerFixture, caplog):
     assert result == expected_rounded
 
 
-def test_get_video_attribute_invalid(mocker: MockerFixture, caplog):
+def test_get_video_attribute_invalid(mocker, caplog):
     mock_check_cap = mocker.patch.object(OpenCVVideo, "_check_video_capture")
     mock_cap = mocker.MagicMock(spec=cv2.VideoCapture)
     attribute_id = cv2.CAP_PROP_FRAME_COUNT
@@ -161,7 +160,7 @@ def test_get_video_attribute_invalid(mocker: MockerFixture, caplog):
     assert expected_message in caplog.text
 
 
-def test_check_video_capture(mocker: MockerFixture, caplog):
+def test_check_video_capture(mocker, caplog):
     mock_cap = mocker.MagicMock(spec=cv2.VideoCapture)
     mock_cap.isOpened.return_value = False
     error_message = (

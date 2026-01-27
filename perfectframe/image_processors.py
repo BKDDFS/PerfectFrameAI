@@ -42,9 +42,6 @@ class ImageProcessor(ABC):
 
         Args:
             image_path (Path): Path to image that will be read.
-
-        Returns:
-            np.ndarray: Image in numpy ndarray.
         """
 
     @classmethod
@@ -56,9 +53,6 @@ class ImageProcessor(ABC):
             image (np.ndarray): Numpy ndarray image that will be saved.
             output_directory (Path): Path where images will be saved.
             output_extension (str): Extension with image will be saved.
-
-        Returns:
-            Path: Path where image was saved.
         """
 
     @staticmethod
@@ -70,9 +64,6 @@ class ImageProcessor(ABC):
             images (list[np.ndarray]): List of numpy ndarray images to be normalized.
             target_size (tuple | None): Target size to which the images will be resized.
                 Default is (224, 224).
-
-        Returns:
-            np.ndarray: Normalized numpy array containing the resized images.
         """
 
 
@@ -85,9 +76,6 @@ class OpenCVImage(ImageProcessor):
 
         Args:
             image_path (Path): Path to image that will be read.
-
-        Returns:
-            np.ndarray: Image in numpy ndarray.
         """
         image = cv2.imread(str(image_path))
         if not isinstance(image, np.ndarray):
@@ -107,9 +95,6 @@ class OpenCVImage(ImageProcessor):
             image (np.ndarray): Numpy ndarray image that will be saved.
             output_directory (Path): Path where images will be saved.
             output_extension (str): Extension with image will be saved.
-
-        Returns:
-            Path: Path where image was saved.
         """
         filename = cls._generate_filename()
         image_path = output_directory / f"{filename}{output_extension}"
@@ -119,11 +104,7 @@ class OpenCVImage(ImageProcessor):
 
     @staticmethod
     def _generate_filename() -> str:
-        """Generate filename for images using uuid library.
-
-        Returns:
-            str: Generated filename.
-        """
+        """Generate filename for images using uuid library."""
         return f"image_{uuid.uuid4()}"
 
     @staticmethod
@@ -133,9 +114,6 @@ class OpenCVImage(ImageProcessor):
         Args:
             images (list[np.ndarray]): List of numpy ndarray images to be normalized.
             target_size (tuple | None): Target size to which the images will be resized.
-
-        Returns:
-            np.ndarray: Normalized numpy array containing the resized images.
         """
         batch_images = []
         logger.debug("Normalizing images...")

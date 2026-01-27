@@ -35,7 +35,7 @@ import numpy as np
 from perfectframe.dependencies import ExtractorDependencies
 from perfectframe.image_evaluators import ImageEvaluator
 from perfectframe.image_processors import ImageProcessor
-from perfectframe.schemas import ExtractorConfig
+from perfectframe.schemas import ExtractorConfig, ExtractorName
 from perfectframe.video_processors import VideoProcessor
 
 logger = logging.getLogger(__name__)
@@ -74,11 +74,7 @@ class Extractor(ABC):
         """Abstract main method for extraction process implementation."""
 
     def _get_image_evaluator(self) -> ImageEvaluator:
-        """Initialize an image evaluator and add it to extractor instance parameters.
-
-        Returns:
-            ImageEvaluator: Image evaluator class instance for evaluating images.
-        """
+        """Initialize an image evaluator and add it to extractor instance parameters."""
         self._image_evaluator = self._image_evaluator_class(self._config)
         return self._image_evaluator
 
@@ -92,9 +88,6 @@ class Extractor(ABC):
         Args:
             extensions (tuple): Searched files extensions.
             prefix (str | None): Excluded files filename prefix. Default is None.
-
-        Returns:
-            list[Path]: All matching files list.
         """
         directory = self._config.input_directory
         entries = directory.iterdir()
@@ -124,9 +117,6 @@ class Extractor(ABC):
 
         Args:
             normalized_images (list[np.ndarray]): Already normalized images for evaluating.
-
-        Returns:
-            np.array: Array with images scores in given images order.
         """
         return np.array(self._image_evaluator.evaluate_images(normalized_images))
 
@@ -135,9 +125,6 @@ class Extractor(ABC):
 
         Args:
             paths (list[Path]): List of images paths.
-
-        Returns:
-            list[np.ndarray]: List of images in numpy ndarrays.
         """
         with ThreadPoolExecutor() as executor:
             images = []
@@ -183,9 +170,6 @@ class Extractor(ABC):
         Args:
             images (list[np.ndarray]): List of np.ndarray images to normalize.
             target_size (tuple[int, int]): Images will be normalized to this size.
-
-        Returns:
-            np.ndarray: All images as a one numpy array.
         """
         return self._image_processor.normalize_images(images, target_size)
 
@@ -196,9 +180,6 @@ class Extractor(ABC):
         Args:
             prefix (str): Prefix that will be added.
             path (Path): Path to file that filename will be changed.
-
-        Returns:
-            Path: Path of the file with new filename.
         """
         new_path = path.parent / f"{prefix}{path.name}"
         path.rename(new_path)
@@ -216,39 +197,32 @@ class ExtractorFactory:
 
     @staticmethod
     def create_extractor(
-        extractor_name: str,
+        extractor_name: ExtractorName,
         config: ExtractorConfig,
         dependencies: ExtractorDependencies,
     ) -> Extractor:
         """Match extractor class by its name and return its class.
 
         Args:
-            extractor_name (str): Name of the extractor.
+            extractor_name (ExtractorName): Name of the extractor.
             config (ExtractorConfig): A Pydantic model with extractor configuration.
             dependencies(ExtractorDependencies): Dependencies that will be used in extractor.
-
-        Returns:
-            Extractor: Chosen extractor class.
         """
         match extractor_name:
-            case "best_frames_extractor":
+            case ExtractorName.BEST_FRAMES:
                 return BestFramesExtractor(
                     config,
                     dependencies.image_processor,
                     dependencies.video_processor,
                     dependencies.evaluator,
                 )
-            case "top_images_extractor":
+            case ExtractorName.TOP_IMAGES:
                 return TopImagesExtractor(
                     config,
                     dependencies.image_processor,
                     dependencies.video_processor,
                     dependencies.evaluator,
                 )
-            case _:
-                error_massage = f"Provided unknown extractor name: {extractor_name}"
-                logger.error(error_massage)
-                raise ValueError(error_massage)
 
 
 class BestFramesExtractor(Extractor):
@@ -297,9 +271,6 @@ class BestFramesExtractor(Extractor):
 
         Args:
             frames (list[np.ndarray]): Batch of images in numpy ndarray.
-
-        Returns:
-            list[np.ndarray]: Best images list.
         """
         normalized_images = self._normalize_images(frames, self._config.target_image_size)
         scores = self._evaluate_images(normalized_images)
@@ -350,9 +321,6 @@ class TopImagesExtractor(Extractor):
             images (list[np.ndarray]): Batch of images in numpy ndarray.
             scores (np.array): Array with images scores with images batch order.
             top_percent (float): The top percentage of scores to include (e.g. 80 for top 80%).
-
-        Returns:
-            list[np.ndarray]: Top images from given images batch.
         """
         threshold = np.percentile(scores, top_percent)
         top_images = [img for img, score in zip(images, scores, strict=True) if score >= threshold]

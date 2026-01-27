@@ -172,6 +172,31 @@ curl http://localhost:8100/v2/status</pre>
             <pre>docker-compose down</pre>
         </li>
     </ol>
+    <h3>CPU Mode</h3>
+    <p>Default mode - works on any system with Docker.</p>
+    <pre># Start the service
+docker-compose up --build
+
+# Stop the service
+docker-compose down</pre>
+    <h3>GPU Mode</h3>
+    <p>NVIDIA GPU acceleration for faster image evaluation.</p>
+    <h4>Requirements:</h4>
+    <ul>
+        <li>NVIDIA GPU with CUDA support</li>
+        <li>NVIDIA drivers installed on host</li>
+        <li><a href="https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/install-guide.html">NVIDIA Container Toolkit</a></li>
+    </ul>
+    <h4>Running:</h4>
+    <pre># Start with GPU support
+docker-compose --profile gpu up --build
+
+# Verify GPU is being used (check logs for CUDA provider)
+docker-compose --profile gpu logs
+
+# Stop the service
+docker-compose --profile gpu down</pre>
+    <p>If CUDA is not available, the application will automatically fall back to CPU.</p>
     <h3>Custom Directories</h3>
     <p>You can specify custom input/output directories using environment variables:</p>
     <pre>INPUT_DIR=/path/to/input OUTPUT_DIR=/path/to/output docker-compose up --build</pre>
@@ -395,7 +420,7 @@ curl http://localhost:8100/v2/status</pre>
         <li>numpy - for operations on multidimensional arrays.</li>
         <li>FFMPEG - as an extension to OpenCV, for decoding video frames.</li>
         <li>CUDA - to enable operations on graphics cards.</li>
-        <li>Tensorflow - the machine learning library used (in v1.0 PyTorch).</li>
+        <li>ONNX Runtime - for running the NIMA model with automatic GPU/CPU selection.</li>
         <li>Docker & Docker Compose - for easier building and running of <code>PerfectFrameAI</code>.</li>
         <li>pytest - the framework in which the tests are written.</li>
         <li>testcontainers - for E2E testing with Docker.</li>

@@ -24,9 +24,18 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 """
 
 import logging
+from enum import Enum
 from pathlib import Path
 
 from pydantic import BaseModel, DirectoryPath
+
+
+class ExtractorName(str, Enum):
+    """Available extractor names."""
+
+    BEST_FRAMES = "best_frames_extractor"
+    TOP_IMAGES = "top_images_extractor"
+
 
 logger = logging.getLogger(__name__)
 
@@ -82,20 +91,12 @@ class ExtractorConfig(BaseModel):
 
 
 class Message(BaseModel):
-    """A Pydantic model for encapsulating messages returned by the application.
-
-    Attributes:
-        message (str): The message content.
-    """
+    """A Pydantic model for encapsulating messages returned by the application."""
 
     message: str
 
 
 class ExtractorStatus(BaseModel):
-    """A Pydantic model representing the status of the currently working extractor in the system.
-
-    Attributes:
-        active_extractor (str): The name of the currently active extractor.
-    """
+    """A Pydantic model representing the status of the currently working extractor in the system."""
 
     active_extractor: str | None

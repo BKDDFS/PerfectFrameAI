@@ -2,7 +2,6 @@ import http
 
 import pytest
 from fastapi import BackgroundTasks, HTTPException
-from pytest_mock import MockerFixture
 
 from perfectframe.extractor_manager import ExtractorManager
 from perfectframe.extractors import ExtractorFactory
@@ -12,7 +11,7 @@ def test_get_active_extractor():
     assert ExtractorManager.get_active_extractor() is None
 
 
-def test_start_extractor(mocker: MockerFixture, config, dependencies):
+def test_start_extractor(mocker, config, dependencies):
     mock_checking = mocker.patch.object(ExtractorManager, "_check_is_already_extracting")
     mock_create_extractor = mocker.patch.object(ExtractorFactory, "create_extractor")
     extractor_name = "some_extractor"
@@ -35,7 +34,7 @@ def test_start_extractor(mocker: MockerFixture, config, dependencies):
     assert message == expected_message, "The return message does not match expected."
 
 
-def test_run_extractor(mocker: MockerFixture):
+def test_run_extractor(mocker):
     mock_extractor = mocker.patch("perfectframe.extractors.BestFramesExtractor")
     extractor_name = "some_extractor"
 

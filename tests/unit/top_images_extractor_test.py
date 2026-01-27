@@ -3,7 +3,6 @@ from unittest.mock import call  # noqa: TID251
 
 import numpy as np
 import pytest
-from pytest_mock import MockerFixture
 
 from perfectframe.extractors import TopImagesExtractor
 from perfectframe.image_evaluators import InceptionResNetNIMA
@@ -16,7 +15,7 @@ def extractor(config):
     return TopImagesExtractor(config, OpenCVImage, OpenCVVideo, InceptionResNetNIMA)
 
 
-def test_process_with_images(mocker: MockerFixture, extractor, caplog, config):
+def test_process_with_images(mocker, extractor, caplog, config):
     mock_read_image = mocker.patch.object(OpenCVImage, "read_image")
     mock_normalize = mocker.patch.object(TopImagesExtractor, "_normalize_images")
     # Setup
@@ -65,7 +64,7 @@ def test_process_with_images(mocker: MockerFixture, extractor, caplog, config):
     extractor._signal_readiness_for_shutdown.assert_called_once()
 
 
-def test_get_top_percent_images(mocker: MockerFixture, extractor, caplog):
+def test_get_top_percent_images(mocker, extractor, caplog):
     images = [mocker.MagicMock(spec=np.ndarray) for _ in range(5)]
     ratings = np.array([55, 70, 85, 40, 20])
     top_percent = 70

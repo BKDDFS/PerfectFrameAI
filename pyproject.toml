@@ -14,7 +14,8 @@ dependencies = [
     "uvicorn==0.40.0",
     "opencv-python==4.13.0.90",
     "requests==2.32.5",
-    "onnxruntime==1.23.2",
+    "onnxruntime==1.23.2; sys_platform == 'darwin'",
+    "onnxruntime-gpu==1.23.2; sys_platform != 'darwin'",
     "numpy==2.4.1",
 ]
 
