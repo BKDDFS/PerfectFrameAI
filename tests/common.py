@@ -5,6 +5,15 @@ from pathlib import Path
 
 import pytest
 
+from perfectframe.dependencies import (
+    ExtractorDependencies,
+    get_evaluator,
+    get_image_processor,
+    get_video_processor,
+)
+from perfectframe.extractors import BestFramesExtractor
+from perfectframe.schemas import ExtractorConfig
+
 
 @pytest.fixture(scope="session")
 def files_dir():
@@ -22,7 +31,7 @@ def top_images_dir(files_dir):
 
 
 @pytest.fixture
-def setup_top_images_extractor_env(files_dir, top_images_dir) -> tuple[Path, Path]:
+def setup_top_images_extractor_env(files_dir, top_images_dir):
     assert files_dir.is_dir()
 
     if top_images_dir.is_dir():
@@ -38,7 +47,7 @@ def setup_top_images_extractor_env(files_dir, top_images_dir) -> tuple[Path, Pat
 
 
 @pytest.fixture
-def setup_best_frames_extractor_env(files_dir, best_frames_dir) -> tuple[Path, Path, Path]:
+def setup_best_frames_extractor_env(files_dir, best_frames_dir):
     video_filename = "test_video.mp4"
     expected_video_path = files_dir / f"frames_extracted_{video_filename}"
     video_path = files_dir / video_filename
@@ -57,3 +66,33 @@ def setup_best_frames_extractor_env(files_dir, best_frames_dir) -> tuple[Path, P
     gitkeep_file = best_frames_dir / ".gitkeep"
     gitkeep_file.touch()
     assert gitkeep_file.exists()
+
+
+@pytest.fixture(scope="package")
+def dependencies():
+    return ExtractorDependencies(
+        image_processor=get_image_processor(),
+        video_processor=get_video_processor(),
+        evaluator=get_evaluator(),
+    )
+
+
+@pytest.fixture(scope="package")
+def extractor(config, dependencies):
+    return BestFramesExtractor(
+        config,
+        dependencies.image_processor,
+        dependencies.video_processor,
+        dependencies.evaluator,
+    )
+
+
+@pytest.fixture(scope="package")
+def config(files_dir, best_frames_dir) -> ExtractorConfig:
+    return ExtractorConfig(
+        input_directory=files_dir,
+        output_directory=best_frames_dir,
+        images_output_format=".jpg",
+        video_extensions=(".mp4",),
+        processed_video_prefix="done_",
+    )
