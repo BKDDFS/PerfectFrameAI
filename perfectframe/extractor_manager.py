@@ -49,15 +49,15 @@ class ExtractorManager:
     ) -> str:
         """Initialize the extractor class and run the extraction process in the background."""
         cls._check_is_already_extracting()
+        cls._active_extractor = extractor_name
         extractor = ExtractorFactory.create_extractor(extractor_name, config, dependencies)
-        background_tasks.add_task(cls.__run_extractor, extractor, extractor_name)
+        background_tasks.add_task(cls.__run_extractor, extractor)
         return f"'{extractor_name}' started."
 
     @classmethod
-    def __run_extractor(cls, extractor: Extractor, extractor_name: ExtractorName) -> None:
+    def __run_extractor(cls, extractor: Extractor) -> None:
         """Run extraction process and clean after it's done."""
         try:
-            cls._active_extractor = extractor_name
             extractor.process()
         finally:
             cls._active_extractor = None
