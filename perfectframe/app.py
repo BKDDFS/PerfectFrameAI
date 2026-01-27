@@ -28,7 +28,6 @@ import logging
 import sys
 from typing import Annotated
 
-import uvicorn
 from fastapi import BackgroundTasks, Depends, FastAPI
 
 from perfectframe.dependencies import ExtractorDependencies, get_extractor_dependencies
@@ -70,7 +69,3 @@ def run_extractor(
         extractor_name, background_tasks, config, dependencies
     )
     return Message(message=message)
-
-
-if __name__ == "__main__":
-    uvicorn.run("perfectframe.app:app", host="localhost", port=8100, reload=True)
