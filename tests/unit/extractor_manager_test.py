@@ -24,21 +24,21 @@ def test_start_extractor(mocker, config, dependencies):
     )
 
     mock_checking.assert_called_once()
+    assert ExtractorManager._active_extractor == extractor_name
     mock_create_extractor.assert_called_once_with(extractor_name, config, dependencies)
     mock_background_tasks.add_task.assert_called_once_with(
         ExtractorManager._ExtractorManager__run_extractor,
         mock_extractor,
-        extractor_name,
     )
     expected_message = f"'{extractor_name}' started."
     assert message == expected_message, "The return message does not match expected."
+    ExtractorManager._active_extractor = None
 
 
 def test_run_extractor(mocker):
     mock_extractor = mocker.patch("perfectframe.extractors.BestFramesExtractor")
-    extractor_name = "some_extractor"
 
-    ExtractorManager._ExtractorManager__run_extractor(mock_extractor, extractor_name)
+    ExtractorManager._ExtractorManager__run_extractor(mock_extractor)
 
     mock_extractor.process.assert_called_once()
 
