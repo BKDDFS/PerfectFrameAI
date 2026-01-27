@@ -21,7 +21,7 @@ jobs:
           - 2375:2375
         env:
           DOCKER_TLS_CERTDIR: ""
-    
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4.1.6
@@ -38,7 +38,7 @@ jobs:
         run: |
           curl -sSL https://install.python-poetry.org | python3 -
           echo "export PATH=\"$HOME/.local/bin:$PATH\"" >> $GITHUB_ENV
-          
+
       - name: Install dependencies
         run: |
           poetry install

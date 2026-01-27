@@ -1,15 +1,15 @@
 from pathlib import Path
-from unittest.mock import patch
 
 import pytest
 from pydantic import ValidationError
+from pytest_mock import MockerFixture
 
 from extractor_service.app.schemas import ExtractorConfig, ExtractorStatus, Message
 
 
-def test_config_default():
-    with patch.object(Path, "is_dir", return_value=True):
-        config = ExtractorConfig()
+def test_config_default(mocker: MockerFixture):
+    mocker.patch.object(Path, "is_dir", return_value=True)
+    config = ExtractorConfig()
     assert config.input_directory == Path("/app/input_directory")
     assert config.output_directory == Path("/app/output_directory")
     assert config.video_extensions == (".mp4", ".mov", ".webm", ".mkv", ".avi")

@@ -1,7 +1,8 @@
-"""
-This module provides abstract class for creating image processors and image processors.
+"""Provide abstract class for creating image processors and implementations.
+
 Image processors:
     - OpenCVImage: using OpenCV library to manage operations on images.
+
 LICENSE
 =======
 Copyright (C) 2024  Bartłomiej Flis
@@ -37,8 +38,7 @@ class ImageProcessor(ABC):
     @staticmethod
     @abstractmethod
     def read_image(image_path: Path) -> np.ndarray:
-        """
-        Read image from given path and convert it to np.ndarray.
+        """Read image from given path and convert it to np.ndarray.
 
         Args:
             image_path (Path): Path to image that will be read.
@@ -50,8 +50,7 @@ class ImageProcessor(ABC):
     @classmethod
     @abstractmethod
     def save_image(cls, image: np.ndarray, output_directory: Path, output_extension: str) -> Path:
-        """
-        Save given image in given path in given extension.
+        """Save given image in given path in given extension.
 
         Args:
             image (np.ndarray): Numpy ndarray image that will be saved.
@@ -65,8 +64,7 @@ class ImageProcessor(ABC):
     @staticmethod
     @abstractmethod
     def normalize_images(images: list[np.ndarray], target_size: tuple[int, int]) -> np.array:
-        """
-        Resize a batch of images and convert them to a normalized numpy array.
+        """Resize a batch of images and convert them to a normalized numpy array.
 
         Args:
             images (list[np.ndarray]): List of numpy ndarray images to be normalized.
@@ -83,8 +81,7 @@ class OpenCVImage(ImageProcessor):
 
     @staticmethod
     def read_image(image_path: Path) -> np.ndarray | None:
-        """
-        Read image from given path and convert it to np.ndarray.
+        """Read image from given path and convert it to np.ndarray.
 
         Args:
             image_path (Path): Path to image that will be read.
@@ -104,8 +101,7 @@ class OpenCVImage(ImageProcessor):
 
     @classmethod
     def save_image(cls, image: np.ndarray, output_directory: Path, output_extension: str) -> Path:
-        """
-        Save given image in given path with given extension.
+        """Save given image in given path with given extension.
 
         Args:
             image (np.ndarray): Numpy ndarray image that will be saved.
@@ -123,19 +119,16 @@ class OpenCVImage(ImageProcessor):
 
     @staticmethod
     def _generate_filename() -> str:
-        """
-        Generate filename for images using uuid library.
+        """Generate filename for images using uuid library.
 
         Returns:
             str: Generated filename.
         """
-        filename = f"image_{uuid.uuid4()}"
-        return filename
+        return f"image_{uuid.uuid4()}"
 
     @staticmethod
     def normalize_images(images: list[np.ndarray], target_size: tuple[int, int]) -> np.array:
-        """
-        Resize a batch of images and convert them to a normalized numpy array.
+        """Resize a batch of images and convert them to a normalized numpy array.
 
         Args:
             images (list[np.ndarray]): List of numpy ndarray images to be normalized.
@@ -150,5 +143,4 @@ class OpenCVImage(ImageProcessor):
             img_resized = cv2.resize(img, target_size, interpolation=cv2.INTER_LANCZOS4)
             img_rgb = cv2.cvtColor(img_resized, cv2.COLOR_BGR2RGB)
             batch_images.append(img_rgb)
-        img_array = np.array(batch_images, dtype=np.float32) / 255.0
-        return img_array
+        return np.array(batch_images, dtype=np.float32) / 255.0

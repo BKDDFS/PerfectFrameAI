@@ -1,7 +1,8 @@
-"""
-This module provides abstract class for creating video processors and video processors.
+"""Provide abstract class for creating video processors and video processors.
+
 Video processors:
     - OpenCVVideo: using OpenCV library to manage operations on videos.
+
 LICENSE
 =======
 Copyright (C) 2024  Bartłomiej Flis
@@ -22,9 +23,9 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 import logging
 from abc import ABC, abstractmethod
+from collections.abc import Generator
 from contextlib import contextmanager
 from pathlib import Path
-from typing import Generator
 
 import cv2
 import numpy as np
@@ -37,9 +38,10 @@ class VideoProcessor(ABC):
 
     @classmethod
     @abstractmethod
-    def get_next_frames(cls, video_path: Path, batch_size: int) -> Generator[list[np.ndarray], None, None]:
-        """
-        Abstract generator method to generate batches of frames from a video file.
+    def get_next_frames(
+        cls, video_path: Path, batch_size: int
+    ) -> Generator[list[np.ndarray], None, None]:
+        """Abstract generator method to generate batches of frames from a video file.
 
         Args:
             video_path (Path): Path for video from which frames will be read.
@@ -56,17 +58,16 @@ class VideoProcessor(ABC):
 class OpenCVVideo(VideoProcessor):
     """Video processor based on OpenCV with FFMPEG extension."""
 
-    class CantOpenVideoCapture(Exception):
+    class CantOpenVideoCaptureError(Exception):
         """Exception raised when the video file cannot be opened."""
 
-    class VideoCaptureClosed(Exception):
+    class VideoCaptureClosedError(Exception):
         """Exception raised when the video capture is prematurely closed."""
 
     @staticmethod
     @contextmanager
     def _video_capture(video_path: Path) -> cv2.VideoCapture:
-        """
-        Get and release a video capture object.
+        """Get and release a video capture object.
 
         Args:
             video_path (str): Path to the video file to be opened.
@@ -75,23 +76,24 @@ class OpenCVVideo(VideoProcessor):
             cv2.VideoCapture: OpenCV video capture object.
 
         Raises:
-            CantOpenVideoCapture: If the video file cannot be opened.
+            CantOpenVideoCaptureError: If the video file cannot be opened.
         """
         video_cap = cv2.VideoCapture(str(video_path))
         try:
             if not video_cap.isOpened():
                 error_massage = f"Can't open video file: {video_path}"
                 logger.error(error_massage)
-                raise OpenCVVideo.CantOpenVideoCapture(error_massage)
+                raise OpenCVVideo.CantOpenVideoCaptureError(error_massage)
             logger.debug("Creating video capture.")
             yield video_cap
         finally:
             video_cap.release()
 
     @classmethod
-    def get_next_frames(cls, video_path: Path, batch_size: int) -> Generator[list[np.ndarray], None, None]:
-        """
-        Generates batches of frames from the specified video using OpenCV.
+    def get_next_frames(
+        cls, video_path: Path, batch_size: int
+    ) -> Generator[list[np.ndarray], None, None]:
+        """Generate batches of frames from the specified video using OpenCV.
 
         Args:
             video_path (Path): Path for video from which frames will be read.
@@ -122,8 +124,7 @@ class OpenCVVideo(VideoProcessor):
 
     @classmethod
     def _read_next_frame(cls, video: cv2.VideoCapture, frame_index: int) -> np.ndarray | None:
-        """
-        Reads frame with specified index from provided video.
+        """Read frame with specified index from provided video.
 
         Args:
             video: Video capture object from which frame will be taken.
@@ -141,11 +142,13 @@ class OpenCVVideo(VideoProcessor):
         return frame
 
     @classmethod
-    def _get_video_attribute(cls, video: cv2.VideoCapture, attribute_id: int, display_name: str) -> int:
-        """
-        Retrieves a specified attribute value from the video capture object and validates it.
+    def _get_video_attribute(
+        cls, video: cv2.VideoCapture, attribute_id: int, display_name: str
+    ) -> int:
+        """Retrieve a specified attribute value from the video capture object and validate it.
 
         Args:
+            video (cv2.VideoCapture): OpenCV video capture object.
             attribute_id (int): OpenCV video capture ID of the attribute to retrieve.
             display_name (str): Descriptive name of the attribute for logging purposes.
 
@@ -162,13 +165,11 @@ class OpenCVVideo(VideoProcessor):
             error_message = f"Invalid {display_name} retrieved: {attribute_value}."
             logger.error(error_message)
             raise ValueError(error_message)
-        attribute = int(round(attribute_value))
-        return attribute
+        return round(attribute_value)
 
     @staticmethod
     def _check_video_capture(video: cv2.VideoCapture) -> None:
-        """
-        Checks is video capture object still available for future operations.
+        """Check if video capture object is still available for future operations.
 
         Args:
             video (cv2.VideoCapture): Video capture object that will be checked.
@@ -178,7 +179,8 @@ class OpenCVVideo(VideoProcessor):
         """
         if not video.isOpened():
             error_message = (
-                "Invalid video capture object or object not opened. Probably video capture closed at some point."
+                "Invalid video capture object or object not opened. "
+                "Probably video capture closed at some point."
             )
             logger.error(error_message)
             raise ValueError(error_message)

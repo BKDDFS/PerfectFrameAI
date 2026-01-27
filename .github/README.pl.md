@@ -256,8 +256,8 @@ curl http://localhost:8100/v2/status</pre>
     </details>
     <h3 id="output">Wyniki oceniania obrazów</h3>
     <p>
-    Model NIMA, po przetworzeniu obrazów, zwraca wektory prawdopodobieństw, 
-    gdzie każda z wartość w wektorze odpowiada prawdopodobieństwu, 
+    Model NIMA, po przetworzeniu obrazów, zwraca wektory prawdopodobieństw,
+    gdzie każda z wartość w wektorze odpowiada prawdopodobieństwu,
     że obraz przynależy do jednej z klas estetycznych.
     </p>
     <details id="classes">
@@ -277,12 +277,12 @@ curl http://localhost:8100/v2/status</pre>
     <h3 id="calculating-mean">Obliczanie ostatecznej oceny obrazu</h3>
     <p>
         Ostateczna ocena obrazu jest obliczana za pomocą średniej
-        ważonej z wyników dla każdej z klas, gdzie wagi są 
+        ważonej z wyników dla każdej z klas, gdzie wagi są
         wartościami klas od 1 do 10.
     </p>
     <h4>Przykład:</h4>
     <p>
-       Załóżmy, że model zwraca następujący wektor 
+       Załóżmy, że model zwraca następujący wektor
        prawdopodobieństw dla jednego obrazu:
     </p>
     <pre>[0.1, 0.05, 0.05, 0.1, 0.2, 0.15, 0.1, 0.1, 0.1, 0.05]</pre>
@@ -348,7 +348,7 @@ curl http://localhost:8100/v2/status</pre>
     <div id="1vs2">
         <h2>✅ v1.0 vs v2.0</h2>
         <p>
-            <code>PerfectFrameAI</code> to narzędzie stworzone na podstawie jednego z mikro serwisów mojego głównego projektu. 
+            <code>PerfectFrameAI</code> to narzędzie stworzone na podstawie jednego z mikro serwisów mojego głównego projektu.
             Określam tamtą wersję jako <code>v1.0</code>.
         </p>
         <table>
@@ -483,7 +483,7 @@ pytest tests/service_manager/e2e -v</pre>
                 jeśli chodzi o poprawę wydajności.
             </li>
             <li>
-                Naprawienie spillingu danych podczas oceniania klatek. 
+                Naprawienie spillingu danych podczas oceniania klatek.
                 Obecnie ocenianie ma delikatne spowolnienie w postaci problemu ze spillingiem.
             </li>
         </ul>
@@ -492,7 +492,7 @@ pytest tests/service_manager/e2e -v</pre>
     <h2>👋 Jak zostać Contributorem</h2>
     <p>
         Jeśli jesteś zainteresowany wkładem w ten projekt,
-        proszę poświęć chwilę na przeczytanie naszego 
+        proszę poświęć chwilę na przeczytanie naszego
         <a href="https://github.com/BKDDFS/PerfectFrameAI/blob/main/.github/CONTRIBUTING.md">Przewodnika dla contributorów</a>.
         Zawiera on wszystkie informacje potrzebne do rozpoczęcia, takie jak:
     </p>
@@ -509,7 +509,7 @@ pytest tests/service_manager/e2e -v</pre>
 <div id="feedback">
     <h2>❤️ Feedback</h2>
     <p>
-        Będę bardzo wdzięczny za feedback na temat jakości mojego kodu i tego projektu. 
+        Będę bardzo wdzięczny za feedback na temat jakości mojego kodu i tego projektu.
         Jeśli masz jakieś sugestie, proszę:
     </p>
     <ul>

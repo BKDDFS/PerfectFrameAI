@@ -27,7 +27,7 @@ def wait_for_health(url: str, timeout: int = 120, interval: int = 2) -> bool:
     while time.time() - start_time < timeout:
         try:
             response = requests.get(url, timeout=5)
-            if response.status_code == 200:
+            if response.ok:
                 return True
         except requests.exceptions.RequestException:
             pass

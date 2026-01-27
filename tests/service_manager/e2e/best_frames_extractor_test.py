@@ -15,11 +15,11 @@ def test_best_frames_extractor(extractor_service):
         timeout=30,
     )
 
-    assert response.status_code == 200
+    assert response.ok
     assert "started" in response.json().get("message", "").lower()
 
     # Check output files (note: extraction runs in background, so we check after a delay)
     # In a real scenario, you might want to poll or wait for completion
-    output_files = list(extractor_service["output_dir"].glob("image_*.jpg"))
+    _output_files = list(extractor_service["output_dir"].glob("image_*.jpg"))
     # The extractor runs in background, so files may not be immediately available
     # This test verifies the API accepts the request successfully
