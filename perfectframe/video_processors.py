@@ -38,9 +38,7 @@ class VideoProcessor(ABC):
 
     @classmethod
     @abstractmethod
-    def get_next_frames(
-        cls, video_path: Path, batch_size: int
-    ) -> Generator[list[np.ndarray], None, None]:
+    def get_next_frames(cls, video_path: Path, batch_size: int) -> Generator[list[np.ndarray]]:
         """Abstract generator method to generate batches of frames from a video file."""
 
 
@@ -69,9 +67,7 @@ class OpenCVVideo(VideoProcessor):
             video_cap.release()
 
     @classmethod
-    def get_next_frames(
-        cls, video_path: Path, batch_size: int
-    ) -> Generator[list[np.ndarray], None, None]:
+    def get_next_frames(cls, video_path: Path, batch_size: int) -> Generator[list[np.ndarray]]:
         """Generate batches of frames from the specified video using OpenCV."""
         with cls._video_capture(video_path) as video:
             frame_rate = cls._get_video_attribute(video, cv2.CAP_PROP_FPS, "frame rate")
