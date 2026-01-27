@@ -3,7 +3,7 @@ from pathlib import Path
 import pytest
 from pydantic import ValidationError
 
-from perfectframe.schemas import ExtractorConfig, ExtractorStatus, Message
+from perfectframe.schemas import ExtractorConfig, ExtractorName, ExtractorStatus, Message
 
 
 def test_config_default(mocker):
@@ -40,9 +40,8 @@ def test_extractor_status():
     status = ExtractorStatus(active_extractor=None)
     assert status.active_extractor is None
 
-    mock_status = "BestFramesExtractor"
-    status = ExtractorStatus(active_extractor=mock_status)
-    assert status.active_extractor == mock_status
+    status = ExtractorStatus(active_extractor=ExtractorName.BEST_FRAMES)
+    assert status.active_extractor == ExtractorName.BEST_FRAMES
 
 
 def test_message():

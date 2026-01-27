@@ -112,4 +112,4 @@ class Message(BaseModel):
 class ExtractorStatus(BaseModel):
     """A Pydantic model representing the status of the currently working extractor in the system."""
 
-    active_extractor: str | None
+    active_extractor: ExtractorName | None
