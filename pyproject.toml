@@ -68,3 +68,6 @@ convention = "google"
 
 [tool.ruff.lint.flake8-tidy-imports.banned-api]
 "unittest.mock".msg = "Use pytest-mock's 'mocker' fixture instead"
+
+[tool.ty.environment]
+python-version = "3.13"

@@ -62,6 +62,16 @@ def test_evaluate_images(mocker, evaluator, caplog):
     assert result == expected_scores
 
 
+def test_evaluate_images_returns_empty_list_when_predictions_not_ndarray(mocker, evaluator):
+    fake_images = mocker.MagicMock(spec=np.ndarray)
+    fake_images.astype.return_value = fake_images
+    evaluator._session.run.return_value = [None]
+
+    result = evaluator.evaluate_images(fake_images)
+
+    assert result == []
+
+
 def test_calculate_weighted_mean_with_default_weights(evaluator):
     prediction = np.array([10, 20, 30])
     expected_weighted_mean = np.mean(prediction)  # Since default weights are equal

@@ -53,7 +53,7 @@ class OpenCVVideo(VideoProcessor):
 
     @staticmethod
     @contextmanager
-    def _video_capture(video_path: Path) -> cv2.VideoCapture:
+    def _video_capture(video_path: Path) -> Generator[cv2.VideoCapture]:
         """Get and release a video capture object."""
         video_cap = cv2.VideoCapture(str(video_path))
         try:
