@@ -22,10 +22,13 @@ dependencies = [
 dev = [
     "ruff>=0.14.14",
     "pre-commit>=4.5.1",
+    "docformatter>=1.7.5",
+    "detect-secrets>=1.5.0",
 ]
 test = [
     "pytest>=9.0.2",
     "pytest-cov>=7.0.0",
+    "pytest-mock>=3.14.0",
     "pytest-order>=1.3.0",
     "docker>=7.1.0",
     "httpx>=0.28.1",
@@ -33,7 +36,33 @@ test = [
 ]
 
 [tool.ruff]
-line-length = 120
+line-length = 100
+target-version = "py311"
+exclude = [".git", "__pycache__"]
 
 [tool.ruff.lint]
-per-file-ignores = {"**/conftest.py"=["F401"]}
+select = ["ALL"]
+extend-ignore = [
+    "D105",   # missing docstring in magic method (redundant)
+    "D107",   # missing docstring in __init__ (redundant)
+    "FA102",  # Missing `from __future__ import annotations` (not needed for Python 3.11+)
+    "COM812", # trailing-comma-missing (ruff format handles differently)
+]
+
+[tool.ruff.lint.per-file-ignores]
+"{**/main.py,**/dependencies.py}" = ["B008"]  # FastAPI Depends() in function arguments
+"{tests/**,**/conftest.py}" = [
+    "S",       # security rules (annoying in tests)
+    "ANN",     # type annotations (not useful in tests)
+    "D",       # docstrings (self-descriptive test names)
+    "SLF001",  # private member access (testing internals)
+    "PLR0913", # too many arguments (pytest fixtures)
+    "INP001",  # implicit namespace package
+]
+"**/conftest.py" = ["F401", "F405"]  # unused/star imports OK
+
+[tool.ruff.lint.pydocstyle]
+convention = "google"
+
+[tool.ruff.lint.flake8-tidy-imports.banned-api]
+"unittest.mock".msg = "Use pytest-mock's 'mocker' fixture instead"

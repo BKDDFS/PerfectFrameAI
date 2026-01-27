@@ -1,0 +1,49 @@
+# .pre-commit-config.yaml
+default_install_hook_types: [pre-commit, pre-push]
+default_stages: [pre-commit]
+
+repos:
+    # FORMATTERS
+    - repo: https://github.com/pre-commit/pre-commit-hooks
+      rev: v5.0.0
+      hooks:
+          - id: trailing-whitespace
+          - id: end-of-file-fixer
+          - id: check-yaml
+          - id: check-toml
+          - id: check-added-large-files
+            args: ['--maxkb=1000']  # Block files > 1MB
+          - id: debug-statements
+          - id: check-merge-conflict
+
+    - repo: https://github.com/astral-sh/ruff-pre-commit
+      rev: v0.14.14
+      hooks:
+        - id: ruff-format
+        - id: ruff
+          args: ["--fix"]
+
+    - repo: https://github.com/PyCQA/docformatter
+      rev: 06907d0
+      hooks:
+          - id: docformatter
+            args: ["--in-place", "--wrap-summaries", "100", "--wrap-descriptions", "100"]
+            files: extractor_service/
+
+    - repo: https://github.com/Yelp/detect-secrets
+      rev: v1.5.0
+      hooks:
+        - id: detect-secrets
+          args: ['--baseline', '.secrets.baseline']
+          exclude: 'tests/'
+
+    # LOCAL HOOKS
+    - repo: local
+      hooks:
+        - id: pytest
+          name: pytest-units
+          entry: uv run pytest tests/extractor_service/unit -v
+          language: system
+          pass_filenames: false
+          files: (extractor_service|tests)/
+          stages: [pre-commit]

@@ -1,6 +1,5 @@
-"""
-This module provides manager class for running extractors and
-managing extraction process lifecycle.
+"""Provide manager class for running extractors and managing extraction process lifecycle.
+
 LICENSE
 =======
 Copyright (C) 2024  Bartłomiej Flis
@@ -31,17 +30,13 @@ logger = logging.getLogger(__name__)
 
 
 class ExtractorManager:
-    """
-    This class orchestrates extractors, ensuring that only one extractor is active at once,
-    maintaining system stability.
-    """
+    """Orchestrate extractors, ensuring that only one extractor is active at once."""
 
     _active_extractor = None
 
     @classmethod
     def get_active_extractor(cls) -> str:
-        """
-        Getter for class active extractor.
+        """Return the active extractor name.
 
         Returns:
             str: Active extractor name.
@@ -56,8 +51,7 @@ class ExtractorManager:
         config: ExtractorConfig,
         dependencies: ExtractorDependencies,
     ) -> str:
-        """
-        Initializes the extractor class and runs the extraction process in the background.
+        """Initialize the extractor class and run the extraction process in the background.
 
         Args:
             extractor_name (str): The name of the extractor that will be used.
@@ -71,13 +65,11 @@ class ExtractorManager:
         cls._check_is_already_extracting()
         extractor = ExtractorFactory.create_extractor(extractor_name, config, dependencies)
         background_tasks.add_task(cls.__run_extractor, extractor, extractor_name)
-        message = f"'{extractor_name}' started."
-        return message
+        return f"'{extractor_name}' started."
 
     @classmethod
     def __run_extractor(cls, extractor: Extractor, extractor_name: str) -> None:
-        """
-        Run extraction process and clean after it's done.
+        """Run extraction process and clean after it's done.
 
         Args:
             extractor (Extractor): Extractor that will be used for extraction.
@@ -91,8 +83,7 @@ class ExtractorManager:
 
     @classmethod
     def _check_is_already_extracting(cls) -> None:
-        """
-        Checks if some extractor is already active and raises an HTTPException if so.
+        """Check if some extractor is already active and raise an HTTPException if so.
 
         Raises:
             HTTPException: If extractor is already active to prevent concurrent extractions.

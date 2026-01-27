@@ -1,9 +1,10 @@
-"""
-This module defines Pydantic models and validators.
+"""Define Pydantic models and validators.
+
 Models:
     - ExtractorConfig: Model containing the extractors configuration parameters.
     - Message: Model for encapsulating messages returned by the application.
     - ExtractorStatus: Model representing the status of the working extractor in the system.
+
 LICENSE
 =======
 Copyright (C) 2024  Bartłomiej Flis
@@ -31,8 +32,7 @@ logger = logging.getLogger(__name__)
 
 
 class ExtractorConfig(BaseModel):
-    """
-    A Pydantic model containing the extractors configuration parameters.
+    """A Pydantic model containing the extractors configuration parameters.
 
     Attributes:
         input_directory (DirectoryPath): Input directory path containing entries for extraction.
@@ -82,8 +82,7 @@ class ExtractorConfig(BaseModel):
 
 
 class Message(BaseModel):
-    """
-    A Pydantic model for encapsulating messages returned by the application.
+    """A Pydantic model for encapsulating messages returned by the application.
 
     Attributes:
         message (str): The message content.
@@ -93,8 +92,7 @@ class Message(BaseModel):
 
 
 class ExtractorStatus(BaseModel):
-    """
-    A Pydantic model representing the status of the currently working extractor in the system.
+    """A Pydantic model representing the status of the currently working extractor in the system.
 
     Attributes:
         active_extractor (str): The name of the currently active extractor.

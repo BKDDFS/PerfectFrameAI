@@ -16,6 +16,10 @@ def test_top_frames_extractor(setup_top_images_extractor_env, dependencies):
     selector.process()
 
     found_top_frame_files = [
-        file for file in output_directory.iterdir() if file.name.startswith("image_") and file.name.endswith(".jpg")
+        file
+        for file in output_directory.iterdir()
+        if file.name.startswith("image_") and file.name.endswith(".jpg")
     ]
-    assert len(found_top_frame_files) > 0, "No files meeting the criteria were found in output_directory"
+    assert len(found_top_frame_files) > 0, (
+        "No files meeting the criteria were found in output_directory"
+    )

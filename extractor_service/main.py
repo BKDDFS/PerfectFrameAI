@@ -1,11 +1,11 @@
-"""
-This module defines a FastAPI web application for managing image extractors.
+"""Define a FastAPI web application for managing image extractors.
 
 Endpoints:
     GET /status:
         For checking is some extractor already running.
     POST /extractors/{extractor_name}:
         For running chosen extractor.
+
 LICENSE
 =======
 Copyright (C) 2024  Bartłomiej Flis
@@ -27,6 +27,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 import logging
 import os
 import sys
+from typing import Annotated
 
 import uvicorn
 from fastapi import BackgroundTasks, Depends, FastAPI
@@ -52,15 +53,14 @@ app = FastAPI()
 
 
 @app.get("/health")
-def health_check():
+def health_check() -> dict[str, str]:
     """Health check endpoint for container health monitoring."""
     return {"status": "healthy"}
 
 
 @app.get("/v2/status")
 def get_extractors_status() -> ExtractorStatus:
-    """
-    Checks is some extractor already running on service.
+    """Check if some extractor is already running on service.
 
     Returns:
         ExtractorStatus: Contains the name of the currently active extractor.
@@ -72,22 +72,23 @@ def get_extractors_status() -> ExtractorStatus:
 def run_extractor(
     extractor_name: str,
     background_tasks: BackgroundTasks,
+    dependencies: Annotated[ExtractorDependencies, Depends(get_extractor_dependencies)],
     config: ExtractorConfig = ExtractorConfig(),
-    dependencies: ExtractorDependencies = Depends(get_extractor_dependencies),
 ) -> Message:
-    """
-    Runs provided extractor.
+    """Run the provided extractor.
 
     Args:
         extractor_name (str): The name of the extractor that will be used.
         background_tasks (BackgroundTasks): A FastAPI tool for running tasks in background.
-        dependencies(ExtractorDependencies): Dependencies that will be used in extractor.
+        dependencies (ExtractorDependencies): Dependencies that will be used in extractor.
         config (ExtractorConfig): A Pydantic model with extractor configuration.
 
     Returns:
         Message: Contains the operation status.
     """
-    message = ExtractorManager.start_extractor(extractor_name, background_tasks, config, dependencies)
+    message = ExtractorManager.start_extractor(
+        extractor_name, background_tasks, config, dependencies
+    )
     return Message(message=message)
 
 

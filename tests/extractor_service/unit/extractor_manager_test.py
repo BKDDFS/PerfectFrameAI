@@ -1,7 +1,8 @@
-from unittest.mock import MagicMock, patch
+import http
 
 import pytest
 from fastapi import BackgroundTasks, HTTPException
+from pytest_mock import MockerFixture
 
 from extractor_service.app.extractor_manager import ExtractorManager
 from extractor_service.app.extractors import ExtractorFactory
@@ -11,15 +12,17 @@ def test_get_active_extractor():
     assert ExtractorManager.get_active_extractor() is None
 
 
-@patch.object(ExtractorFactory, "create_extractor")
-@patch.object(ExtractorManager, "_check_is_already_extracting")
-def test_start_extractor(mock_checking, mock_create_extractor, config, dependencies):
+def test_start_extractor(mocker: MockerFixture, config, dependencies):
+    mock_checking = mocker.patch.object(ExtractorManager, "_check_is_already_extracting")
+    mock_create_extractor = mocker.patch.object(ExtractorFactory, "create_extractor")
     extractor_name = "some_extractor"
-    mock_extractor = MagicMock()
-    mock_background_tasks = MagicMock(spec=BackgroundTasks)
+    mock_extractor = mocker.MagicMock()
+    mock_background_tasks = mocker.MagicMock(spec=BackgroundTasks)
     mock_create_extractor.return_value = mock_extractor
 
-    message = ExtractorManager.start_extractor(extractor_name, mock_background_tasks, config, dependencies)
+    message = ExtractorManager.start_extractor(
+        extractor_name, mock_background_tasks, config, dependencies
+    )
 
     mock_checking.assert_called_once()
     mock_create_extractor.assert_called_once_with(extractor_name, config, dependencies)
@@ -32,8 +35,8 @@ def test_start_extractor(mock_checking, mock_create_extractor, config, dependenc
     assert message == expected_message, "The return message does not match expected."
 
 
-@patch("extractor_service.app.extractors.BestFramesExtractor")
-def test_run_extractor(mock_extractor):
+def test_run_extractor(mocker: MockerFixture):
+    mock_extractor = mocker.patch("extractor_service.app.extractors.BestFramesExtractor")
     extractor_name = "some_extractor"
 
     ExtractorManager._ExtractorManager__run_extractor(mock_extractor, extractor_name)
@@ -53,4 +56,4 @@ def test_check_is_already_evaluating_true():
     with pytest.raises(HTTPException, match=expected_error_massage) as exc_info:
         ExtractorManager._check_is_already_extracting()
 
-    assert exc_info.value.status_code == 409
+    assert exc_info.value.status_code == http.HTTPStatus.CONFLICT
