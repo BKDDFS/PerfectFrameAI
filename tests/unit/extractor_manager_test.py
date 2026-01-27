@@ -5,6 +5,7 @@ from fastapi import BackgroundTasks, HTTPException
 
 from perfectframe.extractor_manager import ExtractorManager
 from perfectframe.extractors import ExtractorFactory
+from perfectframe.schemas import ExtractorName
 
 
 def test_get_active_extractor():
@@ -14,7 +15,7 @@ def test_get_active_extractor():
 def test_start_extractor(mocker, config, dependencies):
     mock_checking = mocker.patch.object(ExtractorManager, "_check_is_already_extracting")
     mock_create_extractor = mocker.patch.object(ExtractorFactory, "create_extractor")
-    extractor_name = "some_extractor"
+    extractor_name = ExtractorName.BEST_FRAMES
     mock_extractor = mocker.MagicMock()
     mock_background_tasks = mocker.MagicMock(spec=BackgroundTasks)
     mock_create_extractor.return_value = mock_extractor
@@ -44,7 +45,7 @@ def test_run_extractor(mocker):
 
 
 def test_check_is_already_evaluating_true():
-    test_extractor = "active_extractor"
+    test_extractor = ExtractorName.BEST_FRAMES
     ExtractorManager._active_extractor = test_extractor
     expected_error_massage = (
         f"Extractor '{test_extractor}' is already running. "
@@ -56,3 +57,4 @@ def test_check_is_already_evaluating_true():
         ExtractorManager._check_is_already_extracting()
 
     assert exc_info.value.status_code == http.HTTPStatus.CONFLICT
+    ExtractorManager._active_extractor = None

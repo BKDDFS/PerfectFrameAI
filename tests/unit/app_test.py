@@ -12,11 +12,13 @@ def test_health_check():
 
 
 def test_get_extractors_status(mocker):
-    mocker.patch.object(ExtractorManager, "get_active_extractor", return_value="test_extractor")
+    mocker.patch.object(
+        ExtractorManager, "get_active_extractor", return_value=ExtractorName.BEST_FRAMES
+    )
 
     result = get_extractors_status()
 
-    assert result.active_extractor == "test_extractor"
+    assert result.active_extractor == ExtractorName.BEST_FRAMES
 
 
 def test_run_extractor(mocker, config, dependencies):

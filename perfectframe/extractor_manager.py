@@ -32,10 +32,10 @@ logger = logging.getLogger(__name__)
 class ExtractorManager:
     """Orchestrate extractors, ensuring that only one extractor is active at once."""
 
-    _active_extractor = None
+    _active_extractor: ExtractorName | None = None
 
     @classmethod
-    def get_active_extractor(cls) -> str | None:
+    def get_active_extractor(cls) -> ExtractorName | None:
         """Return the active extractor name."""
         return cls._active_extractor
 
