@@ -38,33 +38,17 @@ class ImageProcessor(ABC):
     @staticmethod
     @abstractmethod
     def read_image(image_path: Path) -> np.ndarray:
-        """Read image from given path and convert it to np.ndarray.
-
-        Args:
-            image_path (Path): Path to image that will be read.
-        """
+        """Read image from given path and convert it to np.ndarray."""
 
     @classmethod
     @abstractmethod
     def save_image(cls, image: np.ndarray, output_directory: Path, output_extension: str) -> Path:
-        """Save given image in given path in given extension.
-
-        Args:
-            image (np.ndarray): Numpy ndarray image that will be saved.
-            output_directory (Path): Path where images will be saved.
-            output_extension (str): Extension with image will be saved.
-        """
+        """Save given image in given path in given extension."""
 
     @staticmethod
     @abstractmethod
     def normalize_images(images: list[np.ndarray], target_size: tuple[int, int]) -> np.array:
-        """Resize a batch of images and convert them to a normalized numpy array.
-
-        Args:
-            images (list[np.ndarray]): List of numpy ndarray images to be normalized.
-            target_size (tuple | None): Target size to which the images will be resized.
-                Default is (224, 224).
-        """
+        """Resize a batch of images and convert them to a normalized numpy array."""
 
 
 class OpenCVImage(ImageProcessor):
@@ -72,11 +56,7 @@ class OpenCVImage(ImageProcessor):
 
     @staticmethod
     def read_image(image_path: Path) -> np.ndarray | None:
-        """Read image from given path and convert it to np.ndarray.
-
-        Args:
-            image_path (Path): Path to image that will be read.
-        """
+        """Read image from given path and convert it to np.ndarray."""
         image = cv2.imread(str(image_path))
         if not isinstance(image, np.ndarray):
             logger.warning(
@@ -89,13 +69,7 @@ class OpenCVImage(ImageProcessor):
 
     @classmethod
     def save_image(cls, image: np.ndarray, output_directory: Path, output_extension: str) -> Path:
-        """Save given image in given path with given extension.
-
-        Args:
-            image (np.ndarray): Numpy ndarray image that will be saved.
-            output_directory (Path): Path where images will be saved.
-            output_extension (str): Extension with image will be saved.
-        """
+        """Save given image in given path with given extension."""
         filename = cls._generate_filename()
         image_path = output_directory / f"{filename}{output_extension}"
         cv2.imwrite(str(image_path), image)
@@ -109,12 +83,7 @@ class OpenCVImage(ImageProcessor):
 
     @staticmethod
     def normalize_images(images: list[np.ndarray], target_size: tuple[int, int]) -> np.array:
-        """Resize a batch of images and convert them to a normalized numpy array.
-
-        Args:
-            images (list[np.ndarray]): List of numpy ndarray images to be normalized.
-            target_size (tuple | None): Target size to which the images will be resized.
-        """
+        """Resize a batch of images and convert them to a normalized numpy array."""
         batch_images = []
         logger.debug("Normalizing images...")
         for img in images:

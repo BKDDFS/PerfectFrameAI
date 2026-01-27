@@ -56,13 +56,7 @@ def get_extractor_dependencies(
     video_processor: type[OpenCVVideo] = Depends(get_video_processor),
     evaluator: type[InceptionResNetNIMA] = Depends(get_evaluator),
 ) -> ExtractorDependencies:
-    """Return the dependencies required for the extractor.
-
-    Args:
-        image_processor: Dependency injection for image processor.
-        video_processor: Dependency injection for video processor.
-        evaluator: Dependency injection for image evaluator.
-    """
+    """Return the dependencies required for the extractor."""
     return ExtractorDependencies(
         image_processor=image_processor,
         video_processor=video_processor,

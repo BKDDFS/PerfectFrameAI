@@ -260,7 +260,6 @@ docker-compose --profile gpu down</pre>
             </ul>
             <li><a href="#1vs2">v1.0 vs v2.0</a></li>
             <li><a href="#architecture">Architecture</a></li>
-            <li><a href="#build-with">Build with</a></li>
             <li><a href="#tests">Tests</a></li>
             <ul>
                 <li><a href="#unit">unit</a></li>
@@ -410,23 +409,6 @@ docker-compose --profile gpu down</pre>
     <div id="architecture">
         <h2>Architecture</h2>
         <img src="static/architecture.jpg" width="1000" style="border-radius: 10px;">
-    </div>
-    <div id="build-with">
-    <h2>🛠️ Built with</h2>
-    <ul>
-        <li>Python - the main language in which the project is written.</li>
-        <li>FastAPI - the framework on which the main part of <code>PerfectFrameAI</code> is built (in v1.0 Flask).</li>
-        <li>OpenCV - for image manipulation.</li>
-        <li>numpy - for operations on multidimensional arrays.</li>
-        <li>FFMPEG - as an extension to OpenCV, for decoding video frames.</li>
-        <li>CUDA - to enable operations on graphics cards.</li>
-        <li>ONNX Runtime - for running the NIMA model with automatic GPU/CPU selection.</li>
-        <li>Docker & Docker Compose - for easier building and running of <code>PerfectFrameAI</code>.</li>
-        <li>pytest - the framework in which the tests are written.</li>
-        <li>testcontainers - for E2E testing with Docker.</li>
-        <li>uv - for managing project dependencies.</li>
-        <blockquote>All dependencies are available in the <a href="https://github.com/BKDDFS/PerfectFrameAI/blob/main/pyproject.toml">pyproject.toml</a>.</blockquote>
-    </ul>
     </div>
     <div id="tests">
         <h2>🧪 Tests</h2>

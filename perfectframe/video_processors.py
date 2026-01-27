@@ -41,12 +41,7 @@ class VideoProcessor(ABC):
     def get_next_frames(
         cls, video_path: Path, batch_size: int
     ) -> Generator[list[np.ndarray], None, None]:
-        """Abstract generator method to generate batches of frames from a video file.
-
-        Args:
-            video_path (Path): Path for video from which frames will be read.
-            batch_size (int): Number of frames to include in each batch.
-        """
+        """Abstract generator method to generate batches of frames from a video file."""
 
 
 class OpenCVVideo(VideoProcessor):
@@ -61,14 +56,7 @@ class OpenCVVideo(VideoProcessor):
     @staticmethod
     @contextmanager
     def _video_capture(video_path: Path) -> cv2.VideoCapture:
-        """Get and release a video capture object.
-
-        Args:
-            video_path (str): Path to the video file to be opened.
-
-        Raises:
-            CantOpenVideoCaptureError: If the video file cannot be opened.
-        """
+        """Get and release a video capture object."""
         video_cap = cv2.VideoCapture(str(video_path))
         try:
             if not video_cap.isOpened():
@@ -84,12 +72,7 @@ class OpenCVVideo(VideoProcessor):
     def get_next_frames(
         cls, video_path: Path, batch_size: int
     ) -> Generator[list[np.ndarray], None, None]:
-        """Generate batches of frames from the specified video using OpenCV.
-
-        Args:
-            video_path (Path): Path for video from which frames will be read.
-            batch_size (int): Maximum number of frames per batch.
-        """
+        """Generate batches of frames from the specified video using OpenCV."""
         with cls._video_capture(video_path) as video:
             frame_rate = cls._get_video_attribute(video, cv2.CAP_PROP_FPS, "frame rate")
             total_frames = cls._get_video_attribute(video, cv2.CAP_PROP_FRAME_COUNT, "total frames")
@@ -109,12 +92,7 @@ class OpenCVVideo(VideoProcessor):
 
     @classmethod
     def _read_next_frame(cls, video: cv2.VideoCapture, frame_index: int) -> np.ndarray | None:
-        """Read frame with specified index from provided video.
-
-        Args:
-            video: Video capture object from which frame will be taken.
-            frame_index (int): Place of the frame in video among other frames measured in indexes.
-        """
+        """Read frame with specified index from provided video."""
         cls._check_video_capture(video)
         video.set(cv2.CAP_PROP_POS_FRAMES, frame_index)
         success, frame = video.read()
@@ -127,16 +105,7 @@ class OpenCVVideo(VideoProcessor):
     def _get_video_attribute(
         cls, video: cv2.VideoCapture, attribute_id: int, display_name: str
     ) -> int:
-        """Retrieve a specified attribute value from the video capture object and validate it.
-
-        Args:
-            video (cv2.VideoCapture): OpenCV video capture object.
-            attribute_id (int): OpenCV video capture ID of the attribute to retrieve.
-            display_name (str): Descriptive name of the attribute for logging purposes.
-
-        Raises:
-            ValueError: If the retrieved value is invalid.
-        """
+        """Retrieve a specified attribute value from the video capture object and validate it."""
         cls._check_video_capture(video)
         attribute_value = video.get(attribute_id)
         logger.debug("Got input video %s: %s", display_name, attribute_value)
@@ -148,14 +117,7 @@ class OpenCVVideo(VideoProcessor):
 
     @staticmethod
     def _check_video_capture(video: cv2.VideoCapture) -> None:
-        """Check if video capture object is still available for future operations.
-
-        Args:
-            video (cv2.VideoCapture): Video capture object that will be checked.
-
-        Raises:
-            ValueError: If the video capture object is not opened.
-        """
+        """Check if video capture object is still available for future operations."""
         if not video.isOpened():
             error_message = (
                 "Invalid video capture object or object not opened. "
