@@ -76,7 +76,7 @@ class ExtractorConfig(BaseModel):
     images_output_format: str = ".jpg"
     target_image_size: tuple[int, int] = (224, 224)
     weights_directory: Path | str = Path.home() / ".cache" / "huggingface"
-    weights_filename: str = "weights.h5"
+    weights_filename: str = "weights.onnx"
     weights_repo_url: str = "https://huggingface.co/BKDDFS/nima_weights/resolve/main/"
     all_frames: bool = False
 

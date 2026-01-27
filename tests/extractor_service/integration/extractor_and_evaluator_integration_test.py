@@ -1,6 +1,6 @@
 import numpy as np
+import onnxruntime as ort
 import pytest
-from tensorflow.keras import Model
 
 from extractor_service.app.image_evaluators import InceptionResNetNIMA
 
@@ -15,7 +15,7 @@ def test_get_image_evaluator_download_weights_and_create_model(extractor, config
     evaluator = extractor._get_image_evaluator()
 
     assert isinstance(evaluator, InceptionResNetNIMA)
-    assert isinstance(evaluator._model, Model)
+    assert isinstance(evaluator._session, ort.InferenceSession)
     assert weights_path.exists()
 
 

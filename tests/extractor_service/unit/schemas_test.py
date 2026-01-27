@@ -20,7 +20,7 @@ def test_config_default():
     assert isinstance(config.top_images_percent, float)
     assert config.images_output_format == ".jpg"
     assert config.weights_directory == Path.home() / ".cache" / "huggingface"
-    assert config.weights_filename == "weights.h5"
+    assert config.weights_filename == "weights.onnx"
     assert config.weights_repo_url == "https://huggingface.co/BKDDFS/nima_weights/resolve/main/"
     assert config.all_frames is False
 

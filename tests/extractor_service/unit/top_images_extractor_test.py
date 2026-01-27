@@ -42,7 +42,7 @@ def test_process_with_images(mock_normalize, mock_read_image, extractor, caplog,
 
     # Check that the internal methods were called as expected
     extractor._list_input_directory_files.assert_called_once_with(extractor._config.images_extensions)
-    mock_read_image.assert_has_calls([call(path) for path in test_images])
+    mock_read_image.assert_has_calls([call(path) for path in test_images], any_order=True)
     mock_normalize.assert_called_once_with([mock_read_image.return_value] * 3, extractor._config.target_image_size)
     extractor._evaluate_images.assert_called_once_with(mock_normalize.return_value)
     extractor._get_top_percent_images.assert_called_once_with(

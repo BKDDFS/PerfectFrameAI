@@ -4,49 +4,59 @@ from unittest.mock import MagicMock, call, patch
 import numpy as np
 import pytest
 
-from extractor_service.app.image_evaluators import InceptionResNetNIMA, _ResNetModel
+from extractor_service.app.image_evaluators import InceptionResNetNIMA, _ONNXModel
 
 
 @pytest.fixture
 def evaluator():
-    with patch.object(_ResNetModel, "get_model", return_value=MagicMock()):
-        evaluator = InceptionResNetNIMA(MagicMock())
+    with patch.object(_ONNXModel, "get_model_path", return_value="/fake/path/model.onnx"):
+        with patch("extractor_service.app.image_evaluators.ort.InferenceSession") as mock_session:
+            mock_session_instance = MagicMock()
+            mock_session_instance.get_inputs.return_value = [MagicMock(name="input")]
+            mock_session.return_value = mock_session_instance
+            evaluator = InceptionResNetNIMA(MagicMock())
     return evaluator
 
 
-@patch.object(_ResNetModel, "get_model")
-def test_evaluator_initialization(mock_get_model, config):
-    test_model = "some_model"
-    mock_get_model.return_value = test_model
+@patch("extractor_service.app.image_evaluators.ort.InferenceSession")
+@patch.object(_ONNXModel, "get_model_path")
+def test_evaluator_initialization(mock_get_path, mock_session, config):
+    test_path = "/some/path/model.onnx"
+    mock_get_path.return_value = test_path
+    mock_session_instance = MagicMock()
+    mock_input = MagicMock()
+    mock_input.name = "input"
+    mock_session_instance.get_inputs.return_value = [mock_input]
+    mock_session.return_value = mock_session_instance
 
     instance = InceptionResNetNIMA(config)
 
-    mock_get_model.assert_called_once()
-    assert instance._model == test_model
+    mock_get_path.assert_called_once_with(config)
+    mock_session.assert_called_once_with(test_path)
+    assert instance._session == mock_session_instance
+    assert instance._input_name == "input"
 
 
-@patch("extractor_service.app.image_evaluators.convert_to_tensor")
 @patch.object(InceptionResNetNIMA, "_calculate_weighted_mean")
 @patch.object(InceptionResNetNIMA, "_check_scores")
-def test_evaluate_images(mock_check, mock_calculate, mock_convert_to_tensor, evaluator, caplog):
+def test_evaluate_images(mock_check, mock_calculate, evaluator, caplog):
     fake_images = MagicMock(spec=np.ndarray)
     fake_images.shape = (3, 2, 2)
-    tensor = "some_tensor"
-    predictions = [1.0, 2.0, 3.0]
+    fake_images.astype.return_value = fake_images
+    predictions = np.array([[0.1] * 10, [0.2] * 10, [0.3] * 10])
     expected_scores = [10.0, 20.0, 30.0]
-    mock_convert_to_tensor.return_value = tensor
     mock_calculate.side_effect = expected_scores
-    evaluator._model.predict.return_value = predictions
+    evaluator._session.run.return_value = [predictions]
 
     with caplog.at_level(logging.INFO):
         result = evaluator.evaluate_images(fake_images)
 
-    mock_convert_to_tensor.assert_called_once_with(fake_images)
-    evaluator._model.predict.assert_called_once_with(tensor, batch_size=fake_images.shape[0], verbose=0)
-    mock_calculate.assert_has_calls(
-        [call(prediction, _ResNetModel._prediction_weights) for prediction in predictions],
-        any_order=True,
-    )
+    fake_images.astype.assert_called_once_with(np.float32)
+    evaluator._session.run.assert_called_once_with(None, {evaluator._input_name: fake_images})
+    assert mock_calculate.call_count == 3
+    for i, call_args in enumerate(mock_calculate.call_args_list):
+        np.testing.assert_array_equal(call_args[0][0], predictions[i])
+        np.testing.assert_array_equal(call_args[0][1], _ONNXModel._prediction_weights)
     mock_check.assert_called_once()
     assert "Evaluating images..." in caplog.text
     assert "Images batch evaluated." in caplog.text
