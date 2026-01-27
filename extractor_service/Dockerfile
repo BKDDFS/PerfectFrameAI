@@ -1,6 +1,9 @@
-FROM python:3.12-slim
+FROM python:3.13-slim
 
 LABEL authors="BKDDFS"
+
+# Install uv (fixed version)
+COPY --from=ghcr.io/astral-sh/uv:0.9.26 /uv /bin/uv
 
 # Install system dependencies
 RUN apt-get update && apt-get install -y \
@@ -17,27 +20,29 @@ RUN apt-get update && apt-get install -y \
     libavfilter-dev \
     pkg-config \
     libgl1 \
-    libglib2.0-0 && \
+    libglib2.0-0 \
+    curl && \
     rm -rf /var/lib/apt/lists/*
 
-# Set cashe for ai model
+# Set cache for ai model
 VOLUME /root/.cache/huggingface
 
 # Set working directory
 WORKDIR /app
 
-# Copy the requirements file
-COPY requirements.txt .
+# Copy dependency files
+COPY pyproject.toml uv.lock ./
 
-# Install the dependencies
-RUN pip install --no-cache-dir -r requirements.txt
+# Install dependencies with uv (production only, no dev deps)
+RUN uv sync --frozen --no-dev --no-editable
 
 # Set environment variables
 ENV TF_CPP_MIN_LOG_LEVEL=3
 ENV DOCKER_ENV=1
+ENV PATH="/app/.venv/bin:$PATH"
 
 # Copy the source code into the container
-COPY . .
+COPY extractor_service/ .
 
 # Expose the port
 EXPOSE 8100

@@ -90,7 +90,9 @@
             <blockquote>Extract and return frames from a video.</blockquote>
         </summary>
         <p>Modifying <code>best_frames_extractor</code> by skipping AI evaluation part.</p>
-        <code>python start.py best_frames_extractor --all_frames</code>
+        <pre>curl -X POST http://localhost:8100/v2/extractors/best_frames_extractor \
+  -H "Content-Type: application/json" \
+  -d '{"all_frames": true}'</pre>
         <ol>
             <p>Input: Folder with video files.</p>
             <li>Takes the first video from the specified location.</li>
@@ -109,8 +111,7 @@
     <blockquote>
         <h3>System Requirements:</h3>
         <ul>
-            <li>Docker</li>
-            <li>Python 3.7+ (method 1 only)</li>
+            <li>Docker & Docker Compose</li>
             <li>8GB+ RAM</li>
             <li>10GB+ free disk space</li>
         </ul>
@@ -120,11 +121,6 @@
     <details>
         <summary>Install Docker:</summary>
         Docker Desktop: <a href="https://www.docker.com/products/docker-desktop/">https://www.docker.com/products/docker-desktop/</a>
-    </details>
-    <details>
-        <summary>Install Python v3.7+:</summary>
-        MS Store: <a href="https://apps.microsoft.com/detail/9ncvdn91xzqp?hl=en-US&gl=US">https://apps.microsoft.com/detail/9ncvdn91xzqp?hl=en-US&gl=US</a><br>
-        Python.org: <a href="https://www.python.org/downloads/">https://www.python.org/downloads/</a>
     </details>
     <details>
         <summary>Download <code>PerfectFrameAI</code></summary>
@@ -138,117 +134,84 @@
 </div>
 <div id="usage">
     <h2>⚡ Usage:</h2>
-    <details id="method1">
-        <summary>
-            <strong style="font-size: 20px;"> 🚀 Method 1 - CLI </strong>
-            <blockquote><p><i>Requires Python. Simple and convenient.</i></p></blockquote>
-        </summary>
-         <blockquote>
-            <p>
-                <strong>Hint for Windows users:</strong><br>
-                As a Windows user, you can use:<br>
-                <code>quick_demo_gpu.bat</code> or <code>quick_demo_cpu.bat</code>
-                if you don't have an Nvidia GPU.<br>
-                It will run <code>best_frames_extractor</code> with the default values.
-                Just double-click on it.
-                You can modify the default values in config.py to adjust the application to your needs.<br>
-                <strong>Warning!</strong><br>
-                Please note that when running the .bat file,
-                Windows Defender may flag it as dangerous.
-                This happens because obtaining a code-signing certificate
-                to prevent this warning requires a paid certificate...
-            </p>
-        </blockquote>
-        <p>Run <code>start.py</code> from the terminal.</p>
-        <p><strong>Example (Best Frames Extraction, default values):</strong></p>
-        <img src="static/start_frames.png" width="350"><br>
-        <table id="flags">
-            <caption><strong>Available Flags</strong></caption>
-            <thead>
-                <tr>
-                    <th>Flag</th>
-                    <th>Short</th>
-                    <th>Description</th>
-                    <th>Type</th>
-                    <th>Default Value</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td>--input_dir</td>
-                    <td>-i</td>
-                    <td>Change input directory</td>
-                    <td>str</td>
-                    <td>./input_directory</td>
-                </tr>
-                <tr>
-                    <td>--output_dir</td>
-                    <td>-o</td>
-                    <td>Change output directory</td>
-                    <td>str</td>
-                    <td>./output_directory</td>
-                </tr>
-                <tr>
-                    <td>--port</td>
-                    <td>-p</td>
-                    <td>Change the port the <code>extractor_service</code> will run on</td>
-                    <td>int</td>
-                    <td>8100</td>
-                </tr>
-                <tr>
-                    <td>--build</td>
-                    <td>-b</td>
-                    <td>
-                        Builds a new Docker image with the new specified settings.
-                        Always use with the --build flag if you don't understand.
-                    </td>
-                    <td>bool</td>
-                    <td>False</td>
-                </tr>
-                <tr>
-                    <td>--all_frames</td>
-                    <td></td>
-                    <td>
-                        For skipping frames evaluation part.
-                    </td>
-                    <td>bool</td>
-                    <td>False</td>
-                </tr>
-                <tr>
-                    <td>--cpu</td>
-                    <td></td>
-                    <td>
-                        Uses only CPU for processing. If you, don't have GPU you must use it.
-                    </td>
-                    <td>bool</td>
-                    <td>False</td>
-                </tr>
-            </tbody>
-        </table>
-        <p><strong>Example (Best Frames Extraction):</strong></p> 
-        <img src="static/start_example.png">
-        <p>You can edit other default parameters in <code>config.py</code>.</p>
-    </details>
-    <details id="method2">
-        <summary>
-            <strong style="font-size: 20px;">🐳 Method 2 - docker-compose.yaml:</strong>
-            <blockquote><p><i>Does not require Python. Run using Docker Compose.</i></p></blockquote>
-        </summary>
-        <p>Docker Compose Docs: <a href="https://docs.docker.com/compose/">https://docs.docker.com/compose/</a></p>
-        <p>Remember to delete GPU part in docker-compose.yaml if you don't have GPU!</p>
-        <ol>
-            <li>Run the service: <br><code>docker-compose up --build -d</code></li>
-            <li>Send a request to the chosen endpoint.
-            <p><strong>Example requests:</strong></p>
-                <ul>
-                    <li>Best Frames Extraction:<br><code>POST http://localhost:8100/extractors/best_frames_extractor</code></li>
-                    <li>Top Frames Extraction:<br><code>POST http://localhost:8100/extractors/top_images_extractor</code></li>
-                    <li>Current working extractor:<br><code>GET http://localhost:8100/</code></li>
-                </ul>
-            </li>
-            Optionally, you can edit docker-compose.yaml if you don't want to use the default settings.
-        </ol>
-    </details>
+    <p>Docker Compose Docs: <a href="https://docs.docker.com/compose/">https://docs.docker.com/compose/</a></p>
+    <h3>Quick Start</h3>
+    <ol>
+        <li>
+            <strong>Place video files in input directory:</strong>
+            <pre>cp ~/your_video.mp4 ./input_directory/</pre>
+        </li>
+        <li>
+            <strong>Start the service:</strong>
+            <pre># CPU mode (default)
+docker-compose up --build
+
+# GPU mode (requires NVIDIA Docker)
+docker-compose --profile gpu up --build</pre>
+        </li>
+        <li>
+            <strong>Call the extractor (in a new terminal):</strong>
+            <pre># Best Frames Extraction
+curl -X POST http://localhost:8100/v2/extractors/best_frames_extractor
+
+# Top Images Extraction
+curl -X POST http://localhost:8100/v2/extractors/top_images_extractor
+
+# Check health
+curl http://localhost:8100/health
+
+# Check current status
+curl http://localhost:8100/v2/status</pre>
+        </li>
+        <li>
+            <strong>Find results:</strong>
+            <pre>ls ./output_directory/</pre>
+        </li>
+        <li>
+            <strong>Stop the service:</strong>
+            <pre>docker-compose down</pre>
+        </li>
+    </ol>
+    <h3>Custom Directories</h3>
+    <p>You can specify custom input/output directories using environment variables:</p>
+    <pre>INPUT_DIR=/path/to/input OUTPUT_DIR=/path/to/output docker-compose up --build</pre>
+    <h3>API Endpoints</h3>
+    <table>
+        <thead>
+            <tr>
+                <th>Endpoint</th>
+                <th>Method</th>
+                <th>Description</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td><code>/health</code></td>
+                <td>GET</td>
+                <td>Health check endpoint</td>
+            </tr>
+            <tr>
+                <td><code>/v2/status</code></td>
+                <td>GET</td>
+                <td>Check current extractor status</td>
+            </tr>
+            <tr>
+                <td><code>/v2/extractors/best_frames_extractor</code></td>
+                <td>POST</td>
+                <td>Extract best frames from videos</td>
+            </tr>
+            <tr>
+                <td><code>/v2/extractors/top_images_extractor</code></td>
+                <td>POST</td>
+                <td>Select top images from a folder</td>
+            </tr>
+        </tbody>
+    </table>
+    <h3>Request Body Options</h3>
+    <p>For <code>best_frames_extractor</code>:</p>
+    <pre>curl -X POST http://localhost:8100/v2/extractors/best_frames_extractor \
+  -H "Content-Type: application/json" \
+  -d '{"all_frames": true}'  # Set to true to skip AI evaluation</pre>
 </div>
 <div id="about">
     <h2>💡 About:</h2>
@@ -426,18 +389,17 @@
     <div id="build-with">
     <h2>🛠️ Built with</h2>
     <ul>
-        <li>Python - the main language in which the project is written.
-            The external part of <code>PerfectFrameAI</code> uses only standard Python libraries for ease of installation and configuration.</li>
+        <li>Python - the main language in which the project is written.</li>
         <li>FastAPI - the framework on which the main part of <code>PerfectFrameAI</code> is built (in v1.0 Flask).</li>
         <li>OpenCV - for image manipulation.</li>
         <li>numpy - for operations on multidimensional arrays.</li>
         <li>FFMPEG - as an extension to OpenCV, for decoding video frames.</li>
         <li>CUDA - to enable operations on graphics cards.</li>
         <li>Tensorflow - the machine learning library used (in v1.0 PyTorch).</li>
-        <li>Docker - for easier building of a complex working environment for <code>PerfectFrameAI</code>.</li>
+        <li>Docker & Docker Compose - for easier building and running of <code>PerfectFrameAI</code>.</li>
         <li>pytest - the framework in which the tests are written.</li>
-        <li>docker-py - used only for testing Docker integration with the included <code>PerfectFrameAI</code> manager.</li>
-        <li>Poetry - for managing project dependencies.</li>
+        <li>testcontainers - for E2E testing with Docker.</li>
+        <li>uv - for managing project dependencies.</li>
         <blockquote>All dependencies are available in the <a href="https://github.com/BKDDFS/PerfectFrameAI/blob/main/pyproject.toml">pyproject.toml</a>.</blockquote>
     </ul>
     </div>
@@ -448,6 +410,14 @@
             You can run the tests by installing the dependencies from <code>pyproject.toml</code>
             and typing in the terminal in the project location - <code>pytest</code>.
         </p>
+        <pre># Install dependencies
+uv sync --all-extras
+
+# Run extractor_service tests (unit + integration)
+pytest tests/extractor_service -v
+
+# Run E2E tests (requires Docker)
+pytest tests/service_manager/e2e -v</pre>
         <details id="unit">
             <summary>unit</summary>
             <p>
@@ -459,8 +429,6 @@
         <details id="integration">
             <summary>integration</summary>
             <ul>
-                <li>Testing Docker integration with docker_manager.</li>
-                <li>Testing integration with the parser.</li>
                 <li>Testing integration of business logic with the NIMA model.</li>
                 <li>Testing integration with FastAPI.</li>
                 <li>Testing integration with OpenCV.</li>
@@ -471,8 +439,8 @@
         <details id="e2e">
             <summary>e2e</summary>
             <ul>
-                <li>Testing extractor_service as a whole.</li>
-                <li>Testing extractor_service + service_initializer as a whole.</li>
+                <li>Testing extractor_service as a whole using FastAPI TestClient.</li>
+                <li>Testing full Docker-based service using testcontainers.</li>
             </ul>
         </details>
     </div>
