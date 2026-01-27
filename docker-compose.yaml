@@ -2,7 +2,7 @@ services:
   extractor_service:
     build:
       context: .
-      dockerfile: extractor_service/Dockerfile
+      dockerfile: Dockerfile
     ports:
       - "8100:8100"
     volumes:
@@ -17,7 +17,7 @@ services:
       timeout: 5s
       retries: 30
       start_period: 60s
-    entrypoint: [ "uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8100" ]
+    entrypoint: [ "uvicorn", "perfectframe.app:app", "--host", "0.0.0.0", "--port", "8100" ]
 
   # GPU-enabled version (use with --profile gpu)
   extractor_service_gpu:

@@ -27,7 +27,7 @@ repos:
       rev: v0.0.13
       hooks:
         - id: ty-check
-          exclude: tests/
+          exclude: ^(tests|perfectframe)/
 
     - repo: https://github.com/PyCQA/docformatter
       rev: 06907d0
