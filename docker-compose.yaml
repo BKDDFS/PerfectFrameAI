@@ -1,12 +1,34 @@
 services:
   extractor_service:
     build:
-      context: ./extractor_service
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: extractor_service/Dockerfile
     ports:
       - "8100:8100"
     volumes:
-      - "./input_directory:/app/input_directory"
-      - "./output_directory:/app/output_directory"
+      - "${INPUT_DIR:-./input_directory}:/app/input_directory"
+      - "${OUTPUT_DIR:-./output_directory}:/app/output_directory"
     working_dir: /app
+    environment:
+      - TF_CPP_MIN_LOG_LEVEL=3
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8100/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 30
+      start_period: 60s
     entrypoint: [ "uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8100" ]
+
+  # GPU-enabled version (use with --profile gpu)
+  extractor_service_gpu:
+    extends:
+      service: extractor_service
+    profiles:
+      - gpu
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]

@@ -51,6 +51,12 @@ logger = logging.getLogger(__name__)
 app = FastAPI()
 
 
+@app.get("/health")
+def health_check():
+    """Health check endpoint for container health monitoring."""
+    return {"status": "healthy"}
+
+
 @app.get("/v2/status")
 def get_extractors_status() -> ExtractorStatus:
     """
