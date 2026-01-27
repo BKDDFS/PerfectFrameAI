@@ -7,7 +7,7 @@ authors = [
 ]
 license = {text = "GPL-3.0"}
 readme = "README.md"
-requires-python = ">=3.11,<3.15"
+requires-python = ">=3.11,<3.14"
 
 dependencies = [
     "fastapi==0.128.0",                                  # API endpoints
@@ -39,7 +39,7 @@ test = [
 
 [tool.ruff]
 line-length = 100
-target-version = "py311"
+target-version = "py313"
 exclude = [".git", "__pycache__"]
 
 [tool.ruff.lint]
