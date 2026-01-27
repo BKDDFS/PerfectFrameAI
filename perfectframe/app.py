@@ -65,14 +65,7 @@ def run_extractor(
     dependencies: Annotated[ExtractorDependencies, Depends(get_extractor_dependencies)],
     config: ExtractorConfig = ExtractorConfig(),
 ) -> Message:
-    """Run the provided extractor.
-
-    Args:
-        extractor_name (ExtractorName): The name of the extractor that will be used.
-        background_tasks (BackgroundTasks): A FastAPI tool for running tasks in background.
-        dependencies (ExtractorDependencies): Dependencies that will be used in extractor.
-        config (ExtractorConfig): A Pydantic model with extractor configuration.
-    """
+    """Run the provided extractor."""
     message = ExtractorManager.start_extractor(
         extractor_name, background_tasks, config, dependencies
     )

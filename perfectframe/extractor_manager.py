@@ -47,14 +47,7 @@ class ExtractorManager:
         config: ExtractorConfig,
         dependencies: ExtractorDependencies,
     ) -> str:
-        """Initialize the extractor class and run the extraction process in the background.
-
-        Args:
-            extractor_name (ExtractorName): The name of the extractor that will be used.
-            background_tasks (BackgroundTasks): A FastAPI tool for running tasks in background.
-            config (ExtractorConfig): A Pydantic model with extractor configuration.
-            dependencies(ExtractorDependencies): Dependencies that will be used in extractor.
-        """
+        """Initialize the extractor class and run the extraction process in the background."""
         cls._check_is_already_extracting()
         extractor = ExtractorFactory.create_extractor(extractor_name, config, dependencies)
         background_tasks.add_task(cls.__run_extractor, extractor, extractor_name)
@@ -62,12 +55,7 @@ class ExtractorManager:
 
     @classmethod
     def __run_extractor(cls, extractor: Extractor, extractor_name: ExtractorName) -> None:
-        """Run extraction process and clean after it's done.
-
-        Args:
-            extractor (Extractor): Extractor that will be used for extraction.
-            extractor_name (ExtractorName): The name of the extractor that will be used.
-        """
+        """Run extraction process and clean after it's done."""
         try:
             cls._active_extractor = extractor_name
             extractor.process()
@@ -76,11 +64,7 @@ class ExtractorManager:
 
     @classmethod
     def _check_is_already_extracting(cls) -> None:
-        """Check if some extractor is already active and raise an HTTPException if so.
-
-        Raises:
-            HTTPException: If extractor is already active to prevent concurrent extractions.
-        """
+        """Check if some extractor is already active and raise an HTTPException if so."""
         if cls._active_extractor:
             error_message = (
                 f"Extractor '{cls._active_extractor}' is already running. "

@@ -54,15 +54,7 @@ class Extractor(ABC):
         video_processor: type[VideoProcessor],
         image_evaluator_class: type[ImageEvaluator],
     ) -> None:
-        """Initialize the manager with the given extractor configuration.
-
-        Args:
-            config (ExtractorConfig): A Pydantic model with configuration
-                parameters for the extractor.
-            image_processor (Type[ImageProcessor]): The class for processing images.
-            video_processor (Type[VideoProcessor]): The class for processing videos.
-            image_evaluator_class (Type[ImageEvaluator]): The class for evaluating images.
-        """
+        """Initialize the manager with the given extractor configuration."""
         self._config = config
         self._image_processor = image_processor
         self._video_processor = video_processor
@@ -83,12 +75,7 @@ class Extractor(ABC):
         extensions: tuple[str, ...],
         prefix: str | None = None,
     ) -> list[Path]:
-        """List all files with given extensions except files with given filename prefix.
-
-        Args:
-            extensions (tuple): Searched files extensions.
-            prefix (str | None): Excluded files filename prefix. Default is None.
-        """
+        """List all files with given extensions except files with given filename prefix."""
         directory = self._config.input_directory
         entries = directory.iterdir()
         files = [
@@ -113,19 +100,11 @@ class Extractor(ABC):
         return files
 
     def _evaluate_images(self, normalized_images: np.ndarray) -> np.array:
-        """Rate all images in provided images batch using already initialized image evaluator.
-
-        Args:
-            normalized_images (list[np.ndarray]): Already normalized images for evaluating.
-        """
+        """Rate all images in provided images batch using already initialized image evaluator."""
         return np.array(self._image_evaluator.evaluate_images(normalized_images))
 
     def _read_images(self, paths: list[Path]) -> list[np.ndarray]:
-        """Read all images from given paths synonymously.
-
-        Args:
-            paths (list[Path]): List of images paths.
-        """
+        """Read all images from given paths synchronously."""
         with ThreadPoolExecutor() as executor:
             images = []
             futures = [
@@ -142,11 +121,7 @@ class Extractor(ABC):
             return images
 
     def _save_images(self, images: list[np.ndarray]) -> None:
-        """Save all images in config output directory synonymously.
-
-        Args:
-            images (list[np.ndarray]): List of images in numpy ndarrays.
-        """
+        """Save all images in config output directory synchronously."""
         with ThreadPoolExecutor() as executor:
             futures = [
                 executor.submit(
@@ -165,22 +140,12 @@ class Extractor(ABC):
         images: list[np.ndarray],
         target_size: tuple[int, int],
     ) -> np.ndarray:
-        """Normalize all images in given list to target size for further operations.
-
-        Args:
-            images (list[np.ndarray]): List of np.ndarray images to normalize.
-            target_size (tuple[int, int]): Images will be normalized to this size.
-        """
+        """Normalize all images in given list to target size for further operations."""
         return self._image_processor.normalize_images(images, target_size)
 
     @staticmethod
     def _add_prefix(prefix: str, path: Path) -> Path:
-        """Add prefix to file filename.
-
-        Args:
-            prefix (str): Prefix that will be added.
-            path (Path): Path to file that filename will be changed.
-        """
+        """Add prefix to file filename."""
         new_path = path.parent / f"{prefix}{path.name}"
         path.rename(new_path)
         logger.debug("Prefix '%s' added to file '%s'. New path: %s", prefix, path, new_path)
@@ -201,13 +166,7 @@ class ExtractorFactory:
         config: ExtractorConfig,
         dependencies: ExtractorDependencies,
     ) -> Extractor:
-        """Match extractor class by its name and return its class.
-
-        Args:
-            extractor_name (ExtractorName): Name of the extractor.
-            config (ExtractorConfig): A Pydantic model with extractor configuration.
-            dependencies(ExtractorDependencies): Dependencies that will be used in extractor.
-        """
+        """Match extractor class by its name and return its class."""
         match extractor_name:
             case ExtractorName.BEST_FRAMES:
                 return BestFramesExtractor(
@@ -247,11 +206,7 @@ class BestFramesExtractor(Extractor):
         self._signal_readiness_for_shutdown()
 
     def _extract_best_frames(self, video_path: Path) -> None:
-        """Extract best visually frames from given video.
-
-        Args:
-            video_path (Path): Path of the video that will be extracted.
-        """
+        """Extract best visually frames from given video."""
         frames_batch_generator = self._video_processor.get_next_frames(
             video_path, self._config.batch_size
         )
@@ -267,11 +222,7 @@ class BestFramesExtractor(Extractor):
             gc.collect()
 
     def _get_best_frames(self, frames: list[np.ndarray]) -> list[np.ndarray]:
-        """Split images batch into comparing groups and select best image for each group.
-
-        Args:
-            frames (list[np.ndarray]): Batch of images in numpy ndarray.
-        """
+        """Split images batch into comparing groups and select best image for each group."""
         normalized_images = self._normalize_images(frames, self._config.target_image_size)
         scores = self._evaluate_images(normalized_images)
         del normalized_images
@@ -315,13 +266,7 @@ class TopImagesExtractor(Extractor):
         scores: np.array,
         top_percent: float,
     ) -> list[np.ndarray]:
-        """Return images that have scores in the top percent of all scores.
-
-        Args:
-            images (list[np.ndarray]): Batch of images in numpy ndarray.
-            scores (np.array): Array with images scores with images batch order.
-            top_percent (float): The top percentage of scores to include (e.g. 80 for top 80%).
-        """
+        """Return images that have scores in the top percent of all scores."""
         threshold = np.percentile(scores, top_percent)
         top_images = [img for img, score in zip(images, scores, strict=True) if score >= threshold]
         logger.info("Top images selected(%s).", len(top_images))

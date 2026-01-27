@@ -39,28 +39,15 @@ class ImageEvaluator(ABC):
 
     @abstractmethod
     def __init__(self, config: ExtractorConfig) -> None:
-        """Initialize the image evaluator with the provided configuration.
-
-        Args:
-            config (ExtractorConfig): Configuration from user.
-        """
+        """Initialize the image evaluator with the provided configuration."""
 
     @abstractmethod
     def evaluate_images(self, images: np.ndarray) -> list[float]:
-        """Evaluate images batch and return scores.
-
-        Args:
-            images (list[np.ndarray]): Batch of images that will be evaluated.
-        """
+        """Evaluate images batch and return scores."""
 
     @staticmethod
     def _check_scores(images: list[np.ndarray], scores: list[float]) -> None:
-        """Check if the lengths of the images and scores lists match.
-
-        Args:
-            images (list[np.ndarray]): List of images.
-            scores (list[float]): List of scores.
-        """
+        """Check if the lengths of the images and scores lists match."""
         images_list_length = len(images)
         scores_list_length = len(scores)
         logger.debug("Scores: %s", scores)
@@ -79,21 +66,13 @@ class InceptionResNetNIMA(ImageEvaluator):
     """
 
     def __init__(self, config: ExtractorConfig) -> None:
-        """Initialize the Neural Image Assessment with the provided configuration.
-
-        Args:
-            config (ExtractorConfig): Configuration object for the image evaluator.
-        """
+        """Initialize the Neural Image Assessment with the provided configuration."""
         model_path = _ONNXModel.get_model_path(config)
         self._session = ort.InferenceSession(str(model_path))
         self._input_name = self._session.get_inputs()[0].name
 
     def evaluate_images(self, images: np.ndarray) -> list[float]:
-        """Evaluate a batch of images using the NIMA model, and return the results.
-
-        Args:
-            images (np.ndarray): Batch of numpy ndarray images to be evaluated.
-        """
+        """Evaluate a batch of images using the NIMA model, and return the results."""
         logger.info("Evaluating images...")
         predictions = self._session.run(None, {self._input_name: images.astype(np.float32)})[0]
         weights = _ONNXModel.get_prediction_weights()
@@ -106,14 +85,9 @@ class InceptionResNetNIMA(ImageEvaluator):
     def _calculate_weighted_mean(prediction: np.array, weights: np.array = None) -> float:
         """Calculate the weighted mean of the prediction to get final image score.
 
-        For example model InceptionResNetV2 returns 10 prediction scores for each image.
-        We want to calculate weighted mean from that classification scores to calculate
-        image final score. First classification score is less important and last is most.
-
-        Args:
-            prediction (np.array): Array of classification scores.
-            weights (np.array): Optional weights for calculating weighted mean.
-                If None, uses equal weights.
+        For example model InceptionResNetV2 returns 10 prediction scores for each image. We want to
+        calculate weighted mean from that classification scores to calculate image final score.
+        First classification score is less important and last is most.
         """
         if weights is None:
             weights = np.ones_like(prediction)  # Default weights, equally distribute importance
@@ -141,11 +115,7 @@ class _ONNXModel:
 
     @classmethod
     def get_model_path(cls, config: ExtractorConfig) -> Path:
-        """Get the path to the ONNX model, downloading it if necessary.
-
-        Args:
-            config (ExtractorConfig): Configuration object for the model.
-        """
+        """Get the path to the ONNX model, downloading it if necessary."""
         model_weights_directory = config.weights_directory
         logger.info(
             "Searching for model weights in weights directory: %s",
@@ -166,16 +136,7 @@ class _ONNXModel:
     def _download_model_weights(
         cls, weights_path: Path, config: ExtractorConfig, timeout: int = 10
     ) -> None:
-        """Download the model weights from the specified URL.
-
-        Args:
-            weights_path (Path): Path to save the downloaded weights.
-            config (ExtractorConfig): Configuration object with URL info.
-            timeout (int): Timeout for the request in seconds.
-
-        Raises:
-            cls.ModelWeightsDownloadError: If there's an issue downloading the weights.
-        """
+        """Download the model weights from the specified URL."""
         url = f"{config.weights_repo_url}{config.weights_filename}"
         logger.debug("Downloading model weights from ulr: %s", url)
         response = requests.get(url, allow_redirects=True, timeout=timeout)
