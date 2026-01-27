@@ -27,7 +27,20 @@ import logging
 from enum import Enum
 from pathlib import Path
 
+import numpy as np
 from pydantic import BaseModel, DirectoryPath
+
+type Image = np.ndarray
+"""Single image as numpy array."""
+
+type Images = list[Image]
+"""List of images."""
+
+type ImagesBatch = np.ndarray
+"""Batch of images as single numpy array for batch processing."""
+
+type ScoresArray = np.ndarray
+"""Array of aesthetic scores for images."""
 
 
 class ExtractorName(str, Enum):
@@ -65,14 +78,14 @@ class ExtractorConfig(BaseModel):
 
     input_directory: DirectoryPath = Path("/app/input_directory")
     output_directory: DirectoryPath = Path("/app/output_directory")
-    video_extensions: tuple[str] = (
+    video_extensions: tuple[str, ...] = (
         ".mp4",
         ".mov",
         ".webm",
         ".mkv",
         ".avi",
     )  # add more containers here
-    images_extensions: tuple[str] = (
+    images_extensions: tuple[str, ...] = (
         ".jpg",
         ".jpeg",
         ".png",

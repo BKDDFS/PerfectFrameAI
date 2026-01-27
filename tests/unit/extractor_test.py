@@ -52,6 +52,14 @@ def test_evaluate_images(mocker, extractor):
     assert result == expected
 
 
+def test_evaluate_images_raises_when_evaluator_not_initialized(mocker, extractor):
+    test_input = mocker.MagicMock(spec=np.ndarray)
+    extractor._image_evaluator = None
+
+    with pytest.raises(RuntimeError, match="_image_evaluator must be initialized"):
+        extractor._evaluate_images(test_input)
+
+
 @pytest.mark.parametrize("image", ["some_image", None])
 def test_read_images(mocker, image, extractor):
     mock_executor = mocker.patch("perfectframe.extractors.ThreadPoolExecutor")

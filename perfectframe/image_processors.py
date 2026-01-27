@@ -29,6 +29,8 @@ from pathlib import Path
 import cv2
 import numpy as np
 
+from perfectframe.schemas import Image, Images, ImagesBatch
+
 logger = logging.getLogger(__name__)
 
 
@@ -37,17 +39,17 @@ class ImageProcessor(ABC):
 
     @staticmethod
     @abstractmethod
-    def read_image(image_path: Path) -> np.ndarray:
+    def read_image(image_path: Path) -> Image | None:
         """Read image from given path and convert it to np.ndarray."""
 
     @classmethod
     @abstractmethod
-    def save_image(cls, image: np.ndarray, output_directory: Path, output_extension: str) -> Path:
+    def save_image(cls, image: Image, output_directory: Path, output_extension: str) -> Path:
         """Save given image in given path in given extension."""
 
     @staticmethod
     @abstractmethod
-    def normalize_images(images: list[np.ndarray], target_size: tuple[int, int]) -> np.array:
+    def normalize_images(images: Images, target_size: tuple[int, int]) -> ImagesBatch:
         """Resize a batch of images and convert them to a normalized numpy array."""
 
 
@@ -55,7 +57,7 @@ class OpenCVImage(ImageProcessor):
     """Image processor implementation using OpenCV library."""
 
     @staticmethod
-    def read_image(image_path: Path) -> np.ndarray | None:
+    def read_image(image_path: Path) -> Image | None:
         """Read image from given path and convert it to np.ndarray."""
         image = cv2.imread(str(image_path))
         if not isinstance(image, np.ndarray):
@@ -68,7 +70,7 @@ class OpenCVImage(ImageProcessor):
         return image
 
     @classmethod
-    def save_image(cls, image: np.ndarray, output_directory: Path, output_extension: str) -> Path:
+    def save_image(cls, image: Image, output_directory: Path, output_extension: str) -> Path:
         """Save given image in given path with given extension."""
         filename = cls._generate_filename()
         image_path = output_directory / f"{filename}{output_extension}"
@@ -82,7 +84,7 @@ class OpenCVImage(ImageProcessor):
         return f"image_{uuid.uuid4()}"
 
     @staticmethod
-    def normalize_images(images: list[np.ndarray], target_size: tuple[int, int]) -> np.array:
+    def normalize_images(images: Images, target_size: tuple[int, int]) -> ImagesBatch:
         """Resize a batch of images and convert them to a normalized numpy array."""
         batch_images = []
         logger.debug("Normalizing images...")

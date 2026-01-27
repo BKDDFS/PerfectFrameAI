@@ -1,11 +1,5 @@
 """Define a FastAPI web application for managing image extractors.
 
-Endpoints:
-    GET /status:
-        For checking is some extractor already running.
-    POST /extractors/{extractor_name}:
-        For running chosen extractor.
-
 LICENSE
 =======
 Copyright (C) 2024  Bartłomiej Flis

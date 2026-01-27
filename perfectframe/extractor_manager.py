@@ -35,7 +35,7 @@ class ExtractorManager:
     _active_extractor = None
 
     @classmethod
-    def get_active_extractor(cls) -> str:
+    def get_active_extractor(cls) -> str | None:
         """Return the active extractor name."""
         return cls._active_extractor
 

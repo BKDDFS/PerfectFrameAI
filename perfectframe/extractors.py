@@ -35,7 +35,7 @@ import numpy as np
 from perfectframe.dependencies import ExtractorDependencies
 from perfectframe.image_evaluators import ImageEvaluator
 from perfectframe.image_processors import ImageProcessor
-from perfectframe.schemas import ExtractorConfig, ExtractorName
+from perfectframe.schemas import ExtractorConfig, ExtractorName, Images, ImagesBatch, ScoresArray
 from perfectframe.video_processors import VideoProcessor
 
 logger = logging.getLogger(__name__)
@@ -75,7 +75,15 @@ class Extractor(ABC):
         extensions: tuple[str, ...],
         prefix: str | None = None,
     ) -> list[Path]:
-        """List all files with given extensions except files with given filename prefix."""
+        """List all files with given extensions except files with given filename prefix.
+
+        Args:
+            extensions: Searched files extensions.
+            prefix: Excluded files filename prefix.
+
+        Returns:
+            All matching files list.
+        """
         directory = self._config.input_directory
         entries = directory.iterdir()
         files = [
@@ -99,20 +107,23 @@ class Extractor(ABC):
         logger.debug("Listed file paths: %s", files)
         return files
 
-    def _evaluate_images(self, normalized_images: np.ndarray) -> np.array:
+    def _evaluate_images(self, normalized_images: ImagesBatch) -> ScoresArray:
         """Rate all images in provided images batch using already initialized image evaluator."""
+        if self._image_evaluator is None:
+            msg = "_image_evaluator must be initialized before calling _evaluate_images"
+            raise RuntimeError(msg)
         return np.array(self._image_evaluator.evaluate_images(normalized_images))
 
-    def _read_images(self, paths: list[Path]) -> list[np.ndarray]:
+    def _read_images(self, images_paths: list[Path]) -> Images:
         """Read all images from given paths synchronously."""
         with ThreadPoolExecutor() as executor:
             images = []
             futures = [
                 executor.submit(
                     self._image_processor.read_image,
-                    path,
+                    image_path,
                 )
-                for path in paths
+                for image_path in images_paths
             ]
             for future in futures:
                 image = future.result()
@@ -120,7 +131,7 @@ class Extractor(ABC):
                     images.append(image)
             return images
 
-    def _save_images(self, images: list[np.ndarray]) -> None:
+    def _save_images(self, images: Images) -> None:
         """Save all images in config output directory synchronously."""
         with ThreadPoolExecutor() as executor:
             futures = [
@@ -135,20 +146,16 @@ class Extractor(ABC):
             for future in futures:
                 future.result()
 
-    def _normalize_images(
-        self,
-        images: list[np.ndarray],
-        target_size: tuple[int, int],
-    ) -> np.ndarray:
+    def _normalize_images(self, images: Images, target_size: tuple[int, int]) -> ImagesBatch:
         """Normalize all images in given list to target size for further operations."""
         return self._image_processor.normalize_images(images, target_size)
 
     @staticmethod
-    def _add_prefix(prefix: str, path: Path) -> Path:
+    def _add_prefix(prefix: str, file_path: Path) -> Path:
         """Add prefix to file filename."""
-        new_path = path.parent / f"{prefix}{path.name}"
-        path.rename(new_path)
-        logger.debug("Prefix '%s' added to file '%s'. New path: %s", prefix, path, new_path)
+        new_path = file_path.parent / f"{prefix}{file_path.name}"
+        file_path.rename(new_path)
+        logger.debug("Prefix '%s' added to file '%s'. New path: %s", prefix, file_path, new_path)
         return new_path
 
     @staticmethod
@@ -221,7 +228,7 @@ class BestFramesExtractor(Extractor):
             del frames_to_save
             gc.collect()
 
-    def _get_best_frames(self, frames: list[np.ndarray]) -> list[np.ndarray]:
+    def _get_best_frames(self, frames: Images) -> Images:
         """Split images batch into comparing groups and select best image for each group."""
         normalized_images = self._normalize_images(frames, self._config.target_image_size)
         scores = self._evaluate_images(normalized_images)
@@ -262,10 +269,10 @@ class TopImagesExtractor(Extractor):
 
     @staticmethod
     def _get_top_percent_images(
-        images: list[np.ndarray],
-        scores: np.array,
+        images: Images,
+        scores: ScoresArray,
         top_percent: float,
-    ) -> list[np.ndarray]:
+    ) -> Images:
         """Return images that have scores in the top percent of all scores."""
         threshold = np.percentile(scores, top_percent)
         top_images = [img for img, score in zip(images, scores, strict=True) if score >= threshold]

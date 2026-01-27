@@ -29,7 +29,7 @@ import numpy as np
 import onnxruntime as ort
 import requests
 
-from perfectframe.schemas import ExtractorConfig
+from perfectframe.schemas import ExtractorConfig, ImagesBatch
 
 logger = logging.getLogger(__name__)
 
@@ -42,11 +42,11 @@ class ImageEvaluator(ABC):
         """Initialize the image evaluator with the provided configuration."""
 
     @abstractmethod
-    def evaluate_images(self, images: np.ndarray) -> list[float]:
+    def evaluate_images(self, images: ImagesBatch) -> list[float]:
         """Evaluate images batch and return scores."""
 
     @staticmethod
-    def _check_scores(images: list[np.ndarray], scores: list[float]) -> None:
+    def _check_scores(images: ImagesBatch, scores: list[float]) -> None:
         """Check if the lengths of the images and scores lists match."""
         images_list_length = len(images)
         scores_list_length = len(scores)
@@ -71,10 +71,12 @@ class InceptionResNetNIMA(ImageEvaluator):
         self._session = ort.InferenceSession(str(model_path))
         self._input_name = self._session.get_inputs()[0].name
 
-    def evaluate_images(self, images: np.ndarray) -> list[float]:
+    def evaluate_images(self, images: ImagesBatch) -> list[float]:
         """Evaluate a batch of images using the NIMA model, and return the results."""
         logger.info("Evaluating images...")
         predictions = self._session.run(None, {self._input_name: images.astype(np.float32)})[0]
+        if not isinstance(predictions, np.ndarray):
+            return []
         weights = _ONNXModel.get_prediction_weights()
         scores = [self._calculate_weighted_mean(prediction, weights) for prediction in predictions]
         self._check_scores(images, scores)
@@ -82,7 +84,9 @@ class InceptionResNetNIMA(ImageEvaluator):
         return scores
 
     @staticmethod
-    def _calculate_weighted_mean(prediction: np.array, weights: np.array = None) -> float:
+    def _calculate_weighted_mean(
+        prediction: np.ndarray, weights: np.ndarray | None = None
+    ) -> float:
         """Calculate the weighted mean of the prediction to get final image score.
 
         For example model InceptionResNetV2 returns 10 prediction scores for each image. We want to
