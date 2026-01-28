@@ -1,7 +1,7 @@
 """Provide abstract class for creating image evaluators and implementations.
 
 Image evaluators:
-    - InceptionResNetNIMA: NIMA model with helper classes.
+    - NIMAEvaluator: NIMA-based image evaluator using ONNX runtime.
 
 LICENSE
 =======
@@ -33,7 +33,6 @@ from perfectframe.schemas import (
     ExtractorConfig,
     ImagesBatch,
     NIMAModelOutput,
-    RatingScale,
     Score,
     Scores,
 )
@@ -66,66 +65,42 @@ class ImageEvaluator(ABC):
             logger.debug("Scores list length: %s", scores_list_length)
 
 
-class InceptionResNetNIMA(ImageEvaluator):
-    """NeuralImageAssessment model based image evaluator.
-
-    It uses NIMA for evaluating aesthetics of images.
-    """
-
-    def __init__(self, config: ExtractorConfig) -> None:
-        """Initialize the Neural Image Assessment with the provided configuration."""
-        model_path = _ONNXModel.get_model_path(config)
-        self._session = ort.InferenceSession(str(model_path))
-        self._input_name = self._session.get_inputs()[0].name
-
-    def evaluate_images(self, images: ImagesBatch) -> Scores:
-        """Evaluate a batch of images using the NIMA model, and return the results."""
-        logger.info("Evaluating images...")
-        predictions = self._session.run(None, {self._input_name: images.astype(np.float32)})[0]
-        if not isinstance(predictions, np.ndarray):
-            return []
-        weights = _ONNXModel.get_prediction_weights()
-        scores = [self._calculate_weighted_mean(prediction, weights) for prediction in predictions]
-        self._check_scores(images, scores)
-        logger.info("Images batch evaluated.")
-        return scores
-
-    @staticmethod
-    def _calculate_weighted_mean(
-        prediction: NIMAModelOutput, weights: RatingScale | None = None
-    ) -> Score:
-        """Calculate the weighted mean of the prediction to get final image score.
-
-        For example model InceptionResNetV2 returns 10 prediction scores for each image. We want to
-        calculate weighted mean from that classification scores to calculate image final score.
-        First classification score is less important and last is most.
-        """
-        if weights is None:
-            weights = np.ones_like(prediction)  # Default weights, equally distribute importance
-        return np.sum(prediction * weights) / np.sum(weights)
-
-
-class _ONNXModel:
-    """Helper class for managing ONNX model weights.
-
-    Handles downloading and caching of model weights.
-    """
+class NIMAEvaluator(ImageEvaluator):
+    """NIMA-based image evaluator using ONNX runtime."""
 
     class ModelWeightsDownloadError(Exception):
         """Error raised when there's an issue with downloading model weights."""
 
     _prediction_weights = np.arange(1, 11)
 
-    @classmethod
-    def get_prediction_weights(cls) -> RatingScale:
-        """Getter for prediction weights.
+    def __init__(self, config: ExtractorConfig) -> None:
+        """Initialize the NIMA evaluator with the provided configuration."""
+        model_path = self._get_model_path(config)
+        self._session = ort.InferenceSession(str(model_path))
+        self._input_name = self._session.get_inputs()[0].name
 
-        Weights are for calculating weighted mean from model predictions.
+    def evaluate_images(self, images: ImagesBatch) -> Scores:
+        """Evaluate a batch of images using the NIMA model."""
+        logger.info("Evaluating images...")
+        predictions = self._session.run(None, {self._input_name: images.astype(np.float32)})[0]
+        if not isinstance(predictions, np.ndarray):
+            return []
+        scores = [self._calculate_weighted_mean(p) for p in predictions]
+        self._check_scores(images, scores)
+        logger.info("Images batch evaluated.")
+        return scores
+
+    def _calculate_weighted_mean(self, prediction: NIMAModelOutput) -> Score:
+        """Calculate the weighted mean of the prediction to get final image score.
+
+        For example model InceptionResNetV2 returns 10 prediction scores for each image. We want to
+        calculate weighted mean from that classification scores to calculate image final score.
+        First classification score is less important and last is most.
         """
-        return cls._prediction_weights
+        return np.sum(prediction * self._prediction_weights) / np.sum(self._prediction_weights)
 
     @classmethod
-    def get_model_path(cls, config: ExtractorConfig) -> Path:
+    def _get_model_path(cls, config: ExtractorConfig) -> Path:
         """Get the path to the ONNX model, downloading it if necessary."""
         model_weights_directory = config.weights_directory
         logger.info(

@@ -5,7 +5,7 @@ import numpy as np
 import pytest
 
 from perfectframe.extractors import BestFramesExtractor
-from perfectframe.image_evaluators import InceptionResNetNIMA
+from perfectframe.image_evaluators import NIMAEvaluator
 from perfectframe.image_processors import OpenCVImage
 from perfectframe.schemas import VideoExtension
 from perfectframe.video_processors import OpenCVVideo
@@ -20,7 +20,7 @@ def all_frames_extractor(extractor):
 
 @pytest.fixture
 def extractor(config):
-    return BestFramesExtractor(config, OpenCVImage, OpenCVVideo, InceptionResNetNIMA)
+    return BestFramesExtractor(config, OpenCVImage, OpenCVVideo, NIMAEvaluator)
 
 
 def test_process(mocker, extractor, caplog, config):
