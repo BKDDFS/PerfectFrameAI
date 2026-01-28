@@ -7,6 +7,7 @@ import pytest
 from perfectframe.extractors import BestFramesExtractor
 from perfectframe.image_evaluators import InceptionResNetNIMA
 from perfectframe.image_processors import OpenCVImage
+from perfectframe.schemas import VideoExtension
 from perfectframe.video_processors import OpenCVVideo
 
 
@@ -35,7 +36,7 @@ def test_process(mocker, extractor, caplog, config):
         extractor.process()
 
     extractor._list_input_directory_files.assert_called_once_with(
-        config.video_extensions, config.processed_video_prefix
+        VideoExtension, config.processed_video_prefix
     )
     extractor._get_image_evaluator.assert_called_once()
     assert extractor._extract_best_frames.call_count == len(test_videos)
@@ -61,7 +62,7 @@ def test_process_if_all_frames(mocker, all_frames_extractor, caplog, config):
         all_frames_extractor.process()
 
     all_frames_extractor._list_input_directory_files.assert_called_once_with(
-        config.video_extensions, config.processed_video_prefix
+        VideoExtension, config.processed_video_prefix
     )
     all_frames_extractor._get_image_evaluator.assert_not_called()
     assert not all_frames_extractor._image_evaluator
@@ -137,6 +138,6 @@ def test_get_best_frames(mocker, caplog, extractor, config):
         best_images = extractor._get_best_frames(frames)
 
     mock_evaluate.assert_called_once_with(normalized_images)
-    mock_normalize.assert_called_once_with(frames, config.target_image_size)
+    mock_normalize.assert_called_once_with(frames, config.input_size)
     assert best_images == expected_best_images
     assert f"Best frames selected({len(expected_best_images)})." in caplog.text

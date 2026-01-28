@@ -1,10 +1,5 @@
 """Define Pydantic models and validators.
 
-Models:
-    - ExtractorConfig: Model containing the extractors configuration parameters.
-    - Message: Model for encapsulating messages returned by the application.
-    - ExtractorStatus: Model representing the status of the working extractor in the system.
-
 LICENSE
 =======
 Copyright (C) 2024  Bartłomiej Flis
@@ -26,9 +21,18 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 import logging
 from enum import Enum
 from pathlib import Path
+from typing import NamedTuple
 
 import numpy as np
 from pydantic import BaseModel, DirectoryPath
+
+
+class ImageResolution(NamedTuple):
+    """Resolution of an image in pixels (width x height)."""
+
+    width: int
+    height: int
+
 
 type Image = np.ndarray
 """Single image as numpy array."""
@@ -50,6 +54,35 @@ class ExtractorName(str, Enum):
     TOP_IMAGES = "top_images_extractor"
 
 
+class ImageExtension(str, Enum):
+    """Supported image file extensions."""
+
+    JPG = ".jpg"
+    JPEG = ".jpeg"
+    PNG = ".png"
+    WEBP = ".webp"
+
+    @classmethod
+    def contains(cls, value: str) -> bool:
+        """Check if value is a valid extension."""
+        return value in cls._value2member_map_
+
+
+class VideoExtension(str, Enum):
+    """Supported video file extensions."""
+
+    MP4 = ".mp4"
+    MOV = ".mov"
+    WEBM = ".webm"
+    MKV = ".mkv"
+    AVI = ".avi"
+
+    @classmethod
+    def contains(cls, value: str) -> bool:
+        """Check if value is a valid extension."""
+        return value in cls._value2member_map_
+
+
 logger = logging.getLogger(__name__)
 
 
@@ -61,14 +94,12 @@ class ExtractorConfig(BaseModel):
             By default, it sets value for docker container volume.
         output_directory (DirectoryPath): Output directory path for extraction results.
             By default, it sets value for docker container volume.
-        video_extensions (tuple[str]): Supported videos' extensions in service for reading videos.
-        images_extensions (tuple[str]): Supported images' extensions in service for reading images.
         processed_video_prefix (str): Prefix will be added to processed video after extraction.
         batch_size (int): Maximum number of images processed in a single batch.
         compering_group_size (int): Images group number to compare for finding the best one.
         top_images_percent (float): Percentage threshold to determine the top images.
-        images_output_format (str): Format for saving output images, e.g., '.jpg', '.png'.
-        target_image_size (tuple[int, int]): Images will be normalized to this size.
+        images_output_format (ImageExtension): Format for saving output images.
+        input_size (ImageResolution): Images will be normalized to this resolution for model input.
         weights_directory (Path | str): Directory path where model weights are stored.
         weights_filename (str): The filename of the model weights file to be loaded.
         weights_repo_url (str): URL to the repository where model weights can be downloaded.
@@ -78,25 +109,12 @@ class ExtractorConfig(BaseModel):
 
     input_directory: DirectoryPath = Path("/app/input_directory")
     output_directory: DirectoryPath = Path("/app/output_directory")
-    video_extensions: tuple[str, ...] = (
-        ".mp4",
-        ".mov",
-        ".webm",
-        ".mkv",
-        ".avi",
-    )  # add more containers here
-    images_extensions: tuple[str, ...] = (
-        ".jpg",
-        ".jpeg",
-        ".png",
-        ".webp",
-    )  # add more containers here
     processed_video_prefix: str = "frames_extracted_"
     batch_size: int = 100
     compering_group_size: int = 5
     top_images_percent: float = 90.0
-    images_output_format: str = ".jpg"
-    target_image_size: tuple[int, int] = (224, 224)
+    images_output_format: ImageExtension = ImageExtension.JPG
+    input_size: ImageResolution = ImageResolution(224, 224)
     weights_directory: Path | str = Path.home() / ".cache" / "huggingface"
     weights_filename: str = "weights.onnx"
     weights_repo_url: str = "https://huggingface.co/BKDDFS/nima_weights/resolve/main/"

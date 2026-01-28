@@ -37,6 +37,9 @@ logger = logging.getLogger(__name__)
 class VideoProcessor(ABC):
     """Abstract class for creating video processors used for managing video operations."""
 
+    class _Error(Exception):
+        """Video processor error."""
+
     @classmethod
     @abstractmethod
     def get_next_frames(cls, video_path: Path, frames_batch_size: int) -> Generator[Images]:
@@ -45,12 +48,6 @@ class VideoProcessor(ABC):
 
 class OpenCVVideo(VideoProcessor):
     """Video processor based on OpenCV with FFMPEG extension."""
-
-    class CantOpenVideoCaptureError(Exception):
-        """Exception raised when the video file cannot be opened."""
-
-    class VideoCaptureClosedError(Exception):
-        """Exception raised when the video capture is prematurely closed."""
 
     @staticmethod
     @contextmanager
@@ -61,7 +58,7 @@ class OpenCVVideo(VideoProcessor):
             if not video_cap.isOpened():
                 error_massage = f"Can't open video file: {video_path}"
                 logger.error(error_massage)
-                raise OpenCVVideo.CantOpenVideoCaptureError(error_massage)
+                raise OpenCVVideo._Error(error_massage)
             logger.debug("Creating video capture.")
             yield video_cap
         finally:

@@ -35,7 +35,16 @@ import numpy as np
 from perfectframe.dependencies import ExtractorDependencies
 from perfectframe.image_evaluators import ImageEvaluator
 from perfectframe.image_processors import ImageProcessor
-from perfectframe.schemas import ExtractorConfig, ExtractorName, Images, ImagesBatch, ScoresArray
+from perfectframe.schemas import (
+    ExtractorConfig,
+    ExtractorName,
+    ImageExtension,
+    ImageResolution,
+    Images,
+    ImagesBatch,
+    ScoresArray,
+    VideoExtension,
+)
 from perfectframe.video_processors import VideoProcessor
 
 logger = logging.getLogger(__name__)
@@ -72,13 +81,13 @@ class Extractor(ABC):
 
     def _list_input_directory_files(
         self,
-        extensions: tuple[str, ...],
+        extensions: type[VideoExtension] | type[ImageExtension],
         prefix: str | None = None,
     ) -> list[Path]:
         """List all files with given extensions except files with given filename prefix.
 
         Args:
-            extensions: Searched files extensions.
+            extensions: Enum class defining valid file extensions.
             prefix: Excluded files filename prefix.
 
         Returns:
@@ -90,7 +99,7 @@ class Extractor(ABC):
             entry
             for entry in entries
             if entry.is_file()
-            and entry.suffix in extensions
+            and extensions.contains(entry.suffix)
             and (prefix is None or not entry.name.startswith(prefix))
         ]
         if not files:
@@ -146,7 +155,7 @@ class Extractor(ABC):
             for future in futures:
                 future.result()
 
-    def _normalize_images(self, images: Images, target_size: tuple[int, int]) -> ImagesBatch:
+    def _normalize_images(self, images: Images, target_size: ImageResolution) -> ImagesBatch:
         """Normalize all images in given list to target size for further operations."""
         return self._image_processor.normalize_images(images, target_size)
 
@@ -201,7 +210,7 @@ class BestFramesExtractor(Extractor):
             self._config.input_directory,
         )
         videos_paths = self._list_input_directory_files(
-            self._config.video_extensions, self._config.processed_video_prefix
+            VideoExtension, self._config.processed_video_prefix
         )
         if self._config.all_frames is False:  # evaluator won't be used if all frames
             self._get_image_evaluator()
@@ -230,7 +239,7 @@ class BestFramesExtractor(Extractor):
 
     def _get_best_frames(self, frames: Images) -> Images:
         """Split images batch into comparing groups and select best image for each group."""
-        normalized_images = self._normalize_images(frames, self._config.target_image_size)
+        normalized_images = self._normalize_images(frames, self._config.input_size)
         scores = self._evaluate_images(normalized_images)
         del normalized_images
 
@@ -250,12 +259,12 @@ class TopImagesExtractor(Extractor):
 
     def process(self) -> None:
         """Rate all images in config input directory and extract top percent images."""
-        images_paths = self._list_input_directory_files(self._config.images_extensions)
+        images_paths = self._list_input_directory_files(ImageExtension)
         self._get_image_evaluator()
         for batch_index in range(0, len(images_paths), self._config.batch_size):
             batch = images_paths[batch_index : batch_index + self._config.batch_size]
             images = self._read_images(batch)
-            normalized_images = self._normalize_images(images, self._config.target_image_size)
+            normalized_images = self._normalize_images(images, self._config.input_size)
             scores = self._evaluate_images(normalized_images)
             top_images = self._get_top_percent_images(
                 images, scores, self._config.top_images_percent

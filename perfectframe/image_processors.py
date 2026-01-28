@@ -29,7 +29,7 @@ from pathlib import Path
 import cv2
 import numpy as np
 
-from perfectframe.schemas import Image, Images, ImagesBatch
+from perfectframe.schemas import Image, ImageExtension, ImageResolution, Images, ImagesBatch
 
 logger = logging.getLogger(__name__)
 
@@ -44,12 +44,14 @@ class ImageProcessor(ABC):
 
     @classmethod
     @abstractmethod
-    def save_image(cls, image: Image, output_directory: Path, output_extension: str) -> Path:
+    def save_image(
+        cls, image: Image, output_directory: Path, output_extension: ImageExtension
+    ) -> Path:
         """Save given image in given path in given extension."""
 
     @staticmethod
     @abstractmethod
-    def normalize_images(images: Images, target_size: tuple[int, int]) -> ImagesBatch:
+    def normalize_images(images: Images, target_size: ImageResolution) -> ImagesBatch:
         """Resize a batch of images and convert them to a normalized numpy array."""
 
 
@@ -70,7 +72,9 @@ class OpenCVImage(ImageProcessor):
         return image
 
     @classmethod
-    def save_image(cls, image: Image, output_directory: Path, output_extension: str) -> Path:
+    def save_image(
+        cls, image: Image, output_directory: Path, output_extension: ImageExtension
+    ) -> Path:
         """Save given image in given path with given extension."""
         filename = cls._generate_filename()
         image_path = output_directory / f"{filename}{output_extension}"
@@ -84,7 +88,7 @@ class OpenCVImage(ImageProcessor):
         return f"image_{uuid.uuid4()}"
 
     @staticmethod
-    def normalize_images(images: Images, target_size: tuple[int, int]) -> ImagesBatch:
+    def normalize_images(images: Images, target_size: ImageResolution) -> ImagesBatch:
         """Resize a batch of images and convert them to a normalized numpy array."""
         batch_images = []
         logger.debug("Normalizing images...")
