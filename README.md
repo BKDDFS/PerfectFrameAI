@@ -24,12 +24,6 @@
         <a href="#licence">License</a>
     </p>
 </div>
-<div id="languages">
-    <p align="center">
-        <a href="https://github.com/BKDDFS/PerfectFrameAI/blob/main/README.md">English</a> &nbsp;&bull;&nbsp;
-        <a href="https://github.com/BKDDFS/PerfectFrameAI/blob/main/.github/README.pl.md">Polski</a>
-    </p>
-</div>
 <div id="description">
     In a world saturated with video content, every second has the potential to become an unforgettable shot.
     <code>PerfectFrameAI</code> is a tool that uses artificial intelligence to analyze video materials
@@ -133,110 +127,117 @@
     </details>
 </div>
 <div id="usage">
-    <h2>⚡ Usage:</h2>
+    <h2>⚡ Usage</h2>
     <p>Docker Compose Docs: <a href="https://docs.docker.com/compose/">https://docs.docker.com/compose/</a></p>
-    <h3>Quick Start</h3>
-    <ol>
-        <li>
-            <strong>Place video files in input directory:</strong>
-            <pre>cp ~/your_video.mp4 ./input_directory/</pre>
-        </li>
-        <li>
-            <strong>Start the service:</strong>
-            <pre># CPU mode (default)
-docker-compose up --build
-
-# GPU mode (requires NVIDIA Docker)
-docker-compose --profile gpu up --build</pre>
-        </li>
-        <li>
-            <strong>Call the extractor (in a new terminal):</strong>
-            <pre># Best Frames Extraction
-curl -X POST http://localhost:8100/v2/extractors/best_frames_extractor
-
-# Top Images Extraction
-curl -X POST http://localhost:8100/v2/extractors/top_images_extractor
-
-# Check health
-curl http://localhost:8100/health
-
-# Check current status
-curl http://localhost:8100/v2/status</pre>
-        </li>
-        <li>
-            <strong>Find results:</strong>
-            <pre>ls ./output_directory/</pre>
-        </li>
-        <li>
-            <strong>Stop the service:</strong>
-            <pre>docker-compose down</pre>
-        </li>
-    </ol>
-    <h3>CPU Mode</h3>
-    <p>Default mode - works on any system with Docker.</p>
-    <pre># Start the service
-docker-compose up --build
-
-# Stop the service
-docker-compose down</pre>
-    <h3>GPU Mode</h3>
-    <p>NVIDIA GPU acceleration for faster image evaluation.</p>
-    <h4>Requirements:</h4>
-    <ul>
-        <li>NVIDIA GPU with CUDA support</li>
-        <li>NVIDIA drivers installed on host</li>
-        <li><a href="https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/install-guide.html">NVIDIA Container Toolkit</a></li>
-    </ul>
-    <h4>Running:</h4>
-    <pre># Start with GPU support
-docker-compose --profile gpu up --build
-
-# Verify GPU is being used (check logs for CUDA provider)
-docker-compose --profile gpu logs
-
-# Stop the service
-docker-compose --profile gpu down</pre>
-    <p>If CUDA is not available, the application will automatically fall back to CPU.</p>
-    <h3>Custom Directories</h3>
-    <p>You can specify custom input/output directories using environment variables:</p>
-    <pre>INPUT_DIR=/path/to/input OUTPUT_DIR=/path/to/output docker-compose up --build</pre>
-    <h3>API Endpoints</h3>
-    <table>
-        <thead>
-            <tr>
-                <th>Endpoint</th>
-                <th>Method</th>
-                <th>Description</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr>
-                <td><code>/health</code></td>
-                <td>GET</td>
-                <td>Health check endpoint</td>
-            </tr>
-            <tr>
-                <td><code>/v2/status</code></td>
-                <td>GET</td>
-                <td>Check current extractor status</td>
-            </tr>
-            <tr>
-                <td><code>/v2/extractors/best_frames_extractor</code></td>
-                <td>POST</td>
-                <td>Extract best frames from videos</td>
-            </tr>
-            <tr>
-                <td><code>/v2/extractors/top_images_extractor</code></td>
-                <td>POST</td>
-                <td>Select top images from a folder</td>
-            </tr>
-        </tbody>
-    </table>
-    <h3>Request Body Options</h3>
-    <p>For <code>best_frames_extractor</code>:</p>
-    <pre>curl -X POST http://localhost:8100/v2/extractors/best_frames_extractor \
-  -H "Content-Type: application/json" \
-  -d '{"all_frames": true}'  # Set to true to skip AI evaluation</pre>
+    <details>
+        <summary>
+            <strong>🚀 Quick Start</strong>
+            <blockquote>Get started in 4 steps.</blockquote>
+        </summary>
+        <ol>
+            <li>
+                <strong>Place video files in input directory:</strong><br>
+                <code>cp ~/your_video.mp4 ./input_directory/</code>
+            </li>
+            <li>
+                <strong>Start the service:</strong><br>
+                <code>docker-compose up --build</code>
+            </li>
+            <li>
+                <strong>Call the extractor (in a new terminal):</strong><br>
+                <code>curl -X POST http://localhost:8100/v2/extractors/best_frames_extractor</code>
+            </li>
+            <li>
+                <strong>Find results in:</strong><br>
+                <code>./output_directory/</code>
+            </li>
+        </ol>
+    </details>
+    <br>
+    <details>
+        <summary>
+            <strong>💻 CPU Mode</strong>
+            <blockquote>Default mode - works on any system with Docker.</blockquote>
+        </summary>
+        <p>Start the service:</p>
+        <code>docker-compose up --build</code>
+        <p>Stop the service:</p>
+        <code>docker-compose down</code>
+    </details>
+    <br>
+    <details>
+        <summary>
+            <strong>🎮 GPU Mode</strong>
+            <blockquote>NVIDIA GPU acceleration for faster processing.</blockquote>
+        </summary>
+        <p><strong>Requirements:</strong></p>
+        <ul>
+            <li>NVIDIA GPU with CUDA support</li>
+            <li>NVIDIA drivers installed on host</li>
+            <li><a href="https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/install-guide.html">NVIDIA Container Toolkit</a></li>
+        </ul>
+        <p><strong>Running:</strong></p>
+        <p>Start with GPU support:</p>
+        <code>docker-compose --profile gpu up --build</code>
+        <p>Verify GPU is being used (check logs for CUDA provider):</p>
+        <code>docker-compose --profile gpu logs</code>
+        <p>Stop the service:</p>
+        <code>docker-compose --profile gpu down</code>
+        <p><i>If CUDA is not available, the application will automatically fall back to CPU.</i></p>
+    </details>
+    <br>
+    <details>
+        <summary>
+            <strong>📁 Custom Directories</strong>
+            <blockquote>Specify custom input/output paths.</blockquote>
+        </summary>
+        <p>Use environment variables:</p>
+        <code>INPUT_DIR=/path/to/input OUTPUT_DIR=/path/to/output docker-compose up --build</code>
+    </details>
+    <br>
+    <details>
+        <summary>
+            <strong>🔌 API Endpoints</strong>
+            <blockquote>Available HTTP endpoints.</blockquote>
+        </summary>
+        <table>
+            <thead>
+                <tr>
+                    <th>Endpoint</th>
+                    <th>Method</th>
+                    <th>Description</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><code>/health</code></td>
+                    <td>GET</td>
+                    <td>Health check endpoint</td>
+                </tr>
+                <tr>
+                    <td><code>/v2/status</code></td>
+                    <td>GET</td>
+                    <td>Check current extractor status</td>
+                </tr>
+                <tr>
+                    <td><code>/v2/extractors/best_frames_extractor</code></td>
+                    <td>POST</td>
+                    <td>Extract best frames from videos</td>
+                </tr>
+                <tr>
+                    <td><code>/v2/extractors/top_images_extractor</code></td>
+                    <td>POST</td>
+                    <td>Select top images from a folder</td>
+                </tr>
+            </tbody>
+        </table>
+        <p><strong>Example requests:</strong></p>
+        <ul>
+            <li>Best Frames Extraction:<br><code>curl -X POST http://localhost:8100/v2/extractors/best_frames_extractor</code></li>
+            <li>Top Images Extraction:<br><code>curl -X POST http://localhost:8100/v2/extractors/top_images_extractor</code></li>
+            <li>Skip AI evaluation (extract all frames):<br><code>curl -X POST http://localhost:8100/v2/extractors/best_frames_extractor -H "Content-Type: application/json" -d '{"all_frames": true}'</code></li>
+        </ul>
+    </details>
 </div>
 <div id="about">
     <h2>💡 About:</h2>
@@ -410,69 +411,6 @@ docker-compose --profile gpu down</pre>
         <h2>Architecture</h2>
         <img src="static/architecture.jpg" width="1000" style="border-radius: 10px;">
     </div>
-    <div id="tests">
-        <h2>🧪 Tests</h2>
-        <img src="static/tests.png" width="1000" style="border-radius: 10px;">
-        <p>
-            You can run the tests by installing the dependencies from <code>pyproject.toml</code>
-            and typing in the terminal in the project location - <code>pytest</code>.
-        </p>
-        <pre># Install dependencies
-uv sync --all-extras
-
-# Run extractor_service tests (unit + integration)
-pytest tests/extractor_service -v
-
-# Run E2E tests (requires Docker)
-pytest tests/service_manager/e2e -v</pre>
-        <details id="unit">
-            <summary>unit</summary>
-            <p>
-            Each module has its own unit tests.
-            They test each of the methods and functions available in the modules.
-            Test coverage is 100% (the tests fully cover the business logic).
-            </p>
-        </details>
-        <details id="integration">
-            <summary>integration</summary>
-            <ul>
-                <li>Testing integration of business logic with the NIMA model.</li>
-                <li>Testing integration with FastAPI.</li>
-                <li>Testing integration with OpenCV.</li>
-                <li>Testing integration with FFMPEG.</li>
-                <li>Testing various module integrations...</li>
-            </ul>
-        </details>
-        <details id="e2e">
-            <summary>e2e</summary>
-            <ul>
-                <li>Testing extractor_service as a whole using FastAPI TestClient.</li>
-                <li>Testing full Docker-based service using testcontainers.</li>
-            </ul>
-        </details>
-    </div>
-</div>
-<div id="roadmap">
-    <h2>🎯 Roadmap</h2>
-        <p>
-            Below is a list of features that we are planning to implement in the upcoming releases.
-            We welcome contributions and suggestions from the community.
-        </p>
-        <ul>
-            <li>
-                Implementation of Nvidia DALI.
-                <ul>
-                    <li>It will enable moving frame decoding (currently the longest part) to the GPU.</li>
-                    <li>Additionally, it will allow operating directly on Tensor objects without additional conversions.</li>
-                </ul>
-                In summary, adding DALI should be another significant step forward
-                in terms of performance improvement.
-            </li>
-            <li>
-                Fixing data spilling during frame evaluation.
-                Currently, evaluation has a slight slowdown in the form of a spilling issue.
-            </li>
-        </ul>
 </div>
 <div id="contribute">
     <h2>👋 How to Contribute</h2>
