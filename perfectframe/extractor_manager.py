@@ -52,7 +52,7 @@ class ExtractorManager:
         cls._active_extractor = extractor_name
         extractor = ExtractorFactory.create_extractor(extractor_name, config, dependencies)
         background_tasks.add_task(cls.__run_extractor, extractor)
-        return Message(message=f"'{extractor_name}' started.")
+        return Message(message=f"'{extractor_name.value}' started.")
 
     @classmethod
     def __run_extractor(cls, extractor: Extractor) -> None:
@@ -67,7 +67,7 @@ class ExtractorManager:
         """Check if some extractor is already active and raise an HTTPException if so."""
         if cls._active_extractor:
             error_message = (
-                f"Extractor '{cls._active_extractor}' is already running. "
+                f"Extractor '{cls._active_extractor.value}' is already running. "
                 f"You can run only one extractor at the same time. "
                 f"Wait until the extractor is done before run next process."
             )

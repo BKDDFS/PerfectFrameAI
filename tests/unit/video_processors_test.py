@@ -6,7 +6,7 @@ import pytest
 
 from perfectframe.video_processors import OpenCVVideo
 
-TOTAL_FRAMES_ATTR = "total frames"
+TOTAL_FRAMES_PROP = "total frames"
 
 
 def test_get_video_capture_success(mocker):
@@ -67,17 +67,17 @@ def test_get_next_video_frames(
     caplog,
 ):
     mock_read = mocker.patch.object(OpenCVVideo, "_read_next_frame")
-    mock_get_attribute = mocker.patch.object(OpenCVVideo, "_get_video_attribute")
+    mock_get_property = mocker.patch.object(OpenCVVideo, "_get_video_property")
     mock_video_cap = mocker.patch.object(OpenCVVideo, "_video_capture")
     frame_rate_attr = "frame rate"
     video_path = mocker.MagicMock()
     mock_video = mocker.MagicMock()
     frames_number = 3
 
-    def get_attribute_side_effect(_video, _attribute_id, value_name):
-        return frames_number if TOTAL_FRAMES_ATTR in value_name else 1
+    def get_property_side_effect(_video, _property_id, value_name):
+        return frames_number if TOTAL_FRAMES_PROP in value_name else 1
 
-    mock_get_attribute.side_effect = get_attribute_side_effect
+    mock_get_property.side_effect = get_property_side_effect
     mock_video_cap.return_value.__enter__.return_value = mock_video
 
     def read_side_effect(_video, idx):
@@ -89,14 +89,14 @@ def test_get_next_video_frames(
         frames_generator = OpenCVVideo.get_next_frames(video_path, frames_batch_size)
         batches = list(frames_generator)
 
-    expected_attribute_calls = 2
+    expected_property_calls = 2
     assert len(batches) == expected_num_batches, "Number of batches does not match expected"
     for batch in batches:
         assert len(batch) <= frames_batch_size, "Batch size is larger than expected"
     assert mock_video_cap.called
-    assert mock_get_attribute.call_count == expected_attribute_calls
-    mock_get_attribute.assert_any_call(mock_video, cv2.CAP_PROP_FPS, frame_rate_attr)
-    mock_get_attribute.assert_any_call(mock_video, cv2.CAP_PROP_FRAME_COUNT, TOTAL_FRAMES_ATTR)
+    assert mock_get_property.call_count == expected_property_calls
+    mock_get_property.assert_any_call(mock_video, cv2.CAP_PROP_FPS, frame_rate_attr)
+    mock_get_property.assert_any_call(mock_video, cv2.CAP_PROP_FRAME_COUNT, TOTAL_FRAMES_PROP)
     assert mock_read.call_count == frames_number
 
     assert "Frame appended to frames batch." in caplog.text
@@ -110,12 +110,12 @@ def test_get_next_video_frames(
 
 def test_get_next_video_frames_skips_none_frames(mocker):
     mock_read = mocker.patch.object(OpenCVVideo, "_read_next_frame")
-    mock_get_attribute = mocker.patch.object(OpenCVVideo, "_get_video_attribute")
+    mock_get_property = mocker.patch.object(OpenCVVideo, "_get_video_property")
     mock_video_cap = mocker.patch.object(OpenCVVideo, "_video_capture")
     video_path = mocker.MagicMock()
     mock_video = mocker.MagicMock()
 
-    mock_get_attribute.side_effect = lambda _v, _a, name: 2 if "total" in name else 1
+    mock_get_property.side_effect = lambda _v, _a, name: 2 if "total" in name else 1
     mock_video_cap.return_value.__enter__.return_value = mock_video
     mock_read.side_effect = ["frame0", None]
 
@@ -144,16 +144,16 @@ def test_read_next_frame(mocker, read_return, caplog):
         assert f"Couldn't read frame with index: {test_frame_index}" in caplog.text
 
 
-def test_get_video_attribute(mocker, caplog):
+def test_get_video_property(mocker, caplog):
     mock_check_cap = mocker.patch.object(OpenCVVideo, "_check_video_capture")
     mock_cap = mocker.MagicMock(spec=cv2.VideoCapture)
-    attribute_id = cv2.CAP_PROP_FRAME_COUNT
-    value_name = TOTAL_FRAMES_ATTR
+    property_id = cv2.CAP_PROP_FRAME_COUNT
+    value_name = TOTAL_FRAMES_PROP
     total_frames = 24.6
     mock_cap.get.return_value = total_frames
 
     with caplog.at_level(logging.DEBUG):
-        result = OpenCVVideo._get_video_attribute(mock_cap, attribute_id, value_name)
+        result = OpenCVVideo._get_video_property(mock_cap, property_id, value_name)
 
     expected_rounded = 25
     mock_check_cap.assert_called_once_with(mock_cap)
@@ -161,11 +161,11 @@ def test_get_video_attribute(mocker, caplog):
     assert result == expected_rounded
 
 
-def test_get_video_attribute_invalid(mocker, caplog):
+def test_get_video_property_invalid(mocker, caplog):
     mock_check_cap = mocker.patch.object(OpenCVVideo, "_check_video_capture")
     mock_cap = mocker.MagicMock(spec=cv2.VideoCapture)
-    attribute_id = cv2.CAP_PROP_FRAME_COUNT
-    value_name = TOTAL_FRAMES_ATTR
+    property_id = cv2.CAP_PROP_FRAME_COUNT
+    value_name = TOTAL_FRAMES_PROP
     total_frames = -24.6
     mock_cap.get.return_value = total_frames
     expected_message = f"Invalid {value_name} retrieved: {total_frames}."
@@ -174,7 +174,7 @@ def test_get_video_attribute_invalid(mocker, caplog):
         caplog.at_level(logging.ERROR),
         pytest.raises(ValueError, match=expected_message),
     ):
-        OpenCVVideo._get_video_attribute(mock_cap, attribute_id, value_name)
+        OpenCVVideo._get_video_property(mock_cap, property_id, value_name)
 
     mock_check_cap.assert_called_once_with(mock_cap)
     assert expected_message in caplog.text

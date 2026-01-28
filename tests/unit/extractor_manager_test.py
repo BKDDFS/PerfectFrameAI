@@ -31,7 +31,7 @@ def test_start_extractor(mocker, config, dependencies):
         ExtractorManager._ExtractorManager__run_extractor,
         mock_extractor,
     )
-    expected_message = Message(message=f"'{extractor_name}' started.")
+    expected_message = Message(message=f"'{extractor_name.value}' started.")
     assert message == expected_message, "The return message does not match expected."
     ExtractorManager._active_extractor = None
 
@@ -48,7 +48,7 @@ def test_check_is_already_evaluating_true():
     test_extractor = ExtractorName.BEST_FRAMES
     ExtractorManager._active_extractor = test_extractor
     expected_error_massage = (
-        f"Extractor '{test_extractor}' is already running. "
+        f"Extractor '{test_extractor.value}' is already running. "
         f"You can run only one extractor at the same time. "
         f"Wait until the extractor is done before run next process."
     )

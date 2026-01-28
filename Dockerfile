@@ -20,8 +20,7 @@ RUN apt-get update && apt-get install -y \
     libavfilter-dev \
     pkg-config \
     libgl1 \
-    libglib2.0-0 \
-    curl && \
+    libglib2.0-0 && \
     rm -rf /var/lib/apt/lists/*
 
 # Set cache for ai model
