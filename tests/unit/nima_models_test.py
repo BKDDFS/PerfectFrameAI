@@ -5,29 +5,22 @@ from pathlib import Path
 import numpy as np
 import pytest
 
-from perfectframe.image_evaluators import _ONNXModel
+from perfectframe.image_evaluators import NIMAEvaluator
 
 
-def test_get_prediction_weights():
-    result = _ONNXModel.get_prediction_weights()
-
-    assert list(result) == list(np.arange(1, 11))
-
-
-def test_class_arguments():
-    model = _ONNXModel
-    assert list(model._prediction_weights) == list(np.arange(1, 11))
+def test_prediction_weights():
+    assert list(NIMAEvaluator._prediction_weights) == list(np.arange(1, 11))
 
 
 @pytest.mark.parametrize("file_exists", [True, False])
 def test_get_model_path(mocker, file_exists, config, caplog):
     mock_is_file = mocker.patch.object(Path, "is_file")
-    mock_download = mocker.patch.object(_ONNXModel, "_download_model_weights")
+    mock_download = mocker.patch.object(NIMAEvaluator, "_download_model_weights")
     mock_is_file.return_value = file_exists
     expected_path = Path(config.weights_directory) / config.weights_filename
 
     with caplog.at_level(logging.DEBUG):
-        result = _ONNXModel.get_model_path(config)
+        result = NIMAEvaluator._get_model_path(config)
 
     assert (
         f"Searching for model weights in weights directory: {config.weights_directory}"
@@ -63,7 +56,7 @@ def test_download_model_weights(mocker, status_code, config, caplog):
 
     if status_code == HTTPStatus.OK:
         with caplog.at_level(logging.DEBUG):
-            _ONNXModel._download_model_weights(test_path, config, timeout)
+            NIMAEvaluator._download_model_weights(test_path, config, timeout)
         mock_mkdir.assert_called_once_with(parents=True, exist_ok=True)
         mock_write_bytes.assert_called_once_with(weights_data)
         assert f"Model weights downloaded and saved to {test_path}" in caplog.text
@@ -71,9 +64,9 @@ def test_download_model_weights(mocker, status_code, config, caplog):
         error_message = f"Failed to download the weights: HTTP status code {status_code}"
         with (
             caplog.at_level(logging.DEBUG),
-            pytest.raises(_ONNXModel.ModelWeightsDownloadError, match=error_message),
+            pytest.raises(NIMAEvaluator.ModelWeightsDownloadError, match=error_message),
         ):
-            _ONNXModel._download_model_weights(test_path, config, timeout)
+            NIMAEvaluator._download_model_weights(test_path, config, timeout)
         assert f"Failed to download the weights: HTTP status code {status_code}" in caplog.text
     assert f"Downloading model weights from ulr: {test_url}" in caplog.text
     mock_get.assert_called_once_with(test_url, allow_redirects=True, timeout=timeout)

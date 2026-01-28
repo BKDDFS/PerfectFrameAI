@@ -5,7 +5,7 @@ from perfectframe.dependencies import (
     get_image_processor,
     get_video_processor,
 )
-from perfectframe.image_evaluators import InceptionResNetNIMA
+from perfectframe.image_evaluators import NIMAEvaluator
 from perfectframe.image_processors import OpenCVImage
 from perfectframe.video_processors import OpenCVVideo
 
@@ -19,7 +19,7 @@ def test_get_video_processor():
 
 
 def test_get_evaluator():
-    assert get_evaluator() == InceptionResNetNIMA
+    assert get_evaluator() == NIMAEvaluator
 
 
 def test_get_extractor_dependencies():
@@ -32,4 +32,4 @@ def test_get_extractor_dependencies():
     assert isinstance(dependencies, ExtractorDependencies)
     assert dependencies.image_processor == OpenCVImage
     assert dependencies.video_processor == OpenCVVideo
-    assert dependencies.evaluator == InceptionResNetNIMA
+    assert dependencies.evaluator == NIMAEvaluator

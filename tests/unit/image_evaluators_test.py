@@ -3,21 +3,21 @@ import logging
 import numpy as np
 import pytest
 
-from perfectframe.image_evaluators import InceptionResNetNIMA, _ONNXModel
+from perfectframe.image_evaluators import NIMAEvaluator
 
 
 @pytest.fixture
 def evaluator(mocker):
-    mocker.patch.object(_ONNXModel, "get_model_path", return_value="/fake/path/model.onnx")
+    mocker.patch.object(NIMAEvaluator, "_get_model_path", return_value="/fake/path/model.onnx")
     mock_session = mocker.patch("perfectframe.image_evaluators.ort.InferenceSession")
     mock_session_instance = mocker.MagicMock()
     mock_session_instance.get_inputs.return_value = [mocker.MagicMock(name="input")]
     mock_session.return_value = mock_session_instance
-    return InceptionResNetNIMA(mocker.MagicMock())
+    return NIMAEvaluator(mocker.MagicMock())
 
 
 def test_evaluator_initialization(mocker, config):
-    mock_get_path = mocker.patch.object(_ONNXModel, "get_model_path")
+    mock_get_path = mocker.patch.object(NIMAEvaluator, "_get_model_path")
     mock_session = mocker.patch("perfectframe.image_evaluators.ort.InferenceSession")
     test_path = "/some/path/model.onnx"
     mock_get_path.return_value = test_path
@@ -27,7 +27,7 @@ def test_evaluator_initialization(mocker, config):
     mock_session_instance.get_inputs.return_value = [mock_input]
     mock_session.return_value = mock_session_instance
 
-    instance = InceptionResNetNIMA(config)
+    instance = NIMAEvaluator(config)
 
     mock_get_path.assert_called_once_with(config)
     mock_session.assert_called_once_with(test_path)
@@ -36,8 +36,8 @@ def test_evaluator_initialization(mocker, config):
 
 
 def test_evaluate_images(mocker, evaluator, caplog):
-    mock_calculate = mocker.patch.object(InceptionResNetNIMA, "_calculate_weighted_mean")
-    mock_check = mocker.patch.object(InceptionResNetNIMA, "_check_scores")
+    mock_calculate = mocker.patch.object(NIMAEvaluator, "_calculate_weighted_mean")
+    mock_check = mocker.patch.object(NIMAEvaluator, "_check_scores")
     fake_images = mocker.MagicMock(spec=np.ndarray)
     fake_images.shape = (3, 2, 2)
     fake_images.astype.return_value = fake_images
@@ -55,7 +55,6 @@ def test_evaluate_images(mocker, evaluator, caplog):
     assert mock_calculate.call_count == predictions_count
     for i, call_args in enumerate(mock_calculate.call_args_list):
         np.testing.assert_array_equal(call_args[0][0], predictions[i])
-        np.testing.assert_array_equal(call_args[0][1], _ONNXModel._prediction_weights)
     mock_check.assert_called_once()
     assert "Evaluating images..." in caplog.text
     assert "Images batch evaluated." in caplog.text
@@ -72,21 +71,12 @@ def test_evaluate_images_returns_empty_list_when_predictions_not_ndarray(mocker,
     assert result == []
 
 
-def test_calculate_weighted_mean_with_default_weights(evaluator):
-    prediction = np.array([10, 20, 30])
-    expected_weighted_mean = np.mean(prediction)  # Since default weights are equal
-
-    calculated_mean = evaluator._calculate_weighted_mean(prediction)
-
-    assert np.isclose(calculated_mean, expected_weighted_mean)
-
-
-def test_calculate_weighted_mean_with_custom_weights(evaluator):
-    prediction = np.array([10, 20, 30])
-    weights = np.array([1, 2, 3])
+def test_calculate_weighted_mean(evaluator):
+    prediction = np.array([0.1] * 10)  # 10 values to match _prediction_weights
+    weights = NIMAEvaluator._prediction_weights
     expected_weighted_mean = np.sum(prediction * weights) / np.sum(weights)
 
-    calculated_mean = evaluator._calculate_weighted_mean(prediction, weights)
+    calculated_mean = evaluator._calculate_weighted_mean(prediction)
 
     assert np.isclose(calculated_mean, expected_weighted_mean)
 

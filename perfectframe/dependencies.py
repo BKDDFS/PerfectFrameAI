@@ -22,7 +22,7 @@ from dataclasses import dataclass
 
 from fastapi import Depends
 
-from perfectframe.image_evaluators import InceptionResNetNIMA
+from perfectframe.image_evaluators import NIMAEvaluator
 from perfectframe.image_processors import OpenCVImage
 from perfectframe.video_processors import OpenCVVideo
 
@@ -33,7 +33,7 @@ class ExtractorDependencies:
 
     image_processor: type[OpenCVImage]
     video_processor: type[OpenCVVideo]
-    evaluator: type[InceptionResNetNIMA]
+    evaluator: type[NIMAEvaluator]
 
 
 def get_image_processor() -> type[OpenCVImage]:
@@ -46,15 +46,15 @@ def get_video_processor() -> type[OpenCVVideo]:
     return OpenCVVideo
 
 
-def get_evaluator() -> type[InceptionResNetNIMA]:
+def get_evaluator() -> type[NIMAEvaluator]:
     """Return the image evaluator dependency."""
-    return InceptionResNetNIMA
+    return NIMAEvaluator
 
 
 def get_extractor_dependencies(
     image_processor: type[OpenCVImage] = Depends(get_image_processor),
     video_processor: type[OpenCVVideo] = Depends(get_video_processor),
-    evaluator: type[InceptionResNetNIMA] = Depends(get_evaluator),
+    evaluator: type[NIMAEvaluator] = Depends(get_evaluator),
 ) -> ExtractorDependencies:
     """Return the dependencies required for the extractor."""
     return ExtractorDependencies(

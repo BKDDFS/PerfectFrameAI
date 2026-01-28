@@ -2,7 +2,7 @@ import numpy as np
 import onnxruntime as ort
 import pytest
 
-from perfectframe.image_evaluators import InceptionResNetNIMA
+from perfectframe.image_evaluators import NIMAEvaluator
 from perfectframe.schemas import ImageExtension
 
 
@@ -15,7 +15,7 @@ def test_get_image_evaluator_download_weights_and_create_model(extractor, config
 
     evaluator = extractor._get_image_evaluator()
 
-    assert isinstance(evaluator, InceptionResNetNIMA)
+    assert isinstance(evaluator, NIMAEvaluator)
     assert isinstance(evaluator._session, ort.InferenceSession)
     assert weights_path.exists()
 
