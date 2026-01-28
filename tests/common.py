@@ -12,7 +12,7 @@ from perfectframe.dependencies import (
     get_video_processor,
 )
 from perfectframe.extractors import BestFramesExtractor
-from perfectframe.schemas import ExtractorConfig
+from perfectframe.schemas import ExtractorConfig, ImageExtension
 
 
 @pytest.fixture(scope="session")
@@ -92,7 +92,6 @@ def config(files_dir, best_frames_dir) -> ExtractorConfig:
     return ExtractorConfig(
         input_directory=files_dir,
         output_directory=best_frames_dir,
-        images_output_format=".jpg",
-        video_extensions=(".mp4",),
+        images_output_format=ImageExtension.JPG,
         processed_video_prefix="done_",
     )

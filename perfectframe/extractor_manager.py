@@ -24,7 +24,7 @@ from fastapi import BackgroundTasks, HTTPException
 
 from perfectframe.dependencies import ExtractorDependencies
 from perfectframe.extractors import Extractor, ExtractorFactory
-from perfectframe.schemas import ExtractorConfig, ExtractorName
+from perfectframe.schemas import ExtractorConfig, ExtractorName, Message
 
 logger = logging.getLogger(__name__)
 
@@ -46,13 +46,13 @@ class ExtractorManager:
         background_tasks: BackgroundTasks,
         config: ExtractorConfig,
         dependencies: ExtractorDependencies,
-    ) -> str:
+    ) -> Message:
         """Initialize the extractor class and run the extraction process in the background."""
         cls._check_is_already_extracting()
         cls._active_extractor = extractor_name
         extractor = ExtractorFactory.create_extractor(extractor_name, config, dependencies)
         background_tasks.add_task(cls.__run_extractor, extractor)
-        return f"'{extractor_name}' started."
+        return Message(message=f"'{extractor_name}' started.")
 
     @classmethod
     def __run_extractor(cls, extractor: Extractor) -> None:

@@ -7,6 +7,7 @@ import cv2
 import numpy as np
 
 from perfectframe.image_processors import OpenCVImage
+from perfectframe.schemas import ImageExtension, ImageResolution
 
 
 def test_read_image(mocker, caplog):
@@ -45,7 +46,7 @@ def test_save_image(mocker, caplog):
     mock_uuid.return_value = file_name
     fake_image = mocker.MagicMock(spec=np.ndarray)
     output_directory = Path("/fake/directory")
-    output_format = ".jpg"
+    output_format = ImageExtension.JPG
     expected_path = output_directory / f"image_{file_name}{output_format}"
 
     with caplog.at_level(logging.DEBUG):
@@ -61,7 +62,7 @@ def test_normalize_images(mocker):
     mock_cvt = mocker.patch.object(cv2, "cvtColor")
     mock_array = mocker.patch.object(np, "array")
     images_num = 3
-    target_size = (112, 112)
+    target_size = ImageResolution(112, 112)
     batch_images = [mocker.MagicMock(spec=np.ndarray) for _ in range(images_num)]
     resized_images = [mocker.MagicMock(spec=np.ndarray) for _ in range(images_num)]
     expected_images = [mocker.MagicMock(spec=np.ndarray) for _ in range(images_num)]

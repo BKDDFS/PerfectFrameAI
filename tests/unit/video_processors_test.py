@@ -30,7 +30,7 @@ def test_get_video_capture_failure(mocker):
     mock_cap.return_value = mock_video
 
     with (
-        pytest.raises(OpenCVVideo.CantOpenVideoCaptureError),
+        pytest.raises(OpenCVVideo._Error),
         OpenCVVideo._video_capture(test_path),
     ):
         # No additional operations are needed here, we are just testing the exception

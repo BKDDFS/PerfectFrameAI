@@ -2,7 +2,7 @@ from fastapi import BackgroundTasks
 
 from perfectframe.app import get_extractors_status, health_check, run_extractor
 from perfectframe.extractor_manager import ExtractorManager
-from perfectframe.schemas import ExtractorName
+from perfectframe.schemas import ExtractorName, Message
 
 
 def test_health_check():
@@ -22,8 +22,9 @@ def test_get_extractors_status(mocker):
 
 
 def test_run_extractor(mocker, config, dependencies):
+    expected_message = Message(message="'best_frames_extractor' started.")
     mock_start = mocker.patch.object(
-        ExtractorManager, "start_extractor", return_value="'best_frames_extractor' started."
+        ExtractorManager, "start_extractor", return_value=expected_message
     )
     mock_background_tasks = mocker.MagicMock(spec=BackgroundTasks)
 
@@ -37,4 +38,4 @@ def test_run_extractor(mocker, config, dependencies):
     mock_start.assert_called_once_with(
         ExtractorName.BEST_FRAMES, mock_background_tasks, config, dependencies
     )
-    assert result.message == "'best_frames_extractor' started."
+    assert result == expected_message

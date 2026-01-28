@@ -5,7 +5,7 @@ from fastapi import BackgroundTasks, HTTPException
 
 from perfectframe.extractor_manager import ExtractorManager
 from perfectframe.extractors import ExtractorFactory
-from perfectframe.schemas import ExtractorName
+from perfectframe.schemas import ExtractorName, Message
 
 
 def test_get_active_extractor():
@@ -31,7 +31,7 @@ def test_start_extractor(mocker, config, dependencies):
         ExtractorManager._ExtractorManager__run_extractor,
         mock_extractor,
     )
-    expected_message = f"'{extractor_name}' started."
+    expected_message = Message(message=f"'{extractor_name}' started.")
     assert message == expected_message, "The return message does not match expected."
     ExtractorManager._active_extractor = None
 

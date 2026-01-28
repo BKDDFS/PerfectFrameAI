@@ -7,6 +7,7 @@ import pytest
 from perfectframe.extractors import TopImagesExtractor
 from perfectframe.image_evaluators import InceptionResNetNIMA
 from perfectframe.image_processors import OpenCVImage
+from perfectframe.schemas import ImageExtension
 from perfectframe.video_processors import OpenCVVideo
 
 
@@ -40,12 +41,10 @@ def test_process_with_images(mocker, extractor, caplog, config):
         extractor.process()
 
     # Check that the internal methods were called as expected
-    extractor._list_input_directory_files.assert_called_once_with(
-        extractor._config.images_extensions
-    )
+    extractor._list_input_directory_files.assert_called_once_with(ImageExtension)
     mock_read_image.assert_has_calls([call(path) for path in test_images], any_order=True)
     mock_normalize.assert_called_once_with(
-        [mock_read_image.return_value] * 3, extractor._config.target_image_size
+        [mock_read_image.return_value] * 3, extractor._config.input_size
     )
     extractor._evaluate_images.assert_called_once_with(mock_normalize.return_value)
     extractor._get_top_percent_images.assert_called_once_with(

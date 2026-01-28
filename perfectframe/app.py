@@ -59,7 +59,4 @@ def run_extractor(
     config: ExtractorConfig = ExtractorConfig(),
 ) -> Message:
     """Run the provided extractor."""
-    message = ExtractorManager.start_extractor(
-        extractor_name, background_tasks, config, dependencies
-    )
-    return Message(message=message)
+    return ExtractorManager.start_extractor(extractor_name, background_tasks, config, dependencies)

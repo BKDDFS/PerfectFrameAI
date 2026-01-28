@@ -10,7 +10,7 @@ from perfectframe.extractors import (
     TopImagesExtractor,
 )
 from perfectframe.image_processors import OpenCVImage
-from perfectframe.schemas import ExtractorName
+from perfectframe.schemas import ExtractorName, VideoExtension
 
 
 def test_extractor_initialization(config, dependencies):
@@ -109,46 +109,39 @@ def test_normalize_images(mocker, extractor, config):
     mock_normalize = mocker.patch.object(OpenCVImage, "normalize_images")
     images = [mocker.MagicMock() for _ in range(3)]
 
-    extractor._normalize_images(images, config.target_image_size)
+    extractor._normalize_images(images, config.input_size)
 
-    mock_normalize.assert_called_once_with(images, config.target_image_size)
+    mock_normalize.assert_called_once_with(images, config.input_size)
 
 
 def test_list_input_directory_files(mocker, extractor, caplog, config):
     mock_iterdir = mocker.patch.object(Path, "iterdir")
     mock_is_file = mocker.patch.object(Path, "is_file")
-    mock_files = [Path("/fake/directory/file1.txt"), Path("/fake/directory/file2.log")]
-    mock_extensions = (".txt", ".log")
+    mock_files = [Path("/fake/directory/file1.mp4"), Path("/fake/directory/file2.mov")]
     mock_iterdir.return_value = mock_files
     mock_is_file.return_value = True
 
     with caplog.at_level(logging.DEBUG):
-        result = extractor._list_input_directory_files(mock_extensions, None)
+        result = extractor._list_input_directory_files(VideoExtension, None)
 
     assert result == mock_files
     assert f"Directory '{config.input_directory}' files listed." in caplog.text
     assert f"Listed file paths: {mock_files}" in caplog.text
 
 
-def test_list_input_directory_files_no_files_found(mocker, extractor, caplog, config):
+def test_list_input_directory_files_no_files_found(mocker, extractor, caplog):
     mock_iterdir = mocker.patch.object(Path, "iterdir")
     mock_files = []
-    mock_extensions = (".txt", ".log")
     mock_iterdir.return_value = mock_files
-    error_massage = (
-        f"Files with extensions '{mock_extensions}' and "
-        f"without prefix 'Prefix not provided' not found in folder: {config.input_directory}."
-        f"\n-->HINT: You probably don't have input or you haven't changed prefixes. "
-        f"\nCheck input directory."
-    )
 
     with (
         pytest.raises(BestFramesExtractor.EmptyInputDirectoryError),
         caplog.at_level(logging.ERROR),
     ):
-        extractor._list_input_directory_files(mock_extensions)
+        extractor._list_input_directory_files(VideoExtension)
 
-    assert error_massage in caplog.text
+    assert "not found in folder" in caplog.text
+    assert "without prefix 'Prefix not provided'" in caplog.text
 
 
 def test_add_prefix(mocker, extractor, caplog):
