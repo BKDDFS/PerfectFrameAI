@@ -47,7 +47,7 @@ def test_save_image(mocker, caplog):
     fake_image = mocker.MagicMock(spec=np.ndarray)
     output_directory = Path("/fake/directory")
     output_format = ImageExtension.JPG
-    expected_path = output_directory / f"image_{file_name}{output_format}"
+    expected_path = output_directory / f"image_{file_name}{output_format.value}"
 
     with caplog.at_level(logging.DEBUG):
         image_path = OpenCVImage.save_image(fake_image, output_directory, output_format)

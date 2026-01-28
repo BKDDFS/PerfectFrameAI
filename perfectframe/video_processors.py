@@ -68,8 +68,8 @@ class OpenCVVideo(VideoProcessor):
     def get_next_frames(cls, video_path: Path, frames_batch_size: int) -> Generator[Images]:
         """Generate batches of frames from the specified video using OpenCV."""
         with cls._video_capture(video_path) as video:
-            frame_rate = cls._get_video_attribute(video, cv2.CAP_PROP_FPS, "frame rate")
-            total_frames = cls._get_video_attribute(video, cv2.CAP_PROP_FRAME_COUNT, "total frames")
+            frame_rate = cls._get_video_property(video, cv2.CAP_PROP_FPS, "frame rate")
+            total_frames = cls._get_video_property(video, cv2.CAP_PROP_FRAME_COUNT, "total frames")
             frames_batch: Images = []
             logger.info("Getting frames batch...")
             for frame_index in range(0, total_frames, frame_rate):
@@ -98,18 +98,18 @@ class OpenCVVideo(VideoProcessor):
         return frame
 
     @classmethod
-    def _get_video_attribute(
-        cls, video: cv2.VideoCapture, attribute_id: int, display_name: str
+    def _get_video_property(
+        cls, video: cv2.VideoCapture, property_id: int, property_name: str
     ) -> int:
-        """Retrieve a specified attribute value from the video capture object and validate it."""
+        """Retrieve a specified property value from the video capture object and validate it."""
         cls._check_video_capture(video)
-        attribute_value = video.get(attribute_id)
-        logger.debug("Got input video %s: %s", display_name, attribute_value)
-        if attribute_value <= 0:
-            error_message = f"Invalid {display_name} retrieved: {attribute_value}."
+        property_value = video.get(property_id)
+        logger.debug("Got input video %s: %s", property_name, property_value)
+        if property_value <= 0:
+            error_message = f"Invalid {property_name} retrieved: {property_value}."
             logger.error(error_message)
             raise ValueError(error_message)
-        return round(attribute_value)
+        return round(property_value)
 
     @staticmethod
     def _check_video_capture(video: cv2.VideoCapture) -> None:
