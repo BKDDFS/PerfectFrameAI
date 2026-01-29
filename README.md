@@ -11,6 +11,9 @@
         <img alt="GitHub License" src="https://img.shields.io/github/license/BKDDFS/PerfectFrameAI">
         <img alt="GitHub Tag" src="https://img.shields.io/github/v/tag/BKDDFS/PerfectFrameAI">
         <img alt="GitHub Repo stars" src="https://img.shields.io/github/stars/BKDDFS/PerfectFrameAI">
+        <a href="https://securityscorecards.dev/viewer/?uri=github.com/BKDDFS/PerfectFrameAI">
+        <img alt="OpenSSF Scorecard" src="https://api.securityscorecards.dev/projects/github.com/BKDDFS/PerfectFrameAI/badge"/>
+        </a>
     </p>
 </div>
 <div id="navigation">
