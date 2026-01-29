@@ -1,35 +1,24 @@
-from perfectframe.dependencies import (
-    ExtractorDependencies,
-    get_evaluator,
-    get_extractor_dependencies,
-    get_image_processor,
-    get_video_processor,
-)
+from perfectframe.dependencies import Dependencies, get_dependencies
 from perfectframe.image_evaluators import NIMAEvaluator
 from perfectframe.image_processors import OpenCVImage
+from perfectframe.schemas import ExtractorConfig
 from perfectframe.video_processors import OpenCVVideo
 
 
-def test_get_image_processor():
-    assert get_image_processor() == OpenCVImage
+def test_get_dependencies():
+    dependencies = get_dependencies()
 
-
-def test_get_video_processor():
-    assert get_video_processor() == OpenCVVideo
-
-
-def test_get_evaluator():
-    assert get_evaluator() == NIMAEvaluator
-
-
-def test_get_extractor_dependencies():
-    dependencies = get_extractor_dependencies(
-        image_processor=get_image_processor(),
-        video_processor=get_video_processor(),
-        evaluator=get_evaluator(),
-    )
-
-    assert isinstance(dependencies, ExtractorDependencies)
+    assert isinstance(dependencies, Dependencies)
     assert dependencies.image_processor == OpenCVImage
     assert dependencies.video_processor == OpenCVVideo
     assert dependencies.evaluator == NIMAEvaluator
+    assert isinstance(dependencies.config, ExtractorConfig)
+
+
+def test_get_dependencies_with_custom_config():
+    custom_config = ExtractorConfig(batch_size=100)
+
+    dependencies = get_dependencies(custom_config)
+
+    assert dependencies.config == custom_config
+    assert dependencies.config.batch_size == custom_config.batch_size

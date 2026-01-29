@@ -5,12 +5,7 @@ from pathlib import Path
 
 import pytest
 
-from perfectframe.dependencies import (
-    ExtractorDependencies,
-    get_evaluator,
-    get_image_processor,
-    get_video_processor,
-)
+from perfectframe.dependencies import Dependencies, get_dependencies
 from perfectframe.extractors import BestFramesExtractor
 from perfectframe.schemas import ExtractorConfig, ImageExtension
 
@@ -69,29 +64,25 @@ def setup_best_frames_extractor_env(files_dir, best_frames_dir):
 
 
 @pytest.fixture(scope="package")
-def dependencies():
-    return ExtractorDependencies(
-        image_processor=get_image_processor(),
-        video_processor=get_video_processor(),
-        evaluator=get_evaluator(),
-    )
-
-
-@pytest.fixture(scope="package")
-def extractor(config, dependencies):
-    return BestFramesExtractor(
-        config,
-        dependencies.image_processor,
-        dependencies.video_processor,
-        dependencies.evaluator,
-    )
-
-
-@pytest.fixture(scope="package")
 def config(files_dir, best_frames_dir) -> ExtractorConfig:
     return ExtractorConfig(
         input_directory=files_dir,
         output_directory=best_frames_dir,
         images_output_format=ImageExtension.JPG,
         processed_video_prefix="done_",
+    )
+
+
+@pytest.fixture(scope="package")
+def dependencies(config) -> Dependencies:
+    return get_dependencies(config)
+
+
+@pytest.fixture(scope="package")
+def extractor(dependencies):
+    return BestFramesExtractor(
+        dependencies.config,
+        dependencies.image_processor,
+        dependencies.video_processor,
+        dependencies.evaluator,
     )

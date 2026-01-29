@@ -32,7 +32,7 @@ from pathlib import Path
 
 import numpy as np
 
-from perfectframe.dependencies import ExtractorDependencies
+from perfectframe.dependencies import Dependencies
 from perfectframe.image_evaluators import ImageEvaluator
 from perfectframe.image_processors import ImageProcessor
 from perfectframe.schemas import (
@@ -104,14 +104,14 @@ class Extractor(ABC):
         ]
         if not files:
             prefix = prefix if prefix else "Prefix not provided"
-            error_massage = (
+            error_message = (
                 f"Files with extensions '{extensions}' and without prefix '{prefix}' "
                 f"not found in folder: {directory}."
                 f"\n-->HINT: You probably don't have input or you haven't changed prefixes. "
                 f"\nCheck input directory."
             )
-            logger.error(error_massage)
-            raise self.EmptyInputDirectoryError(error_massage)
+            logger.error(error_message)
+            raise self.EmptyInputDirectoryError(error_message)
         logger.info("Directory '%s' files listed.", str(directory))
         logger.debug("Listed file paths: %s", files)
         return files
@@ -177,23 +177,19 @@ class ExtractorFactory:
     """Extractor factory for getting extractors class by their names."""
 
     @staticmethod
-    def create_extractor(
-        extractor_name: ExtractorName,
-        config: ExtractorConfig,
-        dependencies: ExtractorDependencies,
-    ) -> Extractor:
+    def create_extractor(extractor_name: ExtractorName, dependencies: Dependencies) -> Extractor:
         """Match extractor class by its name and return its class."""
         match extractor_name:
             case ExtractorName.BEST_FRAMES:
                 return BestFramesExtractor(
-                    config,
+                    dependencies.config,
                     dependencies.image_processor,
                     dependencies.video_processor,
                     dependencies.evaluator,
                 )
             case ExtractorName.TOP_IMAGES:
                 return TopImagesExtractor(
-                    config,
+                    dependencies.config,
                     dependencies.image_processor,
                     dependencies.video_processor,
                     dependencies.evaluator,

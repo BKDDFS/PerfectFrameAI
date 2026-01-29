@@ -24,9 +24,9 @@ from typing import Annotated
 
 from fastapi import BackgroundTasks, Depends, FastAPI
 
-from perfectframe.dependencies import ExtractorDependencies, get_extractor_dependencies
+from perfectframe.dependencies import Dependencies, get_dependencies
 from perfectframe.extractor_manager import ExtractorManager
-from perfectframe.schemas import ExtractorConfig, ExtractorName, ExtractorStatus, Message
+from perfectframe.schemas import ExtractorName, ExtractorStatus, Message
 
 logging.basicConfig(
     level=logging.INFO,
@@ -55,8 +55,7 @@ def get_extractors_status() -> ExtractorStatus:
 def run_extractor(
     extractor_name: ExtractorName,
     background_tasks: BackgroundTasks,
-    dependencies: Annotated[ExtractorDependencies, Depends(get_extractor_dependencies)],
-    config: ExtractorConfig = ExtractorConfig(),
+    dependencies: Annotated[Dependencies, Depends(get_dependencies)],
 ) -> Message:
     """Run the provided extractor."""
-    return ExtractorManager.start_extractor(extractor_name, background_tasks, config, dependencies)
+    return ExtractorManager.start_extractor(extractor_name, background_tasks, dependencies)
