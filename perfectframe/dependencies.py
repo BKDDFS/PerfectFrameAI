@@ -20,45 +20,27 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 from dataclasses import dataclass
 
-from fastapi import Depends
-
 from perfectframe.image_evaluators import NIMAEvaluator
 from perfectframe.image_processors import OpenCVImage
+from perfectframe.schemas import ExtractorConfig
 from perfectframe.video_processors import OpenCVVideo
 
 
 @dataclass
-class ExtractorDependencies:
+class Dependencies:
     """Data class to hold dependencies for the extractor."""
 
     image_processor: type[OpenCVImage]
     video_processor: type[OpenCVVideo]
     evaluator: type[NIMAEvaluator]
+    config: ExtractorConfig
 
 
-def get_image_processor() -> type[OpenCVImage]:
-    """Return the image processor dependency."""
-    return OpenCVImage
-
-
-def get_video_processor() -> type[OpenCVVideo]:
-    """Return the video processor dependency."""
-    return OpenCVVideo
-
-
-def get_evaluator() -> type[NIMAEvaluator]:
-    """Return the image evaluator dependency."""
-    return NIMAEvaluator
-
-
-def get_extractor_dependencies(
-    image_processor: type[OpenCVImage] = Depends(get_image_processor),
-    video_processor: type[OpenCVVideo] = Depends(get_video_processor),
-    evaluator: type[NIMAEvaluator] = Depends(get_evaluator),
-) -> ExtractorDependencies:
-    """Return the dependencies required for the extractor."""
-    return ExtractorDependencies(
-        image_processor=image_processor,
-        video_processor=video_processor,
-        evaluator=evaluator,
+def get_dependencies(config: ExtractorConfig = ExtractorConfig()) -> Dependencies:
+    """Return all dependencies required for the extractor."""
+    return Dependencies(
+        image_processor=OpenCVImage,
+        video_processor=OpenCVVideo,
+        evaluator=NIMAEvaluator,
+        config=config,
     )

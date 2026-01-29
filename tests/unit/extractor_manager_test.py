@@ -12,7 +12,7 @@ def test_get_active_extractor():
     assert ExtractorManager.get_active_extractor() is None
 
 
-def test_start_extractor(mocker, config, dependencies):
+def test_start_extractor(mocker, dependencies):
     mock_checking = mocker.patch.object(ExtractorManager, "_check_is_already_extracting")
     mock_create_extractor = mocker.patch.object(ExtractorFactory, "create_extractor")
     extractor_name = ExtractorName.BEST_FRAMES
@@ -20,13 +20,11 @@ def test_start_extractor(mocker, config, dependencies):
     mock_background_tasks = mocker.MagicMock(spec=BackgroundTasks)
     mock_create_extractor.return_value = mock_extractor
 
-    message = ExtractorManager.start_extractor(
-        extractor_name, mock_background_tasks, config, dependencies
-    )
+    message = ExtractorManager.start_extractor(extractor_name, mock_background_tasks, dependencies)
 
     mock_checking.assert_called_once()
     assert ExtractorManager._active_extractor == extractor_name
-    mock_create_extractor.assert_called_once_with(extractor_name, config, dependencies)
+    mock_create_extractor.assert_called_once_with(extractor_name, dependencies)
     mock_background_tasks.add_task.assert_called_once_with(
         ExtractorManager._ExtractorManager__run_extractor,
         mock_extractor,
@@ -47,13 +45,13 @@ def test_run_extractor(mocker):
 def test_check_is_already_evaluating_true():
     test_extractor = ExtractorName.BEST_FRAMES
     ExtractorManager._active_extractor = test_extractor
-    expected_error_massage = (
+    expected_error_message = (
         f"Extractor '{test_extractor.value}' is already running. "
         f"You can run only one extractor at the same time. "
         f"Wait until the extractor is done before run next process."
     )
 
-    with pytest.raises(HTTPException, match=expected_error_massage) as exc_info:
+    with pytest.raises(HTTPException, match=expected_error_message) as exc_info:
         ExtractorManager._check_is_already_extracting()
 
     assert exc_info.value.status_code == http.HTTPStatus.CONFLICT

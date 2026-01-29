@@ -30,12 +30,12 @@ def client():
         yield client
 
 
-def wait_for_health(url: str, timeout: int = 120, interval: int = 2) -> bool:
+def wait_for_health(base_url: str, timeout: int = 120, interval: float = 0.5) -> bool:
     """Wait for health endpoint to return 200."""
     start_time = time.time()
     while time.time() - start_time < timeout:
         try:
-            response = requests.get(url, timeout=5)
+            response = requests.get(f"{base_url}/health", timeout=5)
             if response.ok:
                 return True
         except requests.exceptions.RequestException:
@@ -44,14 +44,39 @@ def wait_for_health(url: str, timeout: int = 120, interval: int = 2) -> bool:
     return False
 
 
-@pytest.fixture(scope="module")
+def wait_for_extraction_complete(base_url: str, timeout: int = 300, interval: float = 0.5) -> bool:
+    """Wait for extraction to complete by polling /v2/status endpoint."""
+    start_time = time.time()
+    while time.time() - start_time < timeout:
+        try:
+            response = requests.get(f"{base_url}/v2/status", timeout=5)
+            if response.ok:
+                status = response.json()
+                if status.get("active_extractor") is None:
+                    return True
+        except requests.exceptions.RequestException:
+            pass
+        time.sleep(interval)
+    return False
+
+
+def cleanup_output_dir(output_dir: Path) -> None:
+    """Remove all image files from output directory."""
+    for f in output_dir.glob("image_*.jpg"):
+        f.unlink()
+
+
+@pytest.fixture(scope="package")
 def extractor_service(tmp_path_factory):
     """Start extractor service using docker-compose."""
     input_dir = tmp_path_factory.mktemp("input")
     output_dir = tmp_path_factory.mktemp("output")
 
-    # Copy test video to input
-    test_video = TEST_FILES_DIR / "frames_extracted_test_video.mp4"
+    # Copy test video to input (reset name if it was processed by another test)
+    test_video = TEST_FILES_DIR / "test_video.mp4"
+    processed_video = TEST_FILES_DIR / "frames_extracted_test_video.mp4"
+    if processed_video.exists() and not test_video.exists():
+        processed_video.rename(test_video)
     if test_video.exists():
         shutil.copy(test_video, input_dir / "test_video.mp4")
 
@@ -74,7 +99,7 @@ def extractor_service(tmp_path_factory):
 
     # Wait for health endpoint
     base_url = "http://localhost:8100"
-    if not wait_for_health(f"{base_url}/health"):
+    if not wait_for_health(base_url):
         compose.stop()
         pytest.fail("Service did not become healthy in time")
 

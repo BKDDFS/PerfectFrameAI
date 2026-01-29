@@ -149,7 +149,7 @@ def test_add_prefix(mocker, extractor, caplog):
     test_prefix = "prefix_"
     test_path = Path("test_path/file.mp4")
     test_new_path = Path("test_path/prefix_file.mp4")
-    expected_massage = (
+    expected_message = (
         f"Prefix '{test_prefix}' added to file '{test_path}'. New path: {test_new_path}"
     )
 
@@ -157,7 +157,7 @@ def test_add_prefix(mocker, extractor, caplog):
         result = extractor._add_prefix(test_prefix, test_path)
 
     mock_rename.assert_called_once_with(test_new_path)
-    assert expected_massage in caplog.text
+    assert expected_message in caplog.text
     assert result == test_new_path
 
 
@@ -174,6 +174,6 @@ def test_signal_readiness_for_shutdown(extractor, caplog):
         (ExtractorName.TOP_IMAGES, TopImagesExtractor),
     ],
 )
-def test_create_extractor_known_extractors(extractor_name, extractor_class, config, dependencies):
-    extractor_instance = ExtractorFactory.create_extractor(extractor_name, config, dependencies)
+def test_create_extractor_known_extractors(extractor_name, extractor_class, dependencies):
+    extractor_instance = ExtractorFactory.create_extractor(extractor_name, dependencies)
     assert isinstance(extractor_instance, extractor_class)

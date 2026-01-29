@@ -19,12 +19,13 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 """
 
 import logging
+import threading
 
 from fastapi import BackgroundTasks, HTTPException
 
-from perfectframe.dependencies import ExtractorDependencies
+from perfectframe.dependencies import Dependencies
 from perfectframe.extractors import Extractor, ExtractorFactory
-from perfectframe.schemas import ExtractorConfig, ExtractorName, Message
+from perfectframe.schemas import ExtractorName, Message
 
 logger = logging.getLogger(__name__)
 
@@ -33,24 +34,26 @@ class ExtractorManager:
     """Orchestrate extractors, ensuring that only one extractor is active at once."""
 
     _active_extractor: ExtractorName | None = None
+    _lock = threading.Lock()
 
     @classmethod
     def get_active_extractor(cls) -> ExtractorName | None:
         """Return the active extractor name."""
-        return cls._active_extractor
+        with cls._lock:
+            return cls._active_extractor
 
     @classmethod
     def start_extractor(
         cls,
         extractor_name: ExtractorName,
         background_tasks: BackgroundTasks,
-        config: ExtractorConfig,
-        dependencies: ExtractorDependencies,
+        dependencies: Dependencies,
     ) -> Message:
         """Initialize the extractor class and run the extraction process in the background."""
-        cls._check_is_already_extracting()
-        cls._active_extractor = extractor_name
-        extractor = ExtractorFactory.create_extractor(extractor_name, config, dependencies)
+        with cls._lock:
+            cls._check_is_already_extracting()
+            cls._active_extractor = extractor_name
+        extractor = ExtractorFactory.create_extractor(extractor_name, dependencies)
         background_tasks.add_task(cls.__run_extractor, extractor)
         return Message(message=f"'{extractor_name.value}' started.")
 
@@ -60,7 +63,8 @@ class ExtractorManager:
         try:
             extractor.process()
         finally:
-            cls._active_extractor = None
+            with cls._lock:
+                cls._active_extractor = None
 
     @classmethod
     def _check_is_already_extracting(cls) -> None:

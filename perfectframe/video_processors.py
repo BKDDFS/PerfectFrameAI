@@ -56,9 +56,9 @@ class OpenCVVideo(VideoProcessor):
         video_cap = cv2.VideoCapture(str(video_path))
         try:
             if not video_cap.isOpened():
-                error_massage = f"Can't open video file: {video_path}"
-                logger.error(error_massage)
-                raise OpenCVVideo._Error(error_massage)
+                error_message = f"Can't open video file: {video_path}"
+                logger.error(error_message)
+                raise OpenCVVideo._Error(error_message)
             logger.debug("Creating video capture.")
             yield video_cap
         finally:

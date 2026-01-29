@@ -8,13 +8,11 @@ from perfectframe.schemas import ExtractorName, Message
 client = TestClient(app)
 
 
-def test_extractor_start_and_stop(config, dependencies):
+def test_extractor_start_and_stop(dependencies):
     extractor_name = ExtractorName.BEST_FRAMES
     background_tasks = BackgroundTasks()
 
-    response = ExtractorManager.start_extractor(
-        extractor_name, background_tasks, config, dependencies
-    )
+    response = ExtractorManager.start_extractor(extractor_name, background_tasks, dependencies)
 
     assert response == Message(message=f"'{extractor_name.value}' started.")
     assert ExtractorManager.get_active_extractor() == extractor_name

@@ -55,11 +55,11 @@ def test_process_with_images(mocker, extractor, caplog, config):
     extractor._save_images.assert_called_once_with(best_image)
 
     # Check logging
-    expected_massage = (
+    expected_message = (
         f"Extraction process finished. "
         f"All top images extracted from directory: {config.input_directory}."
     )
-    assert expected_massage in caplog.text
+    assert expected_message in caplog.text
     extractor._signal_readiness_for_shutdown.assert_called_once()
 
 

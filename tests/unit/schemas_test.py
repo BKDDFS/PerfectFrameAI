@@ -69,6 +69,6 @@ def test_extractor_status():
 
 
 def test_message():
-    mock_massage = "Test message"
-    msg = Message(message=mock_massage)
-    assert msg.message == mock_massage
+    mock_message = "Test message"
+    msg = Message(message=mock_message)
+    assert msg.message == mock_message

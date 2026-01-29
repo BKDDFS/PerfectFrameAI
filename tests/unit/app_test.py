@@ -21,7 +21,7 @@ def test_get_extractors_status(mocker):
     assert result.active_extractor == ExtractorName.BEST_FRAMES
 
 
-def test_run_extractor(mocker, config, dependencies):
+def test_run_extractor(mocker, dependencies):
     expected_message = Message(message="'best_frames_extractor' started.")
     mock_start = mocker.patch.object(
         ExtractorManager, "start_extractor", return_value=expected_message
@@ -32,10 +32,9 @@ def test_run_extractor(mocker, config, dependencies):
         extractor_name=ExtractorName.BEST_FRAMES,
         background_tasks=mock_background_tasks,
         dependencies=dependencies,
-        config=config,
     )
 
     mock_start.assert_called_once_with(
-        ExtractorName.BEST_FRAMES, mock_background_tasks, config, dependencies
+        ExtractorName.BEST_FRAMES, mock_background_tasks, dependencies
     )
     assert result == expected_message
