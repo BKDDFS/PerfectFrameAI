@@ -14,6 +14,9 @@
         <a href="https://securityscorecards.dev/viewer/?uri=github.com/BKDDFS/PerfectFrameAI">
         <img alt="OpenSSF Scorecard" src="https://api.securityscorecards.dev/projects/github.com/BKDDFS/PerfectFrameAI/badge"/>
         </a>
+        <a href="https://sonarcloud.io/summary/new_code?id=BKDDFS_PerfectFrameAI">
+        <img alt="Quality Gate Status" src="https://sonarcloud.io/api/project_badges/measure?project=BKDDFS_PerfectFrameAI&metric=alert_status"/>
+        </a>
     </p>
 </div>
 <div id="navigation">
