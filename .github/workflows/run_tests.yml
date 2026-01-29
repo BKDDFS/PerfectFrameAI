@@ -25,7 +25,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: astral-sh/setup-uv@v5
       - name: Run tests with coverage
-        run: uv run pytest --cov=perfectframe --cov-report=xml --cov-fail-under=100
+        run: uv run --group test pytest --cov=perfectframe --cov-report=xml --cov-fail-under=100
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v4
         with:
@@ -45,7 +45,7 @@ jobs:
       - name: Build Docker image
         run: docker compose build
       - name: Run Docker E2E tests
-        run: uv run pytest tests/e2e/docker_*.py -v --timeout=600
+        run: uv run --group test pytest tests/e2e/docker_*.py -v --timeout=600
       - name: Run Trivy vulnerability scanner
         uses: aquasecurity/trivy-action@0.28.0
         with:
