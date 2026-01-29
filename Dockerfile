@@ -23,8 +23,8 @@ RUN apt-get update && apt-get install -y \
     libglib2.0-0 && \
     rm -rf /var/lib/apt/lists/*
 
-# Set cache for ai model
-VOLUME /root/.cache/huggingface
+# Create non-root user
+RUN useradd --create-home --shell /bin/bash appuser
 
 # Set working directory
 WORKDIR /app
@@ -40,6 +40,14 @@ ENV PATH="/app/.venv/bin:$PATH"
 
 # Copy the source code into the container
 COPY perfectframe/ ./perfectframe/
+
+# Set ownership and switch to non-root user
+RUN chown -R appuser:appuser /app
+USER appuser
+
+# Set cache for ai model (in user home)
+ENV HF_HOME=/home/appuser/.cache/huggingface
+VOLUME /home/appuser/.cache/huggingface
 
 # Expose the port
 EXPOSE 8100
