@@ -28,7 +28,7 @@ jobs:
       id-token: write
       attestations: write
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Generate SBOM
         uses: anchore/sbom-action@v0
@@ -37,7 +37,7 @@ jobs:
           output-file: perfectframeai-${{ needs.release-please.outputs.tag_name }}.spdx.json
 
       - name: Attest SBOM
-        uses: actions/attest-sbom@v2
+        uses: actions/attest-sbom@v3
         with:
           subject-path: perfectframeai-${{ needs.release-please.outputs.tag_name }}.spdx.json
           sbom-path: perfectframeai-${{ needs.release-please.outputs.tag_name }}.spdx.json
