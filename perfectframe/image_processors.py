@@ -61,8 +61,11 @@ class OpenCVImage(ImageProcessor):
         """Save given image in given path with given extension."""
         filename = cls._generate_filename()
         image_path = output_directory / f"{filename}{output_extension.value}"
-        cv2.imwrite(str(image_path), image)
-        logger.debug("Image saved at '%s'.", image_path)
+        success = cv2.imwrite(str(image_path), image)
+        if not success:
+            logger.error("Failed to save image at '%s'", image_path)
+        else:
+            logger.debug("Image saved at '%s'.", image_path)
         return image_path
 
     @staticmethod

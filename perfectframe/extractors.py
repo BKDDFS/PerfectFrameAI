@@ -223,7 +223,7 @@ class BestFramesExtractor(Extractor):
         del normalized_images
 
         best_frames = []
-        group_size = self._config.compering_group_size
+        group_size = self._config.comparing_group_size
         groups = np.array_split(scores, np.arange(group_size, len(scores), group_size))
         for index, group in enumerate(groups):
             best_index = np.argmax(group)

@@ -41,6 +41,7 @@ def test_read_image_invalid_image(mocker, caplog):
 
 def test_save_image(mocker, caplog):
     mock_imwrite = mocker.patch.object(cv2, "imwrite")
+    mock_imwrite.return_value = True
     mock_uuid = mocker.patch.object(uuid, "uuid4")
     file_name = "some_filename"
     mock_uuid.return_value = file_name
@@ -55,6 +56,25 @@ def test_save_image(mocker, caplog):
     mock_imwrite.assert_called_once_with(str(expected_path), fake_image)
     assert image_path == expected_path, "The returned path does not match the expected path."
     assert f"Image saved at '{expected_path}'." in caplog.text
+
+
+def test_save_image_logs_error_on_failure(mocker, caplog):
+    mock_imwrite = mocker.patch.object(cv2, "imwrite")
+    mock_imwrite.return_value = False
+    mock_uuid = mocker.patch.object(uuid, "uuid4")
+    file_name = "some_filename"
+    mock_uuid.return_value = file_name
+    fake_image = mocker.MagicMock(spec=np.ndarray)
+    output_directory = Path("/fake/directory")
+    output_format = ImageExtension.JPG
+    expected_path = output_directory / f"image_{file_name}{output_format.value}"
+
+    with caplog.at_level(logging.ERROR):
+        image_path = OpenCVImage.save_image(fake_image, output_directory, output_format)
+
+    mock_imwrite.assert_called_once_with(str(expected_path), fake_image)
+    assert image_path == expected_path
+    assert f"Failed to save image at '{expected_path}'" in caplog.text
 
 
 def test_normalize_images(mocker):

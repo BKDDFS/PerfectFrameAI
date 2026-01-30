@@ -117,7 +117,7 @@ class ExtractorConfig(BaseModel):
     batch_size: int = 100
     """Maximum number of images processed in a single batch."""
 
-    compering_group_size: int = 5
+    comparing_group_size: int = 5
     """Images group number to compare for finding the best one."""
 
     top_images_percent: float = 90.0

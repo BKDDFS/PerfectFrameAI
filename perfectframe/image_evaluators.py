@@ -107,8 +107,13 @@ class NIMAEvaluator(ImageEvaluator):
     ) -> None:
         """Download the model weights from the specified URL."""
         url = f"{config.weights_repo_url}{config.weights_filename}"
-        logger.debug("Downloading model weights from ulr: %s", url)
-        response = requests.get(url, allow_redirects=True, timeout=timeout)
+        logger.debug("Downloading model weights from url: %s", url)
+        try:
+            response = requests.get(url, allow_redirects=True, timeout=timeout)
+        except requests.RequestException as e:
+            error_message = f"Network error while downloading model weights: {e}"
+            logger.exception(error_message)
+            raise cls.ModelWeightsDownloadError(error_message) from e
         if response.ok:
             weights_path.parent.mkdir(parents=True, exist_ok=True)
             weights_path.write_bytes(response.content)

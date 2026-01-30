@@ -19,7 +19,7 @@ def test_config_default(mocker):
     assert config.input_directory == Path("/app/input_directory")
     assert config.output_directory == Path("/app/output_directory")
     assert config.processed_video_prefix == "frames_extracted_"
-    assert isinstance(config.compering_group_size, int)
+    assert isinstance(config.comparing_group_size, int)
     assert isinstance(config.batch_size, int)
     assert isinstance(config.top_images_percent, float)
     assert config.images_output_format == ImageExtension.JPG
