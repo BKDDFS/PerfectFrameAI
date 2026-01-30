@@ -8,7 +8,7 @@ Email: Send an email to Bartekdawidflis@gmail.com with the subject line "Securit
 * Detailed steps to reproduce the issue.
 * Any relevant logs or screenshots.
 * Your recommendations for mitigating the issue, if applicable.
-  
+
 ### Credit:
 If you wish, we will credit you for the discovery of the vulnerability in our release notes or security advisories.
 

@@ -1,22 +1,26 @@
 services:
-  extractor_service:
+  perfectframe:
     build:
-      context: ./extractor_service
+      context: .
       dockerfile: Dockerfile
     ports:
       - "8100:8100"
     volumes:
-      - "./input_directory:/app/input_directory"
-      - "./output_directory:/app/output_directory"
-    environment:
-      - NVIDIA_VISIBLE_DEVICES=all
-      - NVIDIA_DRIVER_CAPABILITIES=compute,video,utility
+      - "${INPUT_DIR:-./input_directory}:/app/input_directory"
+      - "${OUTPUT_DIR:-./output_directory}:/app/output_directory"
     working_dir: /app
-    command: [ "uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8100" ]
+    entrypoint: [ "uvicorn", "perfectframe.app:app", "--host", "0.0.0.0", "--port", "8100" ]
+
+  # GPU-enabled version (use with --profile gpu)
+  perfectframe_gpu:
+    extends:
+      service: perfectframe
+    profiles:
+      - gpu
     deploy:
       resources:
         reservations:
           devices:
             - driver: nvidia
-              count: 1
-              capabilities: [ gpu ]
+              count: all
+              capabilities: [gpu]
