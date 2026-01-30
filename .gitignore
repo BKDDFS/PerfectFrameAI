@@ -11,6 +11,9 @@ __pycache__/
 # IDE specific files
 .idea/
 
+# macOS
+.DS_Store
+
 # Coverage reports
 .coverage
 htmlcov/
@@ -24,8 +27,9 @@ output_directory/*
 !input_directory/.gitkeep
 !output_directory/.gitkeep
 
-# Model file
-nima.h5
+# Model files
+*.onnx
+*.h5
 
 # Test files
 tests/test_files/best_frames/*

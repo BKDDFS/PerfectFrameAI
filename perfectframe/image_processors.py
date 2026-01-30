@@ -1,0 +1,85 @@
+"""Provide abstract class for creating image processors and implementations.
+
+Image processors:
+    - OpenCVImage: using OpenCV library to manage operations on images.
+"""
+
+import logging
+import uuid
+from abc import ABC, abstractmethod
+from pathlib import Path
+
+import cv2
+import numpy as np
+
+from perfectframe.schemas import Image, ImageExtension, ImageResolution, Images, ImagesBatch
+
+logger = logging.getLogger(__name__)
+
+
+class ImageProcessor(ABC):
+    """Abstract class for creating image processors used for managing image operations."""
+
+    @staticmethod
+    @abstractmethod
+    def read_image(image_path: Path) -> Image | None:
+        """Read image from given path and convert it to np.ndarray."""
+
+    @classmethod
+    @abstractmethod
+    def save_image(
+        cls, image: Image, output_directory: Path, output_extension: ImageExtension
+    ) -> Path:
+        """Save given image in given path in given extension."""
+
+    @staticmethod
+    @abstractmethod
+    def normalize_images(images: Images, target_size: ImageResolution) -> ImagesBatch:
+        """Resize a batch of images and convert them to a normalized numpy array."""
+
+
+class OpenCVImage(ImageProcessor):
+    """Image processor implementation using OpenCV library."""
+
+    @staticmethod
+    def read_image(image_path: Path) -> Image | None:
+        """Read image from given path and convert it to np.ndarray."""
+        image = cv2.imread(str(image_path))
+        if not isinstance(image, np.ndarray):
+            logger.warning(
+                "Can't read image. OpenCV reading not returns np.ndarray for image path: %s",
+                str(image_path),
+            )
+            return None
+        logger.debug("Image '%s' has successfully read.", image_path)
+        return image
+
+    @classmethod
+    def save_image(
+        cls, image: Image, output_directory: Path, output_extension: ImageExtension
+    ) -> Path:
+        """Save given image in given path with given extension."""
+        filename = cls._generate_filename()
+        image_path = output_directory / f"{filename}{output_extension.value}"
+        success = cv2.imwrite(str(image_path), image)
+        if not success:
+            logger.error("Failed to save image at '%s'", image_path)
+        else:
+            logger.debug("Image saved at '%s'.", image_path)
+        return image_path
+
+    @staticmethod
+    def _generate_filename() -> str:
+        """Generate filename for images using uuid library."""
+        return f"image_{uuid.uuid4()}"
+
+    @staticmethod
+    def normalize_images(images: Images, target_size: ImageResolution) -> ImagesBatch:
+        """Resize a batch of images and convert them to a normalized numpy array."""
+        batch_images = []
+        logger.debug("Normalizing images...")
+        for img in images:
+            img_resized = cv2.resize(img, target_size, interpolation=cv2.INTER_LANCZOS4)
+            img_rgb = cv2.cvtColor(img_resized, cv2.COLOR_BGR2RGB)
+            batch_images.append(img_rgb)
+        return np.array(batch_images, dtype=np.float32) / 255.0
