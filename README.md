@@ -8,7 +8,6 @@
         <a href="https://codecov.io/github/BKDDFS/PerfectFrameAI" >
         <img src="https://codecov.io/github/BKDDFS/PerfectFrameAI/graph/badge.svg?token=GT9TGKBGYI"/>
         </a>
-        <img alt="GitHub License" src="https://img.shields.io/github/license/BKDDFS/PerfectFrameAI">
         <img alt="GitHub Tag" src="https://img.shields.io/github/v/tag/BKDDFS/PerfectFrameAI">
         <img alt="GitHub Repo stars" src="https://img.shields.io/github/stars/BKDDFS/PerfectFrameAI">
         <a href="https://securityscorecards.dev/viewer/?uri=github.com/BKDDFS/PerfectFrameAI">
@@ -265,7 +264,7 @@
                 <li><a href="#predictions">Class Predictions</a></li>
                 <li><a href="#mean-calculation">Weighted Mean Calculation</a></li>
             </ul>
-            <li><a href="#1vs2">v1.0 vs v2.0</a></li>
+            <li><a href="#1vs2vs3">v1.0 vs v2.0 vs v3.0</a></li>
             <li><a href="#architecture">Architecture</a></li>
             <li><a href="#tests">Tests</a></li>
             <ul>
@@ -355,8 +354,8 @@
             <p>The final aesthetic score for an image is calculated as the weighted mean of these probabilities, with higher classes having greater weights.</p>
         </details>
     </div>
-    <div id="1vs2">
-        <h2>✅ v1.0 vs v2.0</h2>
+    <div id="1vs2vs3">
+        <h2>✅ v1.0 vs v2.0 vs v3.0</h2>
         <p>
             <code>PerfectFrameAI</code> is a tool created based on one of the microservices of my main project.
             I refer to that version as <code>v1.0</code>.
@@ -366,44 +365,57 @@
                 <th>Feature</th>
                 <th>v1.0</th>
                 <th>v2.0</th>
+                <th>v3.0</th>
             </tr>
             <tr>
                 <td>CLI</td>
                 <td class="cross">❌</td>
+                <td class="check">✅</td>
                 <td class="check">✅</td>
             </tr>
             <tr>
                 <td>Automatic Installation</td>
                 <td class="cross">❌</td>
                 <td class="check">✅</td>
+                <td class="check">✅</td>
             </tr>
             <tr>
                 <td>Fast and Easy Setup</td>
                 <td class="cross">❌</td>
+                <td class="check">✅</td>
                 <td class="check">✅</td>
             </tr>
             <tr>
                 <td>RAM usage optimization</td>
                 <td class="cross">❌</td>
                 <td class="check">✅</td>
+                <td class="check">✅</td>
             </tr>
             <tr>
                 <td>Performance</td>
                 <td>+0%</td>
                 <td>+70%</td>
-            </tr>
-            <tr>
-                <td>Size*</td>
-                <td class="cross">12.6 GB</td>
-                <td class="check">8.4 GB</td>
+                <td>~+100%</td>
             </tr>
             <tr>
                 <td>Open Source</td>
                 <td class="cross">❌</td>
                 <td class="check">✅</td>
+                <td class="check">✅</td>
+            </tr>
+            <tr>
+                <td>Multiplatform</td>
+                <td class="cross">❌</td>
+                <td class="cross">❌</td>
+                <td class="check">✅</td>
+            </tr>
+            <tr>
+                <td>License</td>
+                <td>Proprietary</td>
+                <td>GPL v3</td>
+                <td>Apache 2.0</td>
             </tr>
         </table>
-        <p>*v1.0 all dependencies and model vs v2.0 docker image size + model size</p>
         <h3>Performance tests comparision</h3>
         <ul>
             <h4>Platform:</h4>
@@ -459,7 +471,7 @@
 <div id="licence">
     <h2>📜 License</h2>
     <p>
-        PerfectFrameAI is licensed under the GNU General Public License v3.0.
+        PerfectFrameAI is licensed under the Apache License 2.0.
         See the <a href="https://github.com/BKDDFS/PerfectFrameAI/blob/main/LICENSE">LICENSE</a> file for more information.
     </p>
 </div>
