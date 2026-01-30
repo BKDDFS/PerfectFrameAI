@@ -118,7 +118,7 @@ def test_extract_all_frames(mocker, all_frames_extractor):
     expected_call_count = 2
     assert all_frames_extractor._config.all_frames
     mock_generator.assert_called_once_with(video_path, all_frames_extractor._config.batch_size)
-    assert mock_get.assert_not_called
+    mock_get.assert_not_called()
     for batch in [batch_1, batch_3]:
         mock_save.assert_called_with(batch)
     assert mock_collect.call_count == expected_call_count

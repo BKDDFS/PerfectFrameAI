@@ -4,6 +4,7 @@ from pathlib import Path
 
 import numpy as np
 import pytest
+import requests
 
 from perfectframe.image_evaluators import NIMAEvaluator
 
@@ -68,5 +69,25 @@ def test_download_model_weights(mocker, status_code, config, caplog):
         ):
             NIMAEvaluator._download_model_weights(test_path, config, timeout)
         assert f"Failed to download the weights: HTTP status code {status_code}" in caplog.text
-    assert f"Downloading model weights from ulr: {test_url}" in caplog.text
+    assert f"Downloading model weights from url: {test_url}" in caplog.text
+    mock_get.assert_called_once_with(test_url, allow_redirects=True, timeout=timeout)
+
+
+def test_download_model_weights_network_error(mocker, config, caplog):
+    mock_get = mocker.patch("perfectframe.image_evaluators.requests.get")
+    test_path = Path("/fake/path/to/weights.onnx")
+    test_url = f"{config.weights_repo_url}{config.weights_filename}"
+    timeout = 12
+
+    mock_get.side_effect = requests.ConnectionError("Network unreachable")
+
+    with (
+        caplog.at_level(logging.ERROR),
+        pytest.raises(
+            NIMAEvaluator.ModelWeightsDownloadError, match="Network error while downloading"
+        ),
+    ):
+        NIMAEvaluator._download_model_weights(test_path, config, timeout)
+
+    assert "Network error while downloading model weights" in caplog.text
     mock_get.assert_called_once_with(test_url, allow_redirects=True, timeout=timeout)

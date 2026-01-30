@@ -44,6 +44,8 @@ class ExtractorManager:
         """Run extraction process and clean after it's done."""
         try:
             extractor.process()
+        except Exception:
+            logger.exception("Extraction failed with error")
         finally:
             with cls._lock:
                 cls._active_extractor = None

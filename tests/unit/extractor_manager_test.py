@@ -42,6 +42,18 @@ def test_run_extractor(mocker):
     mock_extractor.process.assert_called_once()
 
 
+def test_run_extractor_logs_exception_on_failure(mocker, caplog):
+    mock_extractor = mocker.MagicMock()
+    mock_extractor.process.side_effect = RuntimeError("Test error")
+
+    with caplog.at_level("ERROR"):
+        ExtractorManager._ExtractorManager__run_extractor(mock_extractor)
+
+    mock_extractor.process.assert_called_once()
+    assert "Extraction failed with error" in caplog.text
+    assert ExtractorManager._active_extractor is None
+
+
 def test_check_is_already_evaluating_true():
     test_extractor = ExtractorName.BEST_FRAMES
     ExtractorManager._active_extractor = test_extractor
