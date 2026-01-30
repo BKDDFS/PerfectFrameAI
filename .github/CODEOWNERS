@@ -1,0 +1,8 @@
+# Default owner
+* @BKDDFS
+
+# Critical paths
+perfectframe/ @BKDDFS
+tests/ @BKDDFS
+.github/ @BKDDFS
+Dockerfile @BKDDFS
