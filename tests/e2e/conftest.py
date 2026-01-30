@@ -72,6 +72,10 @@ def extractor_service(tmp_path_factory):
     input_dir = tmp_path_factory.mktemp("input")
     output_dir = tmp_path_factory.mktemp("output")
 
+    # Make directories writable by container's non-root user (uid=1000)
+    input_dir.chmod(0o777)
+    output_dir.chmod(0o777)
+
     # Copy test video to input (reset name if it was processed by another test)
     test_video = TEST_FILES_DIR / "test_video.mp4"
     processed_video = TEST_FILES_DIR / "frames_extracted_test_video.mp4"
