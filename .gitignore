@@ -1,15 +1,37 @@
+# Byte-compiled / optimized / DLL files
 __pycache__/
+
+# Cache directories
 .pytest_cache/
+.ruff_cache/
+
+# Virtual environment
 .venv
+
+# IDE specific files
 .idea/
+
+# macOS
+.DS_Store
+
+# Coverage reports
 .coverage
 htmlcov/
+
+# Environment variables file
 .env
+
+# Input and output directories
 input_directory/*
 output_directory/*
 !input_directory/.gitkeep
 !output_directory/.gitkeep
-nima.h5
+
+# Model files
+*.onnx
+*.h5
+
+# Test files
 tests/test_files/best_frames/*
 tests/test_files/top_images/*
 !tests/test_files/best_frames/.gitkeep

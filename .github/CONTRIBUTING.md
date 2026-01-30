@@ -9,12 +9,12 @@ in addressing your issue, assessing changes, and helping you finalize your pull 
 > I am still learning how to be an effective maintainer for our project. I am committed to improving, so please feel free to share any feedback or suggestions you might have. Thank you!
 
 PerfectFrameAI is an open source project and we love to receive contributions from our community — you!
-There are many ways to contribute, from writing tutorials or blog posts, improving the documentation, 
+There are many ways to contribute, from writing tutorials or blog posts, improving the documentation,
 submitting bug reports and feature requests or writing code which can be incorporated into PerfectFrameAI itself.
 
 ## Code of Conduct
 This project and everyone participating in it is governed by this [Code of Conduct](https://github.com/BKDDFS/PerfectFrameAI/blob/main/.github/CODE_OF_CONDUCT.md).
-By participating, you are expected to uphold this code. 
+By participating, you are expected to uphold this code.
 
 ## I don't want to read this whole thing I just have a question
 Please use discussion tab for this.
@@ -26,7 +26,7 @@ Before **creating** an Issue for `features`/`bugs`/`improvements` please follow 
 Be sure to include a **title and clear description**, as much relevant information as possible.
 Please select the correct Issue type, for example `bug` or `feature`.
 1. all Issues are automatically given the label `status: waiting for triage`
-1. if you wish to work on the Issue once it has been triaged and label changed to `status: ready for dev`, 
+1. if you wish to work on the Issue once it has been triaged and label changed to `status: ready for dev`,
 please include this in your Issue description
 
 ## Working on an Issue
