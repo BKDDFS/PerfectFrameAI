@@ -41,13 +41,16 @@ ENV PATH="/app/.venv/bin:$PATH"
 # Copy the source code into the container
 COPY perfectframe/ ./perfectframe/
 
-# Set ownership and switch to non-root user
-RUN chown -R appuser:appuser /app
-USER appuser
+# Create cache directory and set ownership
+RUN mkdir -p /home/appuser/.cache/huggingface && \
+    chown -R appuser:appuser /app /home/appuser/.cache
 
 # Set cache for ai model (in user home)
 ENV HF_HOME=/home/appuser/.cache/huggingface
 VOLUME /home/appuser/.cache/huggingface
+
+# Switch to non-root user
+USER appuser
 
 # Expose the port
 EXPOSE 8100
