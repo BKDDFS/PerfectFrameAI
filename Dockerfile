@@ -5,7 +5,7 @@ LABEL authors="BKDDFS"
 # Install uv (fixed version)
 COPY --from=ghcr.io/astral-sh/uv:0.9.27 /uv /bin/uv
 
-# Install system dependencies
+# Install system dependencies and create non-root user
 RUN apt-get update && apt-get install -y \
     ffmpeg \
     build-essential \
@@ -21,10 +21,8 @@ RUN apt-get update && apt-get install -y \
     pkg-config \
     libgl1 \
     libglib2.0-0 && \
-    rm -rf /var/lib/apt/lists/*
-
-# Create non-root user
-RUN useradd --create-home --shell /bin/bash appuser
+    rm -rf /var/lib/apt/lists/* && \
+    useradd --create-home --shell /bin/bash appuser
 
 # Set working directory
 WORKDIR /app
