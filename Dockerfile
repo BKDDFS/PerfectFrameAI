@@ -5,20 +5,9 @@ LABEL authors="BKDDFS"
 # Install uv (fixed version)
 COPY --from=ghcr.io/astral-sh/uv:0.9.27 /uv /bin/uv
 
-# Install static ffmpeg (reduces CVEs from apt packages)
-ARG FFMPEG_VERSION=8.0
-ARG TARGETARCH
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    curl \
-    xz-utils \
-    ca-certificates \
     libgl1 \
     libglib2.0-0 && \
-    FFMPEG_ARCH=$([ "$TARGETARCH" = "arm64" ] && echo "linuxarm64" || echo "linux64") && \
-    curl -L "https://github.com/BtbN/FFmpeg-Builds/releases/download/latest/ffmpeg-n${FFMPEG_VERSION}-latest-${FFMPEG_ARCH}-gpl-${FFMPEG_VERSION}.tar.xz" \
-    | tar -xJ --strip-components=1 -C /usr/local && \
-    apt-get purge -y curl xz-utils && \
-    apt-get autoremove -y && \
     rm -rf /var/lib/apt/lists/* && \
     useradd --create-home --shell /bin/bash appuser
 
