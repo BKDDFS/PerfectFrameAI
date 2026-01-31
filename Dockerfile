@@ -1,4 +1,4 @@
-FROM python:3.13.11-slim-bookworm
+FROM python:3.13.11-slim-bookworm@sha256:97e9392d12279f8c180eb80f0c7c0f3dfe5650f0f2573f7ad770aea58f75ed12
 
 LABEL authors="BKDDFS"
 
