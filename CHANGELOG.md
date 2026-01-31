@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.0.2](https://github.com/BKDDFS/PerfectFrameAI/compare/v3.0.1...v3.0.2) (2026-01-31)
+
+
+### Bug Fixes
+
+* simplify Dockerfile and reduce Trivy CVE alerts ([#70](https://github.com/BKDDFS/PerfectFrameAI/issues/70)) ([3215e7d](https://github.com/BKDDFS/PerfectFrameAI/commit/3215e7dc426215d73029f5321a6461aeed07de78))
+
 ## [3.0.1](https://github.com/BKDDFS/PerfectFrameAI/compare/v3.0.0...v3.0.1) (2026-01-31)
 
 
