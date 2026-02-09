@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.0.3](https://github.com/BKDDFS/PerfectFrameAI/compare/v3.0.2...v3.0.3) (2026-02-09)
+
+
+### Bug Fixes
+
+* dependabot pr-titles ([#82](https://github.com/BKDDFS/PerfectFrameAI/issues/82)) ([dcf5b16](https://github.com/BKDDFS/PerfectFrameAI/commit/dcf5b16e7b63e2ba7e9a99aa29079a8010ac1aba))
+
 ## [3.0.2](https://github.com/BKDDFS/PerfectFrameAI/compare/v3.0.1...v3.0.2) (2026-01-31)
 
 
