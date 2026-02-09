@@ -1,24 +1,11 @@
-FROM python:3.13.11-slim-bookworm
+FROM python:3.13.11-slim-bookworm@sha256:97e9392d12279f8c180eb80f0c7c0f3dfe5650f0f2573f7ad770aea58f75ed12
 
 LABEL authors="BKDDFS"
 
 # Install uv (fixed version)
 COPY --from=ghcr.io/astral-sh/uv:0.9.27 /uv /bin/uv
 
-# Install system dependencies and create non-root user
-RUN apt-get update && apt-get install -y \
-    ffmpeg \
-    build-essential \
-    yasm \
-    libx264-dev \
-    libx265-dev \
-    libavcodec-dev \
-    libavformat-dev \
-    libavdevice-dev \
-    libavutil-dev \
-    libswscale-dev \
-    libavfilter-dev \
-    pkg-config \
+RUN apt-get update && apt-get install -y --no-install-recommends \
     libgl1 \
     libglib2.0-0 && \
     rm -rf /var/lib/apt/lists/* && \
