@@ -10,7 +10,7 @@ readme = "README.md"
 requires-python = ">=3.11,<3.14"
 
 dependencies = [
-    "fastapi==0.128.0",                                  # API endpoints
+    "fastapi==0.128.6",                                  # API endpoints
     "uvicorn==0.40.0",                                   # Server
     "opencv-python==4.13.0.90",                          # Frame extraction
     "requests==2.32.5",                                  # Model download
