@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.0.4](https://github.com/BKDDFS/PerfectFrameAI/compare/v3.0.3...v3.0.4) (2026-02-10)
+
+
+### Bug Fixes
+
+* set Dependabot target branch to dev ([#87](https://github.com/BKDDFS/PerfectFrameAI/issues/87)) ([ab5e902](https://github.com/BKDDFS/PerfectFrameAI/commit/ab5e902cd1866507791bc6705c93a813b038c39c))
+
 ## [3.0.3](https://github.com/BKDDFS/PerfectFrameAI/compare/v3.0.2...v3.0.3) (2026-02-09)
 
 
