@@ -1,6 +1,6 @@
 [project]
 name = "PerfectFrameAI"
-version = "3.0.2"
+version = "3.0.4"
 description = "AI tool for finding the most aesthetic frames in a video. 🎞️➜🖼️"
 authors = [
     {name = "Bartłomiej Flis", email = "Bartekdawidflis@gmail.com"}
