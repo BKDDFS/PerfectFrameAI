@@ -19,7 +19,7 @@ dependencies = [
     "numpy==2.4.1",                                      # Image batch processing
     # Security overrides for transitive dependencies
     "h11==0.16.0",                                       # CVE fix (uvicorn dep)
-    "starlette==0.50.0",                                 # CVE fix (fastapi dep)
+    "starlette==0.52.1",                                 # CVE fix (fastapi dep)
     "urllib3==2.6.3",                                    # CVE fix (requests dep)
     "protobuf==6.33.5",                                  # CVE fix (onnxruntime dep)
 ]
