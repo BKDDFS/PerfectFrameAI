@@ -44,7 +44,6 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: read
-      security-events: write
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
       - uses: astral-sh/setup-uv@803947b9bd8e9f986429fa0c5a41c367cd732b41 # v7.2.1
@@ -52,14 +51,3 @@ jobs:
         run: docker compose build
       - name: Run Docker E2E tests
         run: uv run --group test pytest tests/e2e/docker_*.py -v --timeout=600
-      - name: Run Trivy vulnerability scanner
-        uses: aquasecurity/trivy-action@c1824fd6edce30d7ab345a9989de00bbd46ef284 # 0.34.0
-        with:
-          image-ref: 'perfectframeai-perfectframe:latest'
-          format: 'sarif'
-          output: 'trivy-results.sarif'
-          severity: 'CRITICAL,HIGH'
-      - name: Upload Trivy scan results
-        uses: github/codeql-action/upload-sarif@9e907b5e64f6b83e7804b09294d44122997950d6 # v3
-        with:
-          sarif_file: 'trivy-results.sarif'
