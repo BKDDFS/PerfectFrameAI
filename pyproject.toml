@@ -13,7 +13,7 @@ dependencies = [
     "fastapi==0.129.0",                                  # API endpoints
     "uvicorn==0.40.0",                                   # Server
     "opencv-python==4.13.0.92",                          # Frame extraction
-    "requests==2.33.0",                                  # Model download
+    "requests==2.33.1",                                  # Model download
     "onnxruntime==1.23.2; sys_platform == 'darwin' or (sys_platform == 'linux' and platform_machine == 'aarch64')",
     "onnxruntime-gpu==1.24.4; sys_platform == 'win32' or (sys_platform == 'linux' and platform_machine == 'x86_64')",
     "numpy==2.4.4",                                      # Image batch processing
