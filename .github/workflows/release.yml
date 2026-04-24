@@ -33,7 +33,7 @@ jobs:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
 
       - name: Generate SBOM
-        uses: anchore/sbom-action@deef08a0db64bfad603422135db61477b16cef56 # v0.22.1
+        uses: anchore/sbom-action@e22c389904149dbc22b58101806040fa8d37a610 # v0.24.0
         with:
           format: spdx-json
           output-file: perfectframeai-${{ needs.release-please.outputs.tag_name }}.spdx.json
@@ -45,7 +45,7 @@ jobs:
           sbom-path: perfectframeai-${{ needs.release-please.outputs.tag_name }}.spdx.json
 
       - name: Upload SBOM to release
-        uses: softprops/action-gh-release@a06a81a03ee405af7f2048a818ed3f03bbf83c7b # v2.5.0
+        uses: softprops/action-gh-release@b4309332981a82ec1c5618f44dd2e27cc8bfbfda # v3.0.0
         with:
           tag_name: ${{ needs.release-please.outputs.tag_name }}
           files: perfectframeai-${{ needs.release-please.outputs.tag_name }}.spdx.json
