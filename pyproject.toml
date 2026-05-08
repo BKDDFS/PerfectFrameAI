@@ -10,33 +10,33 @@ readme = "README.md"
 requires-python = ">=3.11,<3.14"
 
 dependencies = [
-    "fastapi==0.129.0",                                  # API endpoints
-    "uvicorn==0.40.0",                                   # Server
+    "fastapi==0.136.1",                                  # API endpoints
+    "uvicorn==0.46.0",                                   # Server
     "opencv-python==4.13.0.92",                          # Frame extraction
     "requests==2.33.1",                                  # Model download
     "onnxruntime==1.23.2; sys_platform == 'darwin' or (sys_platform == 'linux' and platform_machine == 'aarch64')",
-    "onnxruntime-gpu==1.24.4; sys_platform == 'win32' or (sys_platform == 'linux' and platform_machine == 'x86_64')",
+    "onnxruntime-gpu==1.25.1; sys_platform == 'win32' or (sys_platform == 'linux' and platform_machine == 'x86_64')",
     "numpy==2.4.4",                                      # Image batch processing
     # Security overrides for transitive dependencies
     "h11==0.16.0",                                       # CVE fix (uvicorn dep)
-    "starlette==0.50.0",                                 # CVE fix (fastapi dep)
+    "starlette==1.0.0",                                 # CVE fix (fastapi dep)
     "urllib3==2.6.3",                                    # CVE fix (requests dep)
     "protobuf==7.34.1",                                  # CVE fix (onnxruntime dep)
 ]
 
 [dependency-groups]
 dev = [
-    "ruff>=0.15.11",         # Linter and formatter
-    "ty>=0.0.13",            # Type checker
-    "pre-commit>=4.5.1",     # Git hooks manager
-    "docformatter>=1.7.5",   # Docstring formatter
+    "ruff>=0.15.12",         # Linter and formatter
+    "ty>=0.0.33",            # Type checker
+    "pre-commit>=4.6.0",     # Git hooks manager
+    "docformatter>=1.7.8",   # Docstring formatter
     "detect-secrets>=1.5.0", # Secret detection
 ]
 test = [
     "pytest>=9.0.3",          # Testing framework
     "pytest-cov>=7.0.0",      # Coverage plugin
     "pytest-mock>=3.14.0",    # Mocking fixture
-    "pytest-order>=1.3.0",    # Test ordering
+    "pytest-order>=1.4.0",    # Test ordering
     "pytest-timeout>=2.3.1",  # Timeout plugin
     "docker>=7.1.0",          # Docker SDK
     "httpx>=0.28.1",          # HTTP client
