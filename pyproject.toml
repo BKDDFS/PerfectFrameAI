@@ -20,7 +20,7 @@ dependencies = [
     # Security overrides for transitive dependencies
     "h11==0.16.0",                                       # CVE fix (uvicorn dep)
     "starlette==1.0.0",                                 # CVE fix (fastapi dep)
-    "urllib3==2.6.3",                                    # CVE fix (requests dep)
+    "urllib3==2.7.0",                                    # CVE fix (requests dep)
     "protobuf==7.34.1",                                  # CVE fix (onnxruntime dep)
 ]
 
