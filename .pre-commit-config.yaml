@@ -43,6 +43,11 @@ repos:
           args: ['--baseline', '.secrets.baseline']
           exclude: 'tests/'
 
+    - repo: https://github.com/BKDDFS/shamefile
+      rev: v0.1.6
+      hooks:
+        - id: shamefile
+
     # LOCAL HOOKS
     - repo: local
       hooks:

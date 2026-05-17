@@ -1,0 +1,22 @@
+# yamllint disable-file
+---
+config: {}
+entries:
+
+  - location: ./tests/unit/image_processors_test.py:4
+    token: '# noqa'
+    content: 'from unittest.mock import call  # noqa: TID251'
+    created_at: 2026-05-17
+    owner: Bartłomiej Flis <97804977+BKDDFS@users.noreply.github.com>
+    why: >-
+      import 'call' helper from unittest.mock; pytest-mock's mocker fixture does
+      not provide it
+
+  - location: ./tests/unit/top_images_extractor_test.py:2
+    token: '# noqa'
+    content: 'from unittest.mock import call  # noqa: TID251'
+    created_at: 2026-05-17
+    owner: Bartłomiej Flis <97804977+BKDDFS@users.noreply.github.com>
+    why: >-
+      import 'call' helper from unittest.mock; pytest-mock's mocker fixture does
+      not provide it
