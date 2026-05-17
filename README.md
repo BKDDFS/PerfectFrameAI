@@ -10,6 +10,9 @@
         </a>
         <img alt="GitHub Tag" src="https://img.shields.io/github/v/tag/BKDDFS/PerfectFrameAI">
         <img alt="GitHub Repo stars" src="https://img.shields.io/github/stars/BKDDFS/PerfectFrameAI">
+        <a href="https://github.com/BKDDFS/shamefile">
+        <img alt="shamefile" src="https://img.shields.io/badge/tracked_with-shamefile-fe3434">
+        </a>
     </p>
 </div>
 <div id="navigation">
