@@ -44,7 +44,7 @@ repos:
           exclude: 'tests/'
 
     - repo: https://github.com/BKDDFS/shamefile
-      rev: v0.1.6
+      rev: v0.1.7
       hooks:
         - id: shamefile
 
