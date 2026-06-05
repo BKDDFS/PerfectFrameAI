@@ -11,23 +11,23 @@ requires-python = ">=3.12,<3.14"
 
 dependencies = [
     "fastapi==0.136.1",                                  # API endpoints
-    "uvicorn==0.47.0",                                   # Server
+    "uvicorn==0.48.0",                                   # Server
     "opencv-python==4.13.0.92",                          # Frame extraction
-    "requests==2.33.1",                                  # Model download
+    "requests==2.34.2",                                  # Model download
     "onnxruntime==1.26.0; sys_platform == 'darwin' or (sys_platform == 'linux' and platform_machine == 'aarch64')",
     "onnxruntime-gpu==1.26.0; sys_platform == 'win32' or (sys_platform == 'linux' and platform_machine == 'x86_64')",
-    "numpy==2.4.4",                                      # Image batch processing
+    "numpy==2.4.6",                                      # Image batch processing
     # Security overrides for transitive dependencies
     "h11==0.16.0",                                       # CVE fix (uvicorn dep)
-    "starlette==1.0.0",                                 # CVE fix (fastapi dep)
+    "starlette==1.2.1",                                 # CVE fix (fastapi dep)
     "urllib3==2.7.0",                                    # CVE fix (requests dep)
-    "protobuf==7.34.1",                                  # CVE fix (onnxruntime dep)
+    "protobuf==7.35.0",                                  # CVE fix (onnxruntime dep)
 ]
 
 [dependency-groups]
 dev = [
-    "ruff>=0.15.12",         # Linter and formatter
-    "ty>=0.0.34",            # Type checker
+    "ruff>=0.15.15",         # Linter and formatter
+    "ty>=0.0.40",            # Type checker
     "pre-commit>=4.6.0",     # Git hooks manager
     "docformatter>=1.7.8",   # Docstring formatter
     "detect-secrets>=1.5.0", # Secret detection
