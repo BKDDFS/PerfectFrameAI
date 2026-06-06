@@ -5,10 +5,12 @@ LABEL authors="BKDDFS"
 # Install uv (fixed version)
 COPY --from=ghcr.io/astral-sh/uv:0.9.27 /uv /bin/uv
 
-RUN apt-get update && apt-get install -y --no-install-recommends \
+RUN apt-get update && apt-get upgrade -y && \
+    apt-get install -y --no-install-recommends \
     libgl1 \
     libglib2.0-0 && \
     rm -rf /var/lib/apt/lists/* && \
+    python -m pip uninstall -y pip && \
     useradd --create-home --shell /bin/bash appuser
 
 # Set working directory

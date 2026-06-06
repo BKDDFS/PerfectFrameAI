@@ -44,6 +44,12 @@ test = [
     "testcontainers>=4.14.0", # Docker containers for e2e
 ]
 
+[tool.uv]
+# Security overrides for transitive dev/test dependencies (kept out of prod deps)
+override-dependencies = [
+    "pygments>=2.20.0",  # CVE fix: ReDoS in GUID regex (pytest dep)
+]
+
 [tool.ruff]
 line-length = 100
 target-version = "py313"
