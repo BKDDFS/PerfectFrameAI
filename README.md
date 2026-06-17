@@ -5,8 +5,8 @@
     <p align="center">
         <img alt="Github Created At" src="https://img.shields.io/github/created-at/BKDDFS/PerfectFrameAI">
         <img alt="GitHub last commit" src="https://img.shields.io/github/last-commit/BKDDFS/PerfectFrameAI">
-        <a href="https://codecov.io/github/BKDDFS/PerfectFrameAI" >
-        <img src="https://codecov.io/github/BKDDFS/PerfectFrameAI/graph/badge.svg?token=GT9TGKBGYI"/>
+        <a href="https://sonarcloud.io/summary/new_code?id=BKDDFS_PerfectFrameAI" >
+        <img src="https://sonarcloud.io/api/project_badges/measure?project=BKDDFS_PerfectFrameAI&metric=coverage"/>
         </a>
         <img alt="GitHub Tag" src="https://img.shields.io/github/v/tag/BKDDFS/PerfectFrameAI">
         <img alt="shamefile" src="https://img.shields.io/badge/tracked_with-shamefile-fe3434">

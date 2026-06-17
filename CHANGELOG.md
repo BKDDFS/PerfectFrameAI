@@ -1,5 +1,13 @@
 # Changelog
 
+## [3.0.5](https://github.com/BKDDFS/PerfectFrameAI/compare/v3.0.4...v3.0.5) (2026-06-06)
+
+
+### Bug Fixes
+
+* resolve open security alerts (pygments, pip, base image CVEs) ([#174](https://github.com/BKDDFS/PerfectFrameAI/issues/174)) ([643a3eb](https://github.com/BKDDFS/PerfectFrameAI/commit/643a3eb2a63b73356f2904bbe4e15e02ce7e7de0))
+* stop swallowing extraction errors in background task ([#173](https://github.com/BKDDFS/PerfectFrameAI/issues/173)) ([2876fcc](https://github.com/BKDDFS/PerfectFrameAI/commit/2876fccc5ed55924da763b3f643691c6cc30e09e))
+
 ## [3.0.4](https://github.com/BKDDFS/PerfectFrameAI/compare/v3.0.3...v3.0.4) (2026-02-10)
 
 
