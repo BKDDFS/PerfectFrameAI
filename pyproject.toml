@@ -26,8 +26,8 @@ dependencies = [
 
 [dependency-groups]
 dev = [
+    "ty>=0.0.49",            # Type checker
     "ruff>=0.15.17",         # Linter and formatter
-    "ty>=0.0.40",            # Type checker
     "pre-commit>=4.6.0",     # Git hooks manager
     "docformatter>=1.7.8",   # Docstring formatter
     "detect-secrets>=1.5.0", # Secret detection
