@@ -10,7 +10,7 @@ readme = "README.md"
 requires-python = ">=3.12,<3.14"
 
 dependencies = [
-    "fastapi==0.136.3",                                  # API endpoints
+    "fastapi==0.137.2",                                  # API endpoints
     "uvicorn==0.49.0",                                   # Server
     "opencv-python==4.13.0.92",                          # Frame extraction
     "requests==2.34.2",                                  # Model download
@@ -26,7 +26,7 @@ dependencies = [
 
 [dependency-groups]
 dev = [
-    "ty>=0.0.49",            # Type checker
+    "ty>=0.0.54",            # Type checker
     "ruff>=0.15.17",         # Linter and formatter
     "pre-commit>=4.6.0",     # Git hooks manager
     "docformatter>=1.7.8",   # Docstring formatter
