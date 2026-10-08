@@ -64,7 +64,7 @@ class FileExtension(str, Enum):
     @classmethod
     def contains(cls, value: str) -> bool:
         """Check if value is a valid extension."""
-        return value in cls._value2member_map_
+        return value.lower() in cls._value2member_map_
 
 
 class ImageExtension(FileExtension):
